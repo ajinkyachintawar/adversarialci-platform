@@ -1,0 +1,119 @@
+/* ─── App Shell Layout ────────────────────────────── */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar ─────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-5);
+  margin: var(--sp-3);
+  position: sticky;
+  top: var(--sp-3);
+  height: calc(100vh - var(--sp-6));
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: var(--sp-8);
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-icon {
+  color: var(--accent-cyan);
+  filter: drop-shadow(0 0 6px var(--accent-cyan-glow));
+}
+
+.logo-text {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.logo-text span {
+  color: var(--accent-cyan);
+  font-weight: 300;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  flex-grow: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+.nav-link.active {
+  background: var(--bg-surface-hover);
+  color: var(--accent-cyan);
+  border-color: var(--border);
+  box-shadow: inset 3px 0 0 var(--accent-cyan);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-green);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.status-indicator .dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-green);
+  animation: blink 2s infinite ease-in-out;
+}
+
+/* ─── Main Content ────────────────────────────────── */
+.main-content {
+  flex-grow: 1;
+  padding: var(--sp-8) var(--sp-10);
+  max-width: 1400px;
+  overflow-y: auto;
+}
+
+@media (max-width: 1280px) {
+  .main-content {
+    padding: var(--sp-6) var(--sp-6);
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "database": {
+    "MongoDB": {
+      "pricing_url": "https://www.mongodb.com/pricing",
+      "github_repo": "mongodb/mongo",
+      "blog_rss": [
+        "https://www.mongodb.com/blog/rss"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we migrated from MongoDB to PostgreSQL engineering blog",
+        "MongoDB to PostgreSQL migration case study 2024 2025",
+        "MongoDB SSPL license migration alternative 2024"
+      ],
+      "complaint_queries": [
+        "MongoDB Atlas pricing expensive complaints 2024 2025",
+        "MongoDB Atlas cost at scale problems"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Pinecone": {
+      "pricing_url": "https://www.pinecone.io/pricing/",
+      "github_repo": "pinecone-io/pinecone-python-client",
+      "blog_rss": [],
+      "blog_tavily": [
+        "Pinecone blog announcement product update 2025 2026",
+        "Pinecone new feature release blog 2025"
+      ],
+      "migration_queries": [
+        "switched from Pinecone to pgvector reasons 2024 2025",
+        "Pinecone too expensive alternative engineering"
+      ],
+      "complaint_queries": [
+        "Pinecone billing surprise cost complaints 2024 2025",
+        "Pinecone vs alternatives why switch cost"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Weaviate": {
+      "pricing_url": "https://weaviate.io/pricing",
+      "github_repo": "weaviate/weaviate",
+      "blog_rss": [
+        "https://weaviate.io/blog/rss.xml"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "switched from Weaviate to alternative reasons",
+        "Weaviate memory issues production problems blog"
+      ],
+      "complaint_queries": [
+        "Weaviate complaints problems users 2024 2025",
+        "Weaviate difficult to use production issues"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Apache Cassandra": {
+      "pricing_url": "https://cassandra.apache.org/_/download.html",
+      "github_repo": "apache/cassandra",
+      "blog_rss": [],
+      "blog_tavily": [
+        "Apache Cassandra blog announcement 2025 2026",
+        "Cassandra new release update blog 2025"
+      ],
+      "migration_queries": [
+        "migrated from Cassandra to alternative reasons blog",
+        "Cassandra operational complexity problems 2024 2025"
+      ],
+      "complaint_queries": [
+        "Apache Cassandra complaints operational burden 2024 2025",
+        "Cassandra difficult maintain problems real users"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Amazon DocumentDB": {
+      "pricing_url": "https://aws.amazon.com/documentdb/pricing/",
+      "github_repo": "awsdocs/amazon-documentdb-docs",
+      "blog_rss": [
+        "https://aws.amazon.com/blogs/database/feed/"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "Amazon DocumentDB problems complaints engineering",
+        "DocumentDB MongoDB compatibility issues real world"
+      ],
+      "complaint_queries": [
+        "Amazon DocumentDB complaints limitations 2024 2025",
+        "DocumentDB not fully compatible MongoDB problems"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Qdrant": {
+      "pricing_url": "https://qdrant.tech/pricing/",
+      "github_repo": "qdrant/qdrant",
+      "blog_rss": [
+        "https://qdrant.tech/blog/rss.xml"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [],
+      "complaint_queries": [],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Milvus": {
+      "pricing_url": "https://zilliz.com/pricing",
+      "github_repo": "milvus-io/milvus",
+      "blog_rss": [],
+      "blog_tavily": [
+        "Milvus Zilliz blog announcement 2025"
+      ],
+      "migration_queries": [],
+      "complaint_queries": [],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "ChromaDB": {
+      "pricing_url": null,
+      "github_repo": "chroma-core/chroma",
+      "blog_rss": [],
+      "blog_tavily": [
+        "ChromaDB blog announcement update 2025"
+      ],
+      "migration_queries": [],
+      "complaint_queries": [],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Vald": {
+      "pricing_url": "https://vald.vdaas.org/",
+      "github_repo": "vdaas/vald",
+      "blog_rss": [],
+      "blog_tavily": [],
+      "migration_queries": [],
+      "complaint_queries": [],
+      "added_at": "2026-03-03",
+      "added_by": "user"
+    }
+  },
+  "cloud": {
+    "AWS": {
+      "pricing_url": "https://aws.amazon.com/pricing/",
+      "github_repo": "aws/aws-cli",
+      "blog_rss": [
+        "https://aws.amazon.com/blogs/aws/feed/"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we migrated from AWS to GCP Azure 2024 2025",
+        "AWS lock-in problems multi-cloud migration",
+        "left AWS reasons engineering blog"
+      ],
+      "complaint_queries": [
+        "AWS pricing complaints egress costs 2024 2025",
+        "AWS billing surprise unexpected charges",
+        "AWS complexity too many services problems"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Microsoft Azure": {
+      "pricing_url": "https://azure.microsoft.com/en-us/pricing/",
+      "github_repo": "Azure/azure-cli",
+      "blog_rss": [
+        "https://azure.microsoft.com/en-us/blog/feed/"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we migrated from Azure to AWS GCP 2024 2025",
+        "Azure problems migration case study",
+        "left Microsoft Azure reasons"
+      ],
+      "complaint_queries": [
+        "Azure pricing complaints 2024 2025",
+        "Azure portal confusing complex problems",
+        "Azure outage downtime issues"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Google Cloud": {
+      "pricing_url": "https://cloud.google.com/pricing",
+      "github_repo": "GoogleCloudPlatform/python-docs-samples",
+      "blog_rss": [
+        "https://cloud.google.com/blog/rss"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we migrated from GCP to AWS Azure 2024 2025",
+        "Google Cloud problems migration reasons",
+        "left GCP Google Cloud engineering blog"
+      ],
+      "complaint_queries": [
+        "Google Cloud pricing complaints 2024 2025",
+        "GCP support problems enterprise",
+        "Google Cloud killing products shutdown"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Oracle Cloud": {
+      "pricing_url": "https://www.oracle.com/cloud/pricing/",
+      "github_repo": "oracle/oci-python-sdk",
+      "blog_rss": [],
+      "blog_tavily": [
+        "Oracle Cloud OCI blog announcement 2025"
+      ],
+      "migration_queries": [
+        "why we chose Oracle Cloud OCI migration",
+        "Oracle Cloud vs AWS Azure comparison"
+      ],
+      "complaint_queries": [
+        "Oracle Cloud OCI complaints problems 2024 2025",
+        "Oracle Cloud limitations issues"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "DigitalOcean": {
+      "pricing_url": "https://www.digitalocean.com/pricing",
+      "github_repo": "digitalocean/doctl",
+      "blog_rss": [
+        "https://www.digitalocean.com/blog/feed"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we migrated from DigitalOcean to AWS GCP",
+        "DigitalOcean limitations outgrew"
+      ],
+      "complaint_queries": [
+        "DigitalOcean complaints limitations 2024 2025",
+        "DigitalOcean enterprise features missing"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    }
+  },
+  "crm": {
+    "Salesforce": {
+      "pricing_url": "https://www.salesforce.com/editions-pricing/sales-cloud/",
+      "github_repo": "salesforce/salesforcedx-vscode",
+      "blog_rss": [
+        "https://www.salesforce.com/blog/feed/"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we switched from Salesforce CRM to HubSpot 2024 2025",
+        "Salesforce too expensive migration alternative",
+        "left Salesforce CRM reasons engineering"
+      ],
+      "complaint_queries": [
+        "Salesforce pricing complaints expensive 2024 2025",
+        "Salesforce complexity problems enterprise",
+        "Salesforce implementation cost issues"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "HubSpot": {
+      "pricing_url": "https://www.hubspot.com/pricing/crm",
+      "github_repo": "HubSpot/hubspot-api-python",
+      "blog_rss": [
+        "https://blog.hubspot.com/rss.xml"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we switched from HubSpot CRM to Salesforce 2024 2025",
+        "HubSpot limitations enterprise scale",
+        "left HubSpot CRM reasons"
+      ],
+      "complaint_queries": [
+        "HubSpot pricing complaints tiers expensive 2024 2025",
+        "HubSpot limitations problems users",
+        "HubSpot enterprise features missing"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Microsoft Dynamics 365": {
+      "pricing_url": "https://dynamics.microsoft.com/en-us/pricing/",
+      "github_repo": "MicrosoftDocs/dynamics-365-unified-operations-public",
+      "blog_rss": [],
+      "blog_tavily": [
+        "Microsoft Dynamics 365 CRM news announcement 2025"
+      ],
+      "migration_queries": [
+        "why we switched from Dynamics 365 CRM reasons",
+        "Dynamics 365 migration problems"
+      ],
+      "complaint_queries": [
+        "Dynamics 365 CRM complaints problems 2024 2025",
+        "Dynamics 365 complex difficult issues"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    },
+    "Zoho CRM": {
+      "pricing_url": "https://www.zoho.com/crm/zohocrm-pricing.html",
+      "github_repo": "zoho/zohocrm-python-sdk",
+      "blog_rss": [
+        "https://www.zoho.com/blog/crm/feed.xml"
+      ],
+      "blog_tavily": [],
+      "migration_queries": [
+        "why we switched from Zoho CRM reasons",
+        "Zoho CRM limitations problems"
+      ],
+      "complaint_queries": [
+        "Zoho CRM complaints problems 2024 2025",
+        "Zoho CRM issues limitations users"
+      ],
+      "added_at": "2024-01-01",
+      "added_by": "system"
+    }
+  }
+}
