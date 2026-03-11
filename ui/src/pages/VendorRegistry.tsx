@@ -35,10 +35,25 @@ export default function VendorRegistry() {
     // CRUD state
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<{ name: string; vertical: string } | null>(null);
-    const [refreshingVendor, setRefreshingVendor] = useState<string | null>(null);
-    const [refreshLogs, setRefreshLogs] = useState<string[]>([]);
-    const [refreshDone, setRefreshDone] = useState(false);
-    const refreshLogsEndRef = useRef<HTMLDivElement>(null);
+
+    // Per-vendor refresh progress
+    interface RefreshState {
+        currentSource: string;
+        completedSources: number;
+        totalSources: number;
+        done: boolean;
+    }
+    const [refreshStates, setRefreshStates] = useState<Record<string, RefreshState>>({});
+
+    // Bulk refresh state
+    interface BulkRefreshState {
+        isRefreshing: boolean;
+        currentVendor: string | null;
+        completedCount: number;
+        totalCount: number;
+    }
+    const [bulkRefresh, setBulkRefresh] = useState<BulkRefreshState>({ isRefreshing: false, currentVendor: null, completedCount: 0, totalCount: 0 });
+    const cancelledRef = useRef(false);
 
     const fetchVendors = async () => {
         setLoading(true);
@@ -59,9 +74,7 @@ export default function VendorRegistry() {
 
     useEffect(() => { fetchVendors(); }, []);
 
-    useEffect(() => {
-        refreshLogsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [refreshLogs]);
+
 
     const handleDelete = async (name: string, vertical: string) => {
         try {
@@ -80,10 +93,13 @@ export default function VendorRegistry() {
         }
     };
 
+    const REFRESH_SOURCES = ['Tavily', 'HN', 'Pricing', 'GitHub', 'Blog', 'Migration'];
+
     const handleRefresh = (name: string, vertical: string) => {
-        setRefreshingVendor(name);
-        setRefreshLogs([]);
-        setRefreshDone(false);
+        setRefreshStates(prev => ({
+            ...prev,
+            [name]: { currentSource: 'Connecting...', completedSources: 0, totalSources: REFRESH_SOURCES.length, done: false }
+        }));
 
         fetch('http://127.0.0.1:8000/api/vendors/refresh', {
             method: 'POST',
@@ -95,6 +111,7 @@ export default function VendorRegistry() {
             if (!reader) return;
 
             let buffer = '';
+            let completed = 0;
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -102,29 +119,133 @@ export default function VendorRegistry() {
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || '';
                 for (const line of lines) {
-                    if (line.startsWith('data:')) {
-                        const data = line.substring(5).trim();
-                        if (data === 'keep-alive') continue;
-                        if (data.startsWith('__REFRESH_DONE__:')) {
-                            setRefreshDone(true);
-                            setRefreshLogs(prev => [...prev, '✅ Refresh complete!']);
-                            setTimeout(() => {
-                                setRefreshingVendor(null);
-                                setRefreshLogs([]);
-                                setRefreshDone(false);
-                                fetchVendors();
-                            }, 2000);
-                            return;
+                    if (!line.startsWith('data:')) continue;
+                    const data = line.substring(5).trim();
+                    if (data === 'keep-alive') continue;
+
+                    if (data.startsWith('__REFRESH_DONE__:')) {
+                        setRefreshStates(prev => ({ ...prev, [name]: { ...prev[name], done: true, currentSource: 'Complete!', completedSources: REFRESH_SOURCES.length } }));
+                        setTimeout(() => {
+                            setRefreshStates(prev => { const next = { ...prev }; delete next[name]; return next; });
+                            fetchVendors();
+                        }, 2000);
+                        return;
+                    }
+
+                    // Detect source completion: "✅ Tavily:", "✅ HN:", etc.
+                    const doneMatch = data.match(/✅\s*(Tavily|HN|Pricing|GitHub|Blog|Migration):/i);
+                    if (doneMatch) {
+                        completed++;
+                        const nextIdx = completed < REFRESH_SOURCES.length ? completed : completed - 1;
+                        setRefreshStates(prev => ({
+                            ...prev,
+                            [name]: { ...prev[name], completedSources: completed, currentSource: completed < REFRESH_SOURCES.length ? REFRESH_SOURCES[nextIdx] : 'Finishing...' }
+                        }));
+                        continue;
+                    }
+
+                    // Detect source starting via keywords
+                    for (const src of REFRESH_SOURCES) {
+                        if (data.toLowerCase().includes(src.toLowerCase()) && !data.includes('✅')) {
+                            setRefreshStates(prev => ({ ...prev, [name]: { ...prev[name], currentSource: src } }));
+                            break;
                         }
-                        setRefreshLogs(prev => [...prev, data]);
                     }
                 }
             }
         }).catch((err) => {
             if (err.name !== 'AbortError') {
-                setRefreshLogs(prev => [...prev, `❌ Connection error: ${err.message}`]);
+                setRefreshStates(prev => ({ ...prev, [name]: { ...prev[name], currentSource: `Error: ${err.message}`, done: true } }));
+                setTimeout(() => {
+                    setRefreshStates(prev => { const next = { ...prev }; delete next[name]; return next; });
+                }, 3000);
             }
         });
+    };
+
+    /** Promise-based single-vendor refresh for use in bulk refresh */
+    const refreshVendorAsync = (name: string, vertical: string): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            setRefreshStates(prev => ({
+                ...prev,
+                [name]: { currentSource: 'Connecting...', completedSources: 0, totalSources: REFRESH_SOURCES.length, done: false }
+            }));
+
+            fetch('http://127.0.0.1:8000/api/vendors/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, vertical }),
+            }).then(async (response) => {
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
+                if (!reader) { resolve(); return; }
+
+                let buffer = '';
+                let completed = 0;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    for (const line of lines) {
+                        if (!line.startsWith('data:')) continue;
+                        const data = line.substring(5).trim();
+                        if (data === 'keep-alive') continue;
+
+                        if (data.startsWith('__REFRESH_DONE__:')) {
+                            setRefreshStates(prev => ({ ...prev, [name]: { ...prev[name], done: true, currentSource: 'Complete!', completedSources: REFRESH_SOURCES.length } }));
+                            setTimeout(() => {
+                                setRefreshStates(prev => { const next = { ...prev }; delete next[name]; return next; });
+                            }, 1500);
+                            resolve();
+                            return;
+                        }
+
+                        const doneMatch = data.match(/✅\s*(Tavily|HN|Pricing|GitHub|Blog|Migration):/i);
+                        if (doneMatch) {
+                            completed++;
+                            const nextIdx = completed < REFRESH_SOURCES.length ? completed : completed - 1;
+                            setRefreshStates(prev => ({
+                                ...prev,
+                                [name]: { ...prev[name], completedSources: completed, currentSource: completed < REFRESH_SOURCES.length ? REFRESH_SOURCES[nextIdx] : 'Finishing...' }
+                            }));
+                            continue;
+                        }
+
+                        for (const src of REFRESH_SOURCES) {
+                            if (data.toLowerCase().includes(src.toLowerCase()) && !data.includes('✅')) {
+                                setRefreshStates(prev => ({ ...prev, [name]: { ...prev[name], currentSource: src } }));
+                                break;
+                            }
+                        }
+                    }
+                }
+                resolve();
+            }).catch(() => { resolve(); });
+        });
+    };
+
+    const handleRefreshAll = async () => {
+        const vendorsToRefresh = filteredVendors;
+        if (vendorsToRefresh.length === 0) return;
+
+        cancelledRef.current = false;
+        setBulkRefresh({ isRefreshing: true, currentVendor: null, completedCount: 0, totalCount: vendorsToRefresh.length });
+
+        for (const vendor of vendorsToRefresh) {
+            if (cancelledRef.current) break;
+            setBulkRefresh(prev => ({ ...prev, currentVendor: vendor.name }));
+            await refreshVendorAsync(vendor.name, vendor.vertical);
+            setBulkRefresh(prev => ({ ...prev, completedCount: prev.completedCount + 1 }));
+        }
+
+        setBulkRefresh(prev => ({ ...prev, isRefreshing: false, currentVendor: null }));
+        fetchVendors();
+    };
+
+    const handleCancelBulk = () => {
+        cancelledRef.current = true;
     };
 
     const filteredVendors = vendors.filter(v => {
@@ -178,9 +299,30 @@ export default function VendorRegistry() {
                     <h1>Vendor Registry</h1>
                     <p>Central intelligence database of monitored competitors.</p>
                 </div>
-                <button className="btn btn-solid" onClick={() => setShowAddModal(true)}>
-                    <Plus size={15} /> Add Vendor
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        onClick={bulkRefresh.isRefreshing ? handleCancelBulk : handleRefreshAll}
+                        disabled={loading}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '8px 16px', borderRadius: '6px', fontSize: '13px',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            background: 'transparent',
+                            border: `1px solid ${bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff'}`,
+                            color: bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        {bulkRefresh.isRefreshing ? (
+                            <><X size={14} /> Cancel</>
+                        ) : (
+                            <><RefreshCw size={14} /> Refresh All</>
+                        )}
+                    </button>
+                    <button className="btn btn-solid" onClick={() => setShowAddModal(true)}>
+                        <Plus size={15} /> Add Vendor
+                    </button>
+                </div>
             </div>
 
             {/* KPI Cards */}
@@ -227,6 +369,51 @@ export default function VendorRegistry() {
                 </div>
             </div>
 
+            {/* Bulk Refresh Progress Banner */}
+            {bulkRefresh.isRefreshing && (
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: '16px',
+                    padding: '12px 16px', marginBottom: 'var(--sp-4)',
+                    background: 'rgba(0, 212, 255, 0.06)',
+                    border: '1px solid rgba(0, 212, 255, 0.15)',
+                    borderRadius: '8px'
+                }}>
+                    <Loader2 size={16} className="animate-spin" style={{ color: '#00d4ff', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '13px', color: '#ffffff' }}>
+                                Refreshing {activeVertical === 'all' ? 'all' : activeVertical} vendors...
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#8a8a9a' }}>
+                                {bulkRefresh.completedCount}/{bulkRefresh.totalCount}
+                            </span>
+                            {bulkRefresh.currentVendor && (
+                                <span style={{ fontSize: '12px', color: '#00d4ff' }}>
+                                    Currently: {bulkRefresh.currentVendor}
+                                </span>
+                            )}
+                        </div>
+                        <div style={{ width: '100%', height: '6px', background: '#1a1a24', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{
+                                width: bulkRefresh.totalCount > 0 ? `${(bulkRefresh.completedCount / bulkRefresh.totalCount) * 100}%` : '0%',
+                                height: '100%', background: '#00d4ff',
+                                transition: 'width 0.5s ease'
+                            }} />
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleCancelBulk}
+                        style={{
+                            padding: '4px 12px', fontSize: '12px', borderRadius: '4px',
+                            background: 'transparent', border: '1px solid #ff4466',
+                            color: '#ff4466', cursor: 'pointer', flexShrink: 0
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            )}
+
             {/* Table */}
             <div className="glass-panel" style={{ overflow: 'hidden' }}>
                 <table className="data-table">
@@ -252,7 +439,8 @@ export default function VendorRegistry() {
                             const isExpanded = expandedVendor === vendor.name;
                             const status = getStatusInfo(vendor.atlas?.status);
                             const sourcesActive = vendor.atlas?.sources ? Object.values(vendor.atlas.sources).filter(c => c > 0).length : 0;
-                            const isRefreshing = refreshingVendor === vendor.name;
+                            const rState = refreshStates[vendor.name];
+                            const isRefreshing = !!rState && !rState.done;
 
                             return (
                                 <Fragment key={idx}>
@@ -308,28 +496,34 @@ export default function VendorRegistry() {
                                         </td>
                                     </tr>
 
-                                    {/* Refresh Logs */}
-                                    {isRefreshing && (
+                                    {/* Inline Refresh Progress */}
+                                    {rState && (
                                         <tr style={{ borderBottom: 'none' }}>
-                                            <td colSpan={8} style={{ padding: '0 1rem 0.75rem 3rem' }}>
-                                                <div className="terminal-text" style={{
-                                                    background: 'rgba(0,0,0,0.4)', borderRadius: 'var(--radius-md)',
-                                                    padding: '0.6rem 0.8rem', maxHeight: 180, overflowY: 'auto',
-                                                    border: '1px solid rgba(0,212,255,0.12)',
-                                                }}>
-                                                    {refreshLogs.length === 0 ? (
-                                                        <span style={{ color: 'var(--text-muted)' }}>Connecting to scraping engine...</span>
+                                            <td colSpan={8} style={{ padding: '4px 1rem 8px 3rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    {rState.done ? (
+                                                        <CheckCircle2 size={14} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
                                                     ) : (
-                                                        refreshLogs.map((log, i) => (
-                                                            <div key={i} style={{
-                                                                color: log.includes('✅') ? 'var(--accent-green)' : log.includes('❌') ? 'var(--accent-red)' : log.includes('🔄') ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                                                                padding: '0.1rem 0', lineHeight: 1.6,
-                                                            }}>
-                                                                {log}
-                                                            </div>
-                                                        ))
+                                                        <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-cyan)', flexShrink: 0 }} />
                                                     )}
-                                                    <div ref={refreshLogsEndRef} />
+                                                    <div style={{
+                                                        width: '120px', height: '6px',
+                                                        background: '#1a1a24', borderRadius: '3px',
+                                                        overflow: 'hidden', flexShrink: 0
+                                                    }}>
+                                                        <div style={{
+                                                            width: `${(rState.completedSources / rState.totalSources) * 100}%`,
+                                                            height: '100%',
+                                                            background: rState.done ? 'var(--accent-green)' : 'var(--accent-cyan)',
+                                                            transition: 'width 0.3s ease'
+                                                        }} />
+                                                    </div>
+                                                    <span style={{ fontSize: '12px', color: '#8a8a9a', flexShrink: 0 }}>
+                                                        {rState.completedSources}/{rState.totalSources} sources
+                                                    </span>
+                                                    <span style={{ fontSize: '12px', color: rState.done ? 'var(--accent-green)' : 'var(--accent-cyan)' }}>
+                                                        {rState.done ? '✅ Complete!' : `Scraping: ${rState.currentSource}...`}
+                                                    </span>
                                                 </div>
                                             </td>
                                         </tr>

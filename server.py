@@ -421,10 +421,22 @@ async def api_get_enriched_vendors(vertical: str):
             # Count research docs
             research_count = research_col.count_documents({"company": name})
             
-            # Get source type breakdown
+            # Get source type breakdown using actual MongoDB source_type values
+            SOURCE_TYPE_MAP = {
+                "Pricing":    ["pricing_scrape"],
+                "Blog":       ["blog_rss"],
+                "GitHub":     ["github"],
+                "Tavily":     ["tavily"],
+                "HN":         ["hn", "hn_2024", "hn_2025", "hn_2026"],
+                "Migration":  ["migration_tavily"],
+                "Complaints": ["complaint_tavily"],
+            }
             sources = {}
-            for src in ["pricing", "blog", "github", "tavily", "reddit", "migration", "hn"]:
-                sources[src] = research_col.count_documents({"company": name, "source_type": src})
+            for label, db_types in SOURCE_TYPE_MAP.items():
+                sources[label] = research_col.count_documents({
+                    "company": name,
+                    "source_type": {"$in": db_types}
+                })
             
             # Get last scraped time
             latest = research_col.find_one(

@@ -1,4 +1,10 @@
 export { ProgressBar } from './ProgressBar';
-export { ComparisonMatrix } from './ComparisonMatrix';
 export { WinnerCard } from './WinnerCard';
 export { BattlecardHeader } from './BattlecardHeader';
+export { SectionHeader } from './SectionHeader';
+export { ProfilePills } from './ProfilePills';
+export { VendorScorecard } from './VendorScorecard';
+export { TradeoffsSection } from './TradeoffsSection';
+export { ReportBody } from './ReportBody';
+export { AnalystHeader } from './AnalystHeader';
+export { MethodologyNote } from './MethodologyNote';

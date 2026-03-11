@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, Download } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { parseReport } from '../lib/reportParser';
+import {
+  parseReport,
+  extractWinner,
+  extractConfidence,
+  extractSummary,
+  extractWinProbability,
+  extractDimensionsWon,
+} from '../lib/reportParser';
 import type { ParsedReport } from '../lib/reportParser';
-import { WinnerCard, BattlecardHeader } from '../components/report';
+import { WinnerCard, BattlecardHeader, ReportBody } from '../components/report';
 
 export default function ReportView() {
   const { id } = useParams();
@@ -13,6 +19,7 @@ export default function ReportView() {
   const [parsed, setParsed] = useState<ParsedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function fetchReport() {
@@ -34,6 +41,8 @@ export default function ReportView() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
@@ -62,11 +71,11 @@ export default function ReportView() {
     );
   }
 
-  // Detect mode from content
   const mode = parsed?.mode || 'buyer';
 
   return (
     <div className="page-container">
+      {/* Header */}
       <div className="page-header">
         <div>
           <button className="back-link" onClick={() => navigate('/history')}>
@@ -84,16 +93,41 @@ export default function ReportView() {
           )}
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn-secondary" onClick={handleCopy}>
-            <Copy size={16} /> Copy
+          <button
+            onClick={handleCopy}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', background: 'transparent',
+              border: '1px solid #2a2a3a', borderRadius: '6px',
+              color: '#ffffff', fontSize: '13px', cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#1a1a24'; e.currentTarget.style.borderColor = '#00d4ff'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#2a2a3a'; }}
+          >
+            <Copy size={14} />
+            {copied ? 'Copied!' : 'Copy'}
           </button>
-          <button className="btn-secondary" onClick={handleDownload}>
-            <Download size={16} /> Download
+          <button
+            onClick={handleDownload}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', background: '#00d4ff',
+              border: 'none', borderRadius: '6px',
+              color: '#0a0a0f', fontSize: '13px', fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#00b8e6'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#00d4ff'; }}
+          >
+            <Download size={14} />
+            Download
           </button>
         </div>
       </div>
 
-      {parsed?.mode === 'buyer' && (
+      {/* Hero Card */}
+      {mode === 'buyer' && (
         <WinnerCard
           winner={extractWinner(content)}
           confidence={extractConfidence(content)}
@@ -101,7 +135,7 @@ export default function ReportView() {
         />
       )}
 
-      {parsed?.mode === 'seller' && (
+      {mode === 'seller' && (
         <BattlecardHeader
           winProbability={extractWinProbability(content)}
           isFavorite={content.includes("YOU'RE THE FAVORITE")}
@@ -109,42 +143,8 @@ export default function ReportView() {
         />
       )}
 
-      <div className="report-content" style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border)',
-        borderRadius: '8px',
-        padding: '24px',
-        marginTop: '24px'
-      }}>
-        <ReactMarkdown>{content}</ReactMarkdown>
-      </div>
+      {/* Report Body */}
+      <ReportBody content={content} mode={mode} />
     </div>
   );
 }
-
-function extractWinner(content: string): string {
-  const match = content.match(/BEST FIT FOR YOU:\s*(\w+)/i)
-    || content.match(/🏆\s*BEST FIT FOR YOU:\s*(\w+)/i);
-  return match ? match[1] : '';
-}
-
-function extractConfidence(content: string): number {
-  const match = content.match(/CONFIDENCE:\s*(\d+)%/i);
-  return match ? parseInt(match[1]) : 0;
-}
-
-function extractSummary(content: string): string {
-  const match = content.match(/WHY:\s*([^\n]+)/i);
-  return match ? match[1].trim() : '';
-}
-
-function extractWinProbability(content: string): number {
-  const match = content.match(/WIN PROBABILITY:\s*(\d+)%/i);
-  return match ? parseInt(match[1]) : 0;
-}
-
-function extractDimensionsWon(content: string): string {
-  const match = content.match(/You won (\d+\/\d+ dimensions)/i);
-  return match ? match[1] : '';
-}
-
