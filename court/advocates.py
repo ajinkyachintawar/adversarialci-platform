@@ -2,40 +2,39 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import requests
 
-OLLAMA_URL   = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.2"
+
+import os
+from groq import Groq
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+ADVOCATE_MODEL = "llama-3.1-8b-instant"
 
 MAX_ARGS_PER_DIM = 5
 
 
-def call_ollama(messages: list, temperature: float = 0.3) -> str:
-    prompt = "\n\n".join([
-        f"{m['role'].upper()}: {m['content']}"
-        for m in messages
-    ])
+def call_groq(messages: list, temperature: float = 0.3) -> str:
+    """Call Groq API for advocate responses."""
     try:
-        response = requests.post(
-            OLLAMA_URL,
-            json={
-                "model":  OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"temperature": temperature}
-            },
-            timeout=120
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        groq_messages = []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            groq_messages.append({"role": role, "content": content})
+        
+        response = client.chat.completions.create(
+            model=ADVOCATE_MODEL,
+            messages=groq_messages,
+            temperature=temperature,
+            max_tokens=2048
         )
-        data = response.json()
-        if "response" not in data:
-            print(f"  ⚠️  Ollama unexpected response: {data}")
-            return "ERROR"
-        return data["response"].strip()
-    except requests.exceptions.ConnectionError:
-        print(f"  ⚠️  Ollama not running — start with: ollama serve")
-        return "ERROR"
+        
+        return response.choices[0].message.content
+        
     except Exception as e:
-        print(f"  ⚠️  Ollama error: {e}")
+        print(f"  ⚠️  Groq API error: {e}")
         return f"ERROR: {e}"
 
 
@@ -100,7 +99,7 @@ OPENING STATEMENT — {company.upper()}
 [argument 3]
 CLOSING LINE: One sentence on why {company} wins for this buyer."""
 
-    content = call_ollama([
+    content = call_groq([
         {"role": "system", "content": system_prompt},
         {"role": "user",   "content": user_prompt}
     ])
@@ -147,7 +146,7 @@ ATTACK 1: [their claim] → [your counter + source]
 ATTACK 2: [their claim] → [your counter + source]
 ATTACK 3: [their claim] → [your counter + source]"""
 
-    content = call_ollama([
+    content = call_groq([
         {"role": "system", "content": system_prompt},
         {"role": "user",   "content": user_prompt}
     ])
@@ -200,7 +199,7 @@ POSITION: [STRONG / MODERATE / CONCEDE]
 ARGUMENT: [your response with source citations]
 CAVEAT: [honest limitation if any]"""
 
-    content = call_ollama([
+    content = call_groq([
         {"role": "system", "content": system_prompt},
         {"role": "user",   "content": user_prompt}
     ])
@@ -224,7 +223,7 @@ def run_advocates(
 
     print("\n🎙️  ADVOCATES — Building arguments")
     print("=" * 40)
-    print(f"  ℹ️  Using Ollama ({OLLAMA_MODEL}) locally")
+    print(f"  ℹ️  Using Groq ({ADVOCATE_MODEL}) for advocates")
 
     results = {
         "round_1": {},
