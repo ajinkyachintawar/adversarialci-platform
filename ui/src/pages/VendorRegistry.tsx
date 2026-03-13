@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment, useRef } from 'react';
-import { Plus, CheckCircle2, XCircle, Search, RefreshCw, ChevronDown, ChevronRight, Database, ExternalLink, Github, Rss, AlertTriangle, Clock, FileText, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, CheckCircle2, Search, RefreshCw, ChevronDown, ChevronRight, Database, ExternalLink, Github, Rss, AlertTriangle, Clock, FileText, Trash2, X, Loader2 } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 import ErrorState from '../components/ErrorState';
 
