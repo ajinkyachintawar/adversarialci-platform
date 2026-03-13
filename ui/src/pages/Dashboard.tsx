@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Database, FileText, CheckCircle2, AlertTriangle, ShoppingCart, Target, BarChart3, ArrowRight, Activity } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 import ErrorState from '../components/ErrorState';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 interface EnrichedVendor {
     name: string;
@@ -21,9 +22,9 @@ export default function Dashboard() {
         setError('');
         try {
             const [dbRes, cloudRes, crmRes] = await Promise.all([
-                fetch('http://127.0.0.1:8000/api/vendors/database/enriched').then(r => r.json()).catch(() => []),
-                fetch('http://127.0.0.1:8000/api/vendors/cloud/enriched').then(r => r.json()).catch(() => []),
-                fetch('http://127.0.0.1:8000/api/vendors/crm/enriched').then(r => r.json()).catch(() => []),
+                fetch(`${API_BASE_URL}/api/vendors/database/enriched`).then(r => r.json()).catch(() => []),
+                fetch(`${API_BASE_URL}/api/vendors/cloud/enriched`).then(r => r.json()).catch(() => []),
+                fetch(`${API_BASE_URL}/api/vendors/crm/enriched`).then(r => r.json()).catch(() => []),
             ]);
             setVendors([...dbRes, ...cloudRes, ...crmRes]);
         } catch {

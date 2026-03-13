@@ -9,8 +9,12 @@ export default function TerminalLoader({ sessionId, onComplete }: { sessionId: s
 
         let pendingReportId = "";
 
-        const eventSource = new EventSource(`http://127.0.0.1:8000/api/stream/${sessionId}`);
 
+
+        // Use the environment variable, falling back to local only if it's missing
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
+        const eventSource = new EventSource(`${API_BASE_URL}/api/stream/${sessionId}`);
         eventSource.onmessage = (event) => {
             const data = event.data;
 

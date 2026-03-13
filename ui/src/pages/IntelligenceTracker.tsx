@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, BarChart3, Target, ShieldAlert, TrendingUp, Radio, Eye, Bell, ArrowRight, RefreshCw, FileText, ChevronDown, Zap, X } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 
 type TabKey = 'history' | 'signals' | 'watchlist';
 
@@ -88,7 +90,7 @@ export default function IntelligenceTracker() {
             params.set('limit', '20');
             params.set('offset', '0');
 
-            const res = await fetch(`http://127.0.0.1:8000/api/sessions?${params}`);
+            const res = await fetch(`${API_BASE_URL}/api/sessions?${params}`);
             const data = await res.json();
             setSessions(data.sessions || []);
             setStats(data.stats || { total_verdicts: 0, this_month: 0, top_winner: null, avg_confidence: 0 });
@@ -106,7 +108,7 @@ export default function IntelligenceTracker() {
             if (filterMode) params.set('mode', filterMode);
             if (filterVertical) params.set('vertical', filterVertical);
             params.set('days', filterDays.toString());
-            const res = await fetch(`http://127.0.0.1:8000/api/sessions/trends?${params}`);
+            const res = await fetch(`${API_BASE_URL}/api/sessions/trends?${params}`);
             const data = await res.json();
             setTrends(data.distribution || []);
             setInsights(data.insights || []);

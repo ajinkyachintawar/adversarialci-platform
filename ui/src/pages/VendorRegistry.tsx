@@ -2,6 +2,8 @@ import { useState, useEffect, Fragment, useRef } from 'react';
 import { Plus, CheckCircle2, Search, RefreshCw, ChevronDown, ChevronRight, Database, ExternalLink, Github, Rss, AlertTriangle, Clock, FileText, Trash2, X, Loader2 } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 import ErrorState from '../components/ErrorState';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 
 interface AtlasData {
     research_count: number;
@@ -58,11 +60,16 @@ export default function VendorRegistry() {
     const fetchVendors = async () => {
         setLoading(true);
         setError('');
+
+        // Ensure API_BASE_URL is defined at the top of this file or imported
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
         try {
             const [dbRes, cloudRes, crmRes] = await Promise.all([
-                fetch('http://127.0.0.1:8000/api/vendors/database/enriched').then(r => r.json()).catch(() => []),
-                fetch('http://127.0.0.1:8000/api/vendors/cloud/enriched').then(r => r.json()).catch(() => []),
-                fetch('http://127.0.0.1:8000/api/vendors/crm/enriched').then(r => r.json()).catch(() => []),
+                // Use BACKTICKS ( ` ) here, not single quotes ( ' )
+                fetch(`${API_BASE_URL}/api/vendors/database/enriched`).then(r => r.json()).catch(() => []),
+                fetch(`${API_BASE_URL}/api/vendors/cloud/enriched`).then(r => r.json()).catch(() => []),
+                fetch(`${API_BASE_URL}/api/vendors/crm/enriched`).then(r => r.json()).catch(() => []),
             ]);
             setVendors([...dbRes, ...cloudRes, ...crmRes]);
         } catch {
@@ -72,13 +79,14 @@ export default function VendorRegistry() {
         }
     };
 
+
     useEffect(() => { fetchVendors(); }, []);
 
 
 
     const handleDelete = async (name: string, vertical: string) => {
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/vendors', {
+            const res = await fetch(`${API_BASE_URL}/api/vendors`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, vertical }),
@@ -101,7 +109,7 @@ export default function VendorRegistry() {
             [name]: { currentSource: 'Connecting...', completedSources: 0, totalSources: REFRESH_SOURCES.length, done: false }
         }));
 
-        fetch('http://127.0.0.1:8000/api/vendors/refresh', {
+        fetch(`${API_BASE_URL}/api/vendors/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, vertical }),
@@ -171,7 +179,7 @@ export default function VendorRegistry() {
                 [name]: { currentSource: 'Connecting...', completedSources: 0, totalSources: REFRESH_SOURCES.length, done: false }
             }));
 
-            fetch('http://127.0.0.1:8000/api/vendors/refresh', {
+            fetch(`${API_BASE_URL}/api/vendors/refresh`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, vertical }),
@@ -674,7 +682,7 @@ function AddVendorModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
         setSubmitting(true);
         setError('');
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/vendors', {
+            const res = await fetch(`${API_BASE_URL}/api/vendors`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

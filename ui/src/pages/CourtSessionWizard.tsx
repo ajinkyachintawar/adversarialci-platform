@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Target, User, ServerCog, Cpu, ShieldAlert, ArrowRight, ArrowLeft, Check, BarChart3, Crosshair, Briefcase } from 'lucide-react';
 import TerminalLoader from '../components/TerminalLoader';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 // ─── Step definitions per mode ────────────────────────────────
 type StepDef = { key: string; label: string; icon: React.ElementType };
@@ -84,7 +85,7 @@ export default function CourtSessionWizard() {
 
     // Fetch vendors when vertical changes
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/api/vendors/${vertical}`)
+        fetch(`${API_BASE_URL}/api/vendors/${vertical}`)
             .then(res => res.json())
             .then(data => {
                 setVerticalVendors(Object.keys(data || {}));
@@ -192,7 +193,7 @@ export default function CourtSessionWizard() {
     const initiateDeliberation = async () => {
         setStepKey('DELIB');
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/evaluate', {
+            const res = await fetch('${API_BASE_URL}/api/evaluate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildPayload()),
