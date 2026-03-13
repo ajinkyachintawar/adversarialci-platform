@@ -5,6 +5,16 @@ from pydantic import BaseModel
 import asyncio
 import json
 
+import os
+
+# CORS for deployment
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    FRONTEND_URL
+]
+
 # Local imports from the Adversarial CI project
 from vendor_registry import (
     list_vendors, get_vendor, add_vendor, update_vendor, delete_vendor,
@@ -17,7 +27,7 @@ app = FastAPI(title="Adversarial CI API", version="1.0.0")
 # Allow the Vite React dev server to communicate with this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
