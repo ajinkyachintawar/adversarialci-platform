@@ -575,10 +575,12 @@ async def api_get_sessions(
             mode_val = doc.get("mode", "buyer")
             
             # Build report_id from the session
-            report_id = None
-            created = doc.get("created_at")
-            if created:
-                report_id = f"{mode_val}_report_{created.strftime('%Y%m%d_%H%M%S')}"
+            # Use saved report_id, fallback to generated one
+            report_id = doc.get("report_id")
+            if not report_id:
+                created = doc.get("created_at")
+                if created:
+                    report_id = f"{mode_val}_report_{created.strftime('%Y%m%d_%H%M%S')}"
             
             session = {
                 "id": str(doc["_id"]),

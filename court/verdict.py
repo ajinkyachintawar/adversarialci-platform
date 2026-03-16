@@ -375,6 +375,7 @@ def generate_legacy_report(
 def save_markdown(content: str, session_id: str, mode: str = "buyer") -> str:
     """Save markdown report to file and MongoDB."""
     from db.atlas import get_collection
+    from bson import ObjectId
     
     os.makedirs("outputs/reports", exist_ok=True)
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -388,22 +389,17 @@ def save_markdown(content: str, session_id: str, mode: str = "buyer") -> str:
     # Save to MongoDB
     try:
         col = get_collection("court_sessions")
-        col.update_one(
-            {"_id": session_id} if session_id else {},
-            {"$set": {
-                "report_id": report_id,
-                "report_content": content
-            }},
-            upsert=False
-        )
-        # If no session_id, update most recent
-        if not session_id:
+        if session_id:
+            # Use ObjectId for _id matching
             col.update_one(
+                {"_id": ObjectId(session_id)},
+                {"$set": {"report_id": report_id, "report_content": content}}
+            )
+        else:
+            # Update most recent session using find_one_and_update (supports sort)
+            col.find_one_and_update(
                 {},
-                {"$set": {
-                    "report_id": report_id,
-                    "report_content": content
-                }},
+                {"$set": {"report_id": report_id, "report_content": content}},
                 sort=[("created_at", -1)]
             )
     except Exception as e:
