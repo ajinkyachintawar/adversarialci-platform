@@ -397,18 +397,25 @@ async def api_get_report(report_id: str):
     """Read the report from MongoDB or fallback to disk."""
     from db.atlas import get_collection
     
-    # Try MongoDB first
     try:
         col = get_collection("court_sessions")
-        session = col.find_one({}, sort=[("created_at", -1)])
         
-        if session and session.get("deliberation"):
-            content = session.get("deliberation", "")
-            return {"id": report_id, "content": content}
+        # Try to find by report_id first
+        session = col.find_one({"report_id": report_id})
+        
+        # Fallback to most recent
+        if not session:
+            session = col.find_one({}, sort=[("created_at", -1)])
+        
+        if session:
+            # Prefer report_content (full report), fallback to deliberation
+            content = session.get("report_content") or session.get("deliberation", "")
+            if content:
+                return {"id": report_id, "content": content}
     except Exception as e:
         print(f"MongoDB report fetch failed: {e}")
     
-    # Fallback to file system (for local development)
+    # Fallback to file system
     report_path = f"outputs/reports/{report_id}.md"
     if os.path.exists(report_path):
         with open(report_path, "r") as f:

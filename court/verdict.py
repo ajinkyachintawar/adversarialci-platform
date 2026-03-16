@@ -373,13 +373,41 @@ def generate_legacy_report(
 # ─── Save Markdown ──────────────────────────────────────────
 
 def save_markdown(content: str, session_id: str, mode: str = "buyer") -> str:
-    """Save markdown report to file."""
+    """Save markdown report to file and MongoDB."""
+    from db.atlas import get_collection
+    
     os.makedirs("outputs/reports", exist_ok=True)
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    filename = f"outputs/reports/{mode}_report_{timestamp}.md"
+    report_id = f"{mode}_report_{timestamp}"
+    filename = f"outputs/reports/{report_id}.md"
     
+    # Save to file
     with open(filename, "w") as f:
         f.write(content)
+    
+    # Save to MongoDB
+    try:
+        col = get_collection("court_sessions")
+        col.update_one(
+            {"_id": session_id} if session_id else {},
+            {"$set": {
+                "report_id": report_id,
+                "report_content": content
+            }},
+            upsert=False
+        )
+        # If no session_id, update most recent
+        if not session_id:
+            col.update_one(
+                {},
+                {"$set": {
+                    "report_id": report_id,
+                    "report_content": content
+                }},
+                sort=[("created_at", -1)]
+            )
+    except Exception as e:
+        print(f"  ⚠️ Failed to save report to MongoDB: {e}")
     
     print(f"  📄 Report saved: {filename}")
     return filename
