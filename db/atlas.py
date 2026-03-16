@@ -40,7 +40,6 @@ def connect():
         client = MongoClient(
     MONGODB_URI,
     tls=True,
-    tlsAllowInvalidCertificates=True,
     serverSelectionTimeoutMS=5000
 )
         client.admin.command("ping")
