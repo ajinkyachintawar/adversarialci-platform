@@ -37,7 +37,12 @@ DEFAULT_TTL = FRESHNESS_DAYS  # Fallback
 def connect():
     global client, db
     try:
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(
+    MONGODB_URI,
+    tls=True,
+    tlsAllowInvalidCertificates=True,
+    serverSelectionTimeoutMS=5000
+)
         client.admin.command("ping")
         db = client[DB_NAME]
         print("✅ Atlas connected")
