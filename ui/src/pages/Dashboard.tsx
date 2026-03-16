@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Database, FileText, CheckCircle2, AlertTriangle, ShoppingCart, Target, BarChart3, ArrowRight, Activity } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 import ErrorState from '../components/ErrorState';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { useAllVendors } from '../hooks/useApi';
 
 interface EnrichedVendor {
     name: string;
@@ -13,28 +12,11 @@ interface EnrichedVendor {
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [vendors, setVendors] = useState<EnrichedVendor[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const { data, isLoading, error, refetch } = useAllVendors();
 
-    const fetchData = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const [dbRes, cloudRes, crmRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/api/vendors/database/enriched`).then(r => r.json()).catch(() => []),
-                fetch(`${API_BASE_URL}/api/vendors/cloud/enriched`).then(r => r.json()).catch(() => []),
-                fetch(`${API_BASE_URL}/api/vendors/crm/enriched`).then(r => r.json()).catch(() => []),
-            ]);
-            setVendors([...dbRes, ...cloudRes, ...crmRes]);
-        } catch {
-            setError('Failed to connect to backend. Is the server running?');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
+    const vendors: EnrichedVendor[] = data
+        ? [...(data.database || []), ...(data.cloud || []), ...(data.crm || [])]
+        : [];
 
     const totalVendors = vendors.length;
     const totalResearch = vendors.reduce((sum, v) => sum + (v.atlas?.research_count || 0), 0);
@@ -84,7 +66,7 @@ export default function Dashboard() {
         return (
             <div className="animate-fade-in">
                 <div className="page-header"><h1>Command Center</h1><p>Overview of all intelligence operations.</p></div>
-                <ErrorState message={error} onRetry={fetchData} />
+                <ErrorState message="Failed to connect to backend. Is the server running?" onRetry={() => refetch()} />
             </div>
         );
     }
@@ -98,7 +80,7 @@ export default function Dashboard() {
 
             {/* KPI Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--sp-4)', marginBottom: 'var(--sp-8)' }}>
-                {loading ? (
+                {isLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="glass-panel kpi-card"><Skeleton width={120} height={44} /></div>
                     ))
@@ -175,7 +157,7 @@ export default function Dashboard() {
                     Data Health
                 </div>
                 <div className="glass-panel" style={{ padding: 'var(--sp-6)' }}>
-                    {loading ? (
+                    {isLoading ? (
                         <Skeleton count={3} height={32} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-5)' }}>

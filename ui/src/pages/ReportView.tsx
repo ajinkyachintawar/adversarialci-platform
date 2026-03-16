@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, Download } from 'lucide-react';
+import { useReport } from '../hooks/useApi';
 import {
   parseReport,
   extractWinner,
@@ -9,37 +10,18 @@ import {
   extractWinProbability,
   extractDimensionsWon,
 } from '../lib/reportParser';
-import type { ParsedReport } from '../lib/reportParser';
 import { WinnerCard, BattlecardHeader, ReportBody } from '../components/report';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 
 export default function ReportView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [content, setContent] = useState<string>('');
-  const [parsed, setParsed] = useState<ParsedReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    async function fetchReport() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/reports/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch report');
-        const data = await res.json();
-        const rawContent = data.content || data.verdict || '';
-        setContent(rawContent);
-        setParsed(parseReport(rawContent));
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (id) fetchReport();
-  }, [id]);
+  const { data, isLoading: loading, error: queryError } = useReport(id);
+  const content = data?.content || data?.verdict || '';
+  const error = queryError ? (queryError as Error).message : null;
+  const parsed = content ? parseReport(content) : null;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);

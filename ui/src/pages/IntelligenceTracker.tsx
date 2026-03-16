@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, BarChart3, Target, ShieldAlert, TrendingUp, Radio, Eye, Bell, ArrowRight, RefreshCw, FileText, ChevronDown, Zap, X } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { useSessions, useSessionTrends } from '../hooks/useApi';
 
 
 type TabKey = 'history' | 'signals' | 'watchlist';
@@ -66,61 +66,21 @@ const modeConfig: Record<string, { icon: typeof Target; label: string; emoji: st
 export default function IntelligenceTracker() {
     const navigate = useNavigate();
     const [tab, setTab] = useState<TabKey>('history');
-    const [loading, setLoading] = useState(true);
-
-    // Data
-    const [sessions, setSessions] = useState<Session[]>([]);
-    const [stats, setStats] = useState<Stats>({ total_verdicts: 0, this_month: 0, top_winner: null, avg_confidence: 0 });
-    const [total, setTotal] = useState(0);
-    const [trends, setTrends] = useState<TrendItem[]>([]);
-    const [insights, setInsights] = useState<string[]>([]);
 
     // Filters
     const [filterMode, setFilterMode] = useState('');
     const [filterVertical, setFilterVertical] = useState('');
     const [filterDays, setFilterDays] = useState(30);
 
-    const fetchSessions = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams();
-            if (filterMode) params.set('mode', filterMode);
-            if (filterVertical) params.set('vertical', filterVertical);
-            params.set('days', filterDays.toString());
-            params.set('limit', '20');
-            params.set('offset', '0');
+    const { data: sessionData, isLoading: loading } = useSessions(filterDays, 20, 0, filterMode, filterVertical);
+    const { data: trendsData } = useSessionTrends(filterDays, filterMode, filterVertical);
 
-            const res = await fetch(`${API_BASE_URL}/api/sessions?${params}`);
-            const data = await res.json();
-            setSessions(data.sessions || []);
-            setStats(data.stats || { total_verdicts: 0, this_month: 0, top_winner: null, avg_confidence: 0 });
-            setTotal(data.total || 0);
-        } catch (e) {
-            console.error('Failed to fetch sessions', e);
-        } finally {
-            setLoading(false);
-        }
-    }, [filterMode, filterVertical, filterDays]);
+    const sessions: Session[] = sessionData?.sessions || [];
+    const stats: Stats = sessionData?.stats || { total_verdicts: 0, this_month: 0, top_winner: null, avg_confidence: 0 };
+    const total: number = sessionData?.total || 0;
 
-    const fetchTrends = useCallback(async () => {
-        try {
-            const params = new URLSearchParams();
-            if (filterMode) params.set('mode', filterMode);
-            if (filterVertical) params.set('vertical', filterVertical);
-            params.set('days', filterDays.toString());
-            const res = await fetch(`${API_BASE_URL}/api/sessions/trends?${params}`);
-            const data = await res.json();
-            setTrends(data.distribution || []);
-            setInsights(data.insights || []);
-        } catch (e) {
-            console.error('Failed to fetch trends', e);
-        }
-    }, [filterMode, filterVertical, filterDays]);
-
-    useEffect(() => {
-        fetchSessions();
-        fetchTrends();
-    }, [fetchSessions, fetchTrends]);
+    const trends: TrendItem[] = trendsData?.distribution || [];
+    const insights: string[] = trendsData?.insights || [];
 
     // ─── KPI Cards ────────────────────────────────────────────
 

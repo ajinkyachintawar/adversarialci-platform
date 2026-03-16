@@ -1,7 +1,9 @@
-import { useState, useEffect, Fragment, useRef } from 'react';
+import { useState, Fragment, useRef } from 'react';
 import { Plus, CheckCircle2, Search, RefreshCw, ChevronDown, ChevronRight, Database, ExternalLink, Github, Rss, AlertTriangle, Clock, FileText, Trash2, X, Loader2 } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 import ErrorState from '../components/ErrorState';
+import { useAllVendors } from '../hooks/useApi';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 
@@ -29,10 +31,13 @@ interface EnrichedVendor {
 export default function VendorRegistry() {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeVertical, setActiveVertical] = useState<string>('all');
-    const [vendors, setVendors] = useState<EnrichedVendor[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const [expandedVendor, setExpandedVendor] = useState<string | null>(null);
+
+    const { data: vendorData, isLoading: loading, error: queryError, refetch: fetchVendors } = useAllVendors();
+    const vendors: EnrichedVendor[] = vendorData ? [...(vendorData.database || []), ...(vendorData.cloud || []), ...(vendorData.crm || [])] : [];
+    const error = queryError ? 'Failed to load vendor data.' : '';
+
+
 
     // CRUD state
     const [showAddModal, setShowAddModal] = useState(false);
@@ -56,33 +61,6 @@ export default function VendorRegistry() {
     }
     const [bulkRefresh, setBulkRefresh] = useState<BulkRefreshState>({ isRefreshing: false, currentVendor: null, completedCount: 0, totalCount: 0 });
     const cancelledRef = useRef(false);
-
-    const fetchVendors = async () => {
-        setLoading(true);
-        setError('');
-
-        // Ensure API_BASE_URL is defined at the top of this file or imported
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-
-        try {
-            const [dbRes, cloudRes, crmRes] = await Promise.all([
-                // Use BACKTICKS ( ` ) here, not single quotes ( ' )
-                fetch(`${API_BASE_URL}/api/vendors/database/enriched`).then(r => r.json()).catch(() => []),
-                fetch(`${API_BASE_URL}/api/vendors/cloud/enriched`).then(r => r.json()).catch(() => []),
-                fetch(`${API_BASE_URL}/api/vendors/crm/enriched`).then(r => r.json()).catch(() => []),
-            ]);
-            setVendors([...dbRes, ...cloudRes, ...crmRes]);
-        } catch {
-            setError('Failed to load vendor data.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
-    useEffect(() => { fetchVendors(); }, []);
-
-
 
     const handleDelete = async (name: string, vertical: string) => {
         try {
