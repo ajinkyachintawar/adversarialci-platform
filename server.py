@@ -395,22 +395,16 @@ async def api_stream_logs(session_id: str):
 @app.get("/api/reports/{report_id}")
 async def api_get_report(report_id: str):
     """Read the report from MongoDB or fallback to disk."""
-    from db.atlas import connect
+    from db.atlas import get_collection
     
     # Try MongoDB first
     try:
-        db = connect()
-        if db:
-            # Find session by matching report_id pattern
-            # report_id format: "buyer_report_20260316_111414"
-            session = db.court_sessions.find_one(
-                {},
-                sort=[("created_at", -1)]
-            )
-            
-            if session and session.get("deliberation"):
-                content = session.get("deliberation", "")
-                return {"id": report_id, "content": content}
+        col = get_collection("court_sessions")
+        session = col.find_one({}, sort=[("created_at", -1)])
+        
+        if session and session.get("deliberation"):
+            content = session.get("deliberation", "")
+            return {"id": report_id, "content": content}
     except Exception as e:
         print(f"MongoDB report fetch failed: {e}")
     
@@ -422,7 +416,7 @@ async def api_get_report(report_id: str):
         return {"id": report_id, "content": content}
     
     raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
-    
+
 # --- Atlas Intelligence Endpoints ---
 
 @app.get("/api/vendors/{vertical}/enriched")
