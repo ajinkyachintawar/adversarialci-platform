@@ -394,16 +394,49 @@ async def api_stream_logs(session_id: str):
 
 @app.get("/api/reports/{report_id}")
 async def api_get_report(report_id: str):
-    """Read the report markdown file from disk."""
+    """Read the report from MongoDB or fallback to disk."""
+    from db.atlas import get_atlas_client
+    
+    # Try MongoDB first
+    try:
+        client = get_atlas_client()
+        if client:
+            db = client["war_room"]
+            
+            # Extract mode and timestamp from report_id (e.g., "buyer_report_20260316_111414")
+            parts = report_id.split("_")
+            mode = parts[0] if parts else None
+            
+            # Find session by matching created_at timestamp or report_id
+            session = db.court_sessions.find_one({
+                "$or": [
+                    {"report_id": report_id},
+                    {"session_id": report_id}
+                ]
+            })
+            
+            # If not found by ID, try to find most recent session matching mode
+            if not session and mode:
+                session = db.court_sessions.find_one(
+                    {},
+                    sort=[("created_at", -1)]
+                )
+            
+            if session and session.get("deliberation"):
+                # Build report content from session data
+                content = session.get("report_content") or session.get("deliberation", "")
+                return {"id": report_id, "content": content}
+    except Exception as e:
+        print(f"MongoDB report fetch failed: {e}")
+    
+    # Fallback to file system (for local development)
     report_path = f"outputs/reports/{report_id}.md"
-    if not os.path.exists(report_path):
-        raise HTTPException(status_code=404, detail=f"Report file not found: {report_id}")
+    if os.path.exists(report_path):
+        with open(report_path, "r") as f:
+            content = f.read()
+        return {"id": report_id, "content": content}
     
-    with open(report_path, "r") as f:
-        content = f.read()
-    
-    return {"id": report_id, "content": content}
-
+    raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
 # --- Atlas Intelligence Endpoints ---
 
 @app.get("/api/vendors/{vertical}/enriched")
