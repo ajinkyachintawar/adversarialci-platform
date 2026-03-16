@@ -11,6 +11,8 @@ import {
 } from '../lib/reportParser';
 import type { ParsedReport } from '../lib/reportParser';
 import { WinnerCard, BattlecardHeader, ReportBody } from '../components/report';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 
 export default function ReportView() {
   const { id } = useParams();
@@ -24,7 +26,7 @@ export default function ReportView() {
   useEffect(() => {
     async function fetchReport() {
       try {
-        const res = await fetch(`http://localhost:8000/api/reports/${id}`);
+        const res = await fetch(`${API_BASE_URL}/api/reports/${id}`);
         if (!res.ok) throw new Error('Failed to fetch report');
         const data = await res.json();
         const rawContent = data.content || data.verdict || '';
