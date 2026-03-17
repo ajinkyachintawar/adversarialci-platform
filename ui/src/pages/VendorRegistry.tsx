@@ -6,6 +6,7 @@ import { useAllVendors } from '../hooks/useApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
+const ADMIN_MODE = false; // Set true only for local development
 
 interface AtlasData {
     research_count: number;
@@ -286,28 +287,32 @@ export default function VendorRegistry() {
                     <p>Central intelligence database of monitored competitors.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                        onClick={bulkRefresh.isRefreshing ? handleCancelBulk : handleRefreshAll}
-                        disabled={loading}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '6px',
-                            padding: '8px 16px', borderRadius: '6px', fontSize: '13px',
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                            background: 'transparent',
-                            border: `1px solid ${bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff'}`,
-                            color: bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff',
-                            transition: 'all 0.2s ease'
-                        }}
-                    >
-                        {bulkRefresh.isRefreshing ? (
-                            <><X size={14} /> Cancel</>
-                        ) : (
-                            <><RefreshCw size={14} /> Refresh All</>
-                        )}
-                    </button>
-                    <button className="btn btn-solid" onClick={() => setShowAddModal(true)}>
-                        <Plus size={15} /> Add Vendor
-                    </button>
+                    {ADMIN_MODE && (
+                        <button
+                            onClick={bulkRefresh.isRefreshing ? handleCancelBulk : handleRefreshAll}
+                            disabled={loading}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '8px 16px', borderRadius: '6px', fontSize: '13px',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                background: 'transparent',
+                                border: `1px solid ${bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff'}`,
+                                color: bulkRefresh.isRefreshing ? '#ff4466' : '#00d4ff',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            {bulkRefresh.isRefreshing ? (
+                                <><X size={14} /> Cancel</>
+                            ) : (
+                                <><RefreshCw size={14} /> Refresh All</>
+                            )}
+                        </button>
+                    )}
+                    {ADMIN_MODE && (
+                        <button className="btn btn-solid" onClick={() => setShowAddModal(true)}>
+                            <Plus size={15} /> Add Vendor
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -461,23 +466,27 @@ export default function VendorRegistry() {
                                         </td>
                                         <td style={{ textAlign: 'right', paddingRight: '1rem' }} onClick={e => e.stopPropagation()}>
                                             <div style={{ display: 'flex', gap: 'var(--sp-1)', justifyContent: 'flex-end' }}>
-                                                <button
-                                                    onClick={() => !isRefreshing && handleRefresh(vendor.name, vendor.vertical)}
-                                                    disabled={isRefreshing}
-                                                    title="Refresh intel"
-                                                    className="btn btn-secondary"
-                                                    style={{ padding: '0.3rem', color: isRefreshing ? 'var(--text-muted)' : 'var(--accent-cyan)' }}
-                                                >
-                                                    <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
-                                                </button>
-                                                <button
-                                                    onClick={() => setDeleteTarget({ name: vendor.name, vertical: vendor.vertical })}
-                                                    title="Delete vendor"
-                                                    className="btn btn-secondary"
-                                                    style={{ padding: '0.3rem', color: 'var(--accent-red)' }}
-                                                >
-                                                    <Trash2 size={13} />
-                                                </button>
+                                                {ADMIN_MODE && (
+                                                    <button
+                                                        onClick={() => !isRefreshing && handleRefresh(vendor.name, vendor.vertical)}
+                                                        disabled={isRefreshing}
+                                                        title="Refresh intel"
+                                                        className="btn btn-secondary"
+                                                        style={{ padding: '0.3rem', color: isRefreshing ? 'var(--text-muted)' : 'var(--accent-cyan)' }}
+                                                    >
+                                                        <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
+                                                    </button>
+                                                )}
+                                                {ADMIN_MODE && (
+                                                    <button
+                                                        onClick={() => setDeleteTarget({ name: vendor.name, vertical: vendor.vertical })}
+                                                        title="Delete vendor"
+                                                        className="btn btn-secondary"
+                                                        style={{ padding: '0.3rem', color: 'var(--accent-red)' }}
+                                                    >
+                                                        <Trash2 size={13} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -596,12 +605,16 @@ export default function VendorRegistry() {
                                                     marginTop: 'var(--sp-4)', paddingTop: 'var(--sp-4)',
                                                     borderTop: '1px solid var(--border-subtle)',
                                                 }}>
-                                                    <button className="btn btn-primary" style={{ fontSize: 'var(--text-xs)' }} onClick={(e) => { e.stopPropagation(); handleRefresh(vendor.name, vendor.vertical); }}>
-                                                        <RefreshCw size={12} /> Refresh Data
-                                                    </button>
-                                                    <button className="btn btn-danger" style={{ fontSize: 'var(--text-xs)' }} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ name: vendor.name, vertical: vendor.vertical }); }}>
-                                                        <Trash2 size={12} /> Delete
-                                                    </button>
+                                                    {ADMIN_MODE && (
+                                                        <button className="btn btn-primary" style={{ fontSize: 'var(--text-xs)' }} onClick={(e) => { e.stopPropagation(); handleRefresh(vendor.name, vendor.vertical); }}>
+                                                            <RefreshCw size={12} /> Refresh Data
+                                                        </button>
+                                                    )}
+                                                    {ADMIN_MODE && (
+                                                        <button className="btn btn-danger" style={{ fontSize: 'var(--text-xs)' }} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ name: vendor.name, vertical: vendor.vertical }); }}>
+                                                            <Trash2 size={12} /> Delete
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

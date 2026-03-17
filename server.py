@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
@@ -21,6 +21,12 @@ from vendor_registry import (
     vendor_exists, validate_url
 )
 from verticals import list_verticals, get_vertical
+
+ADMIN_KEY = os.getenv("ADMIN_KEY", "change-me-in-production")
+
+def require_admin(x_admin_key: str = Header(None)):
+    if x_admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Admin access required")
 
 app = FastAPI(title="Adversarial CI API", version="1.0.0")
 
@@ -93,7 +99,7 @@ async def api_list_vendors(vertical: str) -> Dict[str, Any]:
     return vendor_data
 
 @app.post("/api/vendors")
-async def api_add_vendor(vendor: VendorCreate):
+async def api_add_vendor(vendor: VendorCreate, _: str = Depends(require_admin)):
     """Adds a new vendor to the registry."""
     if vendor_exists(vendor.name, vendor.vertical):
         raise HTTPException(status_code=400, detail=f"Vendor '{vendor.name}' already exists in {vendor.vertical}.")
@@ -142,7 +148,7 @@ async def api_update_vendor(vendor: VendorUpdate):
     return {"status": "success", "message": f"Vendor '{vendor.name}' updated successfully."}
 
 @app.delete("/api/vendors")
-async def api_delete_vendor(req: DeleteVendorReq):
+async def api_delete_vendor(req: DeleteVendorReq, _: str = Depends(require_admin)):
     """Deletes a vendor from the registry."""
     if not vendor_exists(req.name, req.vertical):
          raise HTTPException(status_code=404, detail=f"Vendor '{req.name}' not found.")
@@ -161,7 +167,7 @@ class RefreshRequest(BaseModel):
     vertical: str
 
 @app.post("/api/vendors/refresh")
-async def api_refresh_vendor(req: RefreshRequest):
+async def api_refresh_vendor(req: RefreshRequest, _: str = Depends(require_admin)):
     """
     Trigger a re-scrape of a vendor's intelligence data via SSE.
     Runs all 6 source agents and streams progress back.
@@ -248,6 +254,22 @@ from sse_starlette.sse import EventSourceResponse
 # In production, this would be Redis or similar.
 session_queues: Dict[str, asyncio.Queue[str]] = {}
 
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+usage_tracker = defaultdict(list)
+MAX_SESSIONS_PER_DAY = 5
+
+def check_usage_limit(request: Request):
+    ip = request.client.host
+    now = datetime.utcnow()
+    usage_tracker[ip] = [t for t in usage_tracker[ip] if now - t < timedelta(days=1)]
+    
+    if len(usage_tracker[ip]) >= MAX_SESSIONS_PER_DAY:
+        raise HTTPException(status_code=429, detail="Daily limit reached (5 sessions). Try again tomorrow.")
+    
+    usage_tracker[ip].append(now)
+
 class EvalReq(BaseModel):
     vertical: str
     mode: str = "buyer"
@@ -256,7 +278,8 @@ class EvalReq(BaseModel):
     plaintiff: Dict[str, Any]
 
 @app.post("/api/evaluate")
-async def api_evaluate_start(req: EvalReq):
+async def api_evaluate_start(req: EvalReq, request: Request):
+    check_usage_limit(request)
     """
     Starts an asynchronous court session.
     Returns a session_id immediately so the client can connect to the SSE endpoint.
