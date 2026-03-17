@@ -1,39 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Database, FileText, CheckCircle2, AlertTriangle, ShoppingCart, Target, BarChart3, ArrowRight, Activity } from 'lucide-react';
-import Skeleton from '../components/Skeleton';
-import ErrorState from '../components/ErrorState';
-import { useAllVendors } from '../hooks/useApi';
-
-interface EnrichedVendor {
-    name: string;
-    vertical: string;
-    atlas: { research_count: number; status: string; last_scraped: string | null } | null;
-}
+import { ShoppingCart, Target, BarChart3, ArrowRight } from 'lucide-react';
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const { data, isLoading, error, refetch } = useAllVendors();
-
-    const vendors: EnrichedVendor[] = data
-        ? [...(data.database || []), ...(data.cloud || []), ...(data.crm || [])]
-        : [];
-
-    const totalVendors = vendors.length;
-    const totalResearch = vendors.reduce((sum, v) => sum + (v.atlas?.research_count || 0), 0);
-    const freshCount = vendors.filter(v => v.atlas?.status === 'fresh').length;
-    const staleCount = vendors.filter(v => v.atlas?.status === 'stale' || v.atlas?.status === 'new').length;
-
-    const verticals = [
-        { key: 'database', label: 'Database', color: 'var(--accent-cyan)' },
-        { key: 'cloud', label: 'Cloud', color: 'var(--accent-purple)' },
-        { key: 'crm', label: 'CRM', color: 'var(--accent-green)' },
-    ];
-
-    const getVerticalStats = (vKey: string) => {
-        const vVendors = vendors.filter(v => v.vertical === vKey);
-        const fresh = vVendors.filter(v => v.atlas?.status === 'fresh').length;
-        return { total: vVendors.length, fresh, pct: vVendors.length > 0 ? Math.round((fresh / vVendors.length) * 100) : 0 };
-    };
 
     const modes = [
         {
@@ -62,48 +31,76 @@ export default function Dashboard() {
         },
     ];
 
-    if (error) {
-        return (
-            <div className="animate-fade-in">
-                <div className="page-header"><h1>Command Center</h1><p>Overview of all intelligence operations.</p></div>
-                <ErrorState message="Failed to connect to backend. Is the server running?" onRetry={() => refetch()} />
-            </div>
-        );
-    }
+    const coverage = [
+        { label: 'Database', count: '9 vendors', color: 'var(--accent-cyan)' },
+        { label: 'Cloud', count: '5 vendors', color: 'var(--accent-purple)' },
+        { label: 'CRM', count: '4 vendors', color: 'var(--accent-green)' },
+    ];
 
     return (
         <div className="animate-fade-in">
-            <div className="page-header">
-                <h1>Command Center</h1>
-                <p>Overview of all intelligence operations and vendor profiles.</p>
+            {/* Hero Section */}
+            <div style={{ textAlign: 'center', marginBottom: 'var(--sp-12)', marginTop: 'var(--sp-8)' }}>
+                <h1 style={{ fontSize: '3rem', fontWeight: 800, color: 'white', marginBottom: 'var(--sp-2)' }}>
+                    AdversarialCI
+                </h1>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--accent-cyan)', marginBottom: 'var(--sp-4)' }}>
+                    Competitive intelligence through adversarial AI debate.
+                </h2>
+                <p style={{ 
+                    color: 'var(--text-secondary)', 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.6, 
+                    maxWidth: 600, 
+                    margin: '0 auto' 
+                }}>
+                    AI advocates argue for each vendor. A judge weighs evidence and delivers a verdict. 
+                    Get data-backed recommendations in minutes — not weeks of analyst research.
+                </p>
             </div>
 
-            {/* KPI Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--sp-4)', marginBottom: 'var(--sp-8)' }}>
-                {isLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="glass-panel kpi-card"><Skeleton width={120} height={44} /></div>
-                    ))
-                ) : (
-                    [
-                        { label: 'Total Vendors', value: totalVendors, icon: <Database size={18} />, color: 'var(--accent-cyan)', bg: 'var(--accent-cyan-muted)' },
-                        { label: 'Intel Documents', value: totalResearch, icon: <FileText size={18} />, color: 'var(--accent-purple)', bg: 'var(--accent-purple-muted)' },
-                        { label: 'Fresh Data', value: freshCount, icon: <CheckCircle2 size={18} />, color: 'var(--accent-green)', bg: 'var(--accent-green-muted)' },
-                        { label: 'Needs Refresh', value: staleCount, icon: <AlertTriangle size={18} />, color: 'var(--accent-yellow)', bg: 'var(--accent-yellow-muted)' },
-                    ].map((stat, i) => (
-                        <div key={i} className="glass-panel kpi-card">
-                            <div className="kpi-icon" style={{ background: stat.bg, color: stat.color }}>{stat.icon}</div>
-                            <div>
-                                <div className="kpi-value" style={{ color: stat.color }}>{stat.value}</div>
-                                <div className="kpi-label">{stat.label}</div>
-                            </div>
-                        </div>
-                    ))
-                )}
+            {/* How It Works Section */}
+            <div style={{ marginBottom: 'var(--sp-12)' }}>
+                <div className="section-title" style={{ marginBottom: 'var(--sp-6)', textAlign: 'center' }}>How It Works</div>
+                <div className="glass-panel" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(4, 1fr)', 
+                    gap: 'var(--sp-6)', 
+                    padding: 'var(--sp-8)' 
+                }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>🎯</div>
+                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Define Mission</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+                            Budget, scale, use case
+                        </p>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>⚔️</div>
+                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>AI Advocates Debate</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+                            3 rounds of arguments
+                        </p>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>⚖️</div>
+                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Judge Evaluates</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+                            Scores across 7 dimensions
+                        </p>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>📊</div>
+                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Get Verdict</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+                            Actionable recommendation
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            {/* Mode Cards */}
-            <div style={{ marginBottom: 'var(--sp-8)' }}>
+            {/* Launch Mission Section */}
+            <div style={{ marginBottom: 'var(--sp-12)' }}>
                 <div className="section-title" style={{ marginBottom: 'var(--sp-4)' }}>Launch Mission</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-4)' }}>
                     {modes.map((m) => (
@@ -150,48 +147,16 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Data Health */}
+            {/* Coverage Section */}
             <div style={{ marginBottom: 'var(--sp-8)' }}>
-                <div className="section-title" style={{ marginBottom: 'var(--sp-4)' }}>
-                    <Activity size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 'var(--sp-2)' }} />
-                    Data Health
-                </div>
-                <div className="glass-panel" style={{ padding: 'var(--sp-6)' }}>
-                    {isLoading ? (
-                        <Skeleton count={3} height={32} />
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-5)' }}>
-                            {verticals.map(v => {
-                                const stats = getVerticalStats(v.key);
-                                return (
-                                    <div key={v.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-4)' }}>
-                                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', minWidth: 80, fontWeight: 500 }}>{v.label}</span>
-                                        <div style={{ flex: 1 }}>
-                                            <div className="progress-bar" style={{ height: 6, borderRadius: 3 }}>
-                                                <div
-                                                    className="progress-fill"
-                                                    style={{
-                                                        width: `${stats.pct}%`,
-                                                        background: stats.pct >= 70 ? 'var(--accent-green)' : stats.pct >= 40 ? 'var(--accent-yellow)' : 'var(--accent-red)',
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <span style={{
-                                            fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)',
-                                            color: stats.pct >= 70 ? 'var(--accent-green)' : stats.pct >= 40 ? 'var(--accent-yellow)' : 'var(--text-muted)',
-                                            minWidth: 50, textAlign: 'right',
-                                        }}>
-                                            {stats.pct}%
-                                        </span>
-                                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', minWidth: 80 }}>
-                                            {stats.fresh}/{stats.total} fresh
-                                        </span>
-                                    </div>
-                                );
-                            })}
+                <div className="section-title" style={{ marginBottom: 'var(--sp-4)' }}>Coverage</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-4)' }}>
+                    {coverage.map((c) => (
+                        <div key={c.label} className="glass-panel" style={{ padding: 'var(--sp-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.label}</span>
+                            <span style={{ color: c.color, fontWeight: 500 }}>{c.count}</span>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
         </div>
