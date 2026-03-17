@@ -9,7 +9,8 @@ export default function Dashboard() {
             key: 'buyer',
             icon: ShoppingCart,
             title: 'Buyer Evaluation',
-            desc: 'Compare vendors against your specific requirements, budget, and use case. Get a data-backed recommendation.',
+            question: '"Which vendor fits my stack?"',
+            outcomes: ['Recommendation', 'tradeoffs', 'questions to ask'],
             color: 'var(--accent-cyan)',
             mutedColor: 'var(--accent-cyan-muted)',
         },
@@ -17,7 +18,8 @@ export default function Dashboard() {
             key: 'seller',
             icon: Target,
             title: 'Seller Battlecard',
-            desc: 'Generate competitive positioning and talking points against rival products for your sales team.',
+            question: '"How do I beat Competitor X?"',
+            outcomes: ['Battlecard', 'attack points', 'objection handlers'],
             color: 'var(--accent-purple)',
             mutedColor: 'var(--accent-purple-muted)',
         },
@@ -25,16 +27,11 @@ export default function Dashboard() {
             key: 'analyst',
             icon: BarChart3,
             title: 'Analyst Comparison',
-            desc: 'Objective, data-driven market analysis across all evaluation dimensions without buyer bias.',
+            question: '"Compare these objectively"',
+            outcomes: ['Scorecard', '7 dimensions', 'no bias'],
             color: 'var(--accent-green)',
             mutedColor: 'var(--accent-green-muted)',
         },
-    ];
-
-    const coverage = [
-        { label: 'Database', count: '9 vendors', color: 'var(--accent-cyan)' },
-        { label: 'Cloud', count: '5 vendors', color: 'var(--accent-purple)' },
-        { label: 'CRM', count: '4 vendors', color: 'var(--accent-green)' },
     ];
 
     return (
@@ -45,119 +42,121 @@ export default function Dashboard() {
                     AdversarialCI
                 </h1>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--accent-cyan)', marginBottom: 'var(--sp-4)' }}>
-                    Competitive intelligence through adversarial AI debate.
+                    Let AI lawyers fight it out. You get the verdict.
                 </h2>
-                <p style={{ 
-                    color: 'var(--text-secondary)', 
-                    fontSize: '1.1rem', 
-                    lineHeight: 1.6, 
-                    maxWidth: 600, 
-                    margin: '0 auto' 
+                <p style={{
+                    color: 'var(--text-secondary)',
+                    fontSize: '1.1rem',
+                    lineHeight: 1.6,
+                    maxWidth: 600,
+                    margin: '0 auto'
                 }}>
-                    AI advocates argue for each vendor. A judge weighs evidence and delivers a verdict. 
-                    Get data-backed recommendations in minutes — not weeks of analyst research.
+                    Pick vendors to compare. AI advocates argue each side across 3 rounds. A judge scores 7 dimensions and delivers a verdict — with reasoning, tradeoffs, and next steps.
                 </p>
             </div>
 
-            {/* How It Works Section */}
+            {/* Mode Cards */}
             <div style={{ marginBottom: 'var(--sp-12)' }}>
-                <div className="section-title" style={{ marginBottom: 'var(--sp-6)', textAlign: 'center' }}>How It Works</div>
-                <div className="glass-panel" style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(4, 1fr)', 
-                    gap: 'var(--sp-6)', 
-                    padding: 'var(--sp-8)' 
-                }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>🎯</div>
-                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Define Mission</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
-                            Budget, scale, use case
-                        </p>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>⚔️</div>
-                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>AI Advocates Debate</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
-                            3 rounds of arguments
-                        </p>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>⚖️</div>
-                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Judge Evaluates</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
-                            Scores across 7 dimensions
-                        </p>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', marginBottom: 'var(--sp-3)' }}>📊</div>
-                        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-2)' }}>Get Verdict</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
-                            Actionable recommendation
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Launch Mission Section */}
-            <div style={{ marginBottom: 'var(--sp-12)' }}>
-                <div className="section-title" style={{ marginBottom: 'var(--sp-4)' }}>Launch Mission</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-4)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-6)' }}>
                     {modes.map((m) => (
                         <div
                             key={m.key}
                             className="glass-panel"
                             style={{
-                                padding: 'var(--sp-6)',
-                                cursor: 'pointer',
-                                transition: 'all 0.25s ease',
+                                padding: 'var(--sp-8)',
+                                display: 'flex',
+                                flexDirection: 'column',
                                 position: 'relative',
                                 overflow: 'hidden',
-                            }}
-                            onClick={() => navigate(`/evaluate?mode=${m.key}`)}
-                            onMouseEnter={e => {
-                                (e.currentTarget as HTMLElement).style.borderColor = m.color;
-                                (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-                            }}
-                            onMouseLeave={e => {
-                                (e.currentTarget as HTMLElement).style.borderColor = '';
-                                (e.currentTarget as HTMLElement).style.transform = '';
+                                borderTop: `4px solid ${m.color}`,
                             }}
                         >
                             <div style={{
-                                display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', marginBottom: 'var(--sp-3)',
+                                display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)',
                             }}>
                                 <div style={{
-                                    width: 36, height: 36, borderRadius: 'var(--radius-md)',
+                                    width: 40, height: 40, borderRadius: 'var(--radius-md)',
                                     background: m.mutedColor, display: 'flex', alignItems: 'center',
                                     justifyContent: 'center', color: m.color,
                                 }}>
-                                    <m.icon size={18} />
+                                    <m.icon size={20} />
                                 </div>
-                                <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: m.color }}>{m.title}</h3>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: m.color }}>{m.title}</h3>
                             </div>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.6, marginBottom: 'var(--sp-5)' }}>
-                                {m.desc}
+
+                            <p style={{
+                                color: 'var(--text-muted)',
+                                fontStyle: 'italic',
+                                fontSize: '1.05rem',
+                                marginBottom: 'var(--sp-6)',
+                                borderLeft: `2px solid ${m.mutedColor}`,
+                                paddingLeft: 'var(--sp-3)'
+                            }}>
+                                {m.question}
                             </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', color: m.color, fontSize: 'var(--text-sm)', fontWeight: 500 }}>
-                                Launch <ArrowRight size={14} />
-                            </div>
+
+                            <ul style={{
+                                listStyle: 'none',
+                                padding: 0,
+                                margin: '0 0 var(--sp-8) 0',
+                                flex: 1
+                            }}>
+                                {m.outcomes.map((outcome, i) => (
+                                    <li key={i} style={{
+                                        color: 'var(--text-secondary)',
+                                        marginBottom: 'var(--sp-3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 'var(--sp-3)'
+                                    }}>
+                                        <span style={{ color: m.color, fontSize: '0.8rem' }}>•</span>
+                                        {i === 0 ? outcome : `+ ${outcome}`}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <button
+                                onClick={() => navigate(`/evaluate?mode=${m.key}`)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 'var(--sp-2)',
+                                    background: m.mutedColor,
+                                    color: m.color,
+                                    border: 'none',
+                                    padding: 'var(--sp-3)',
+                                    borderRadius: 'var(--radius-md)',
+                                    fontSize: 'var(--text-sm)',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    width: '100%'
+                                }}
+                                onMouseEnter={e => {
+                                    (e.currentTarget as HTMLElement).style.background = m.color;
+                                    (e.currentTarget as HTMLElement).style.color = '#fff';
+                                }}
+                                onMouseLeave={e => {
+                                    (e.currentTarget as HTMLElement).style.background = m.mutedColor;
+                                    (e.currentTarget as HTMLElement).style.color = m.color;
+                                }}
+                            >
+                                Launch <ArrowRight size={16} />
+                            </button>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Coverage Section */}
-            <div style={{ marginBottom: 'var(--sp-8)' }}>
-                <div className="section-title" style={{ marginBottom: 'var(--sp-4)' }}>Coverage</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-4)' }}>
-                    {coverage.map((c) => (
-                        <div key={c.label} className="glass-panel" style={{ padding: 'var(--sp-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.label}</span>
-                            <span style={{ color: c.color, fontWeight: 500 }}>{c.count}</span>
-                        </div>
-                    ))}
-                </div>
+            {/* Footer / Tech Stack */}
+            <div style={{ textAlign: 'center', paddingBottom: 'var(--sp-12)' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-2)' }}>
+                    18 vendors across Database • Cloud • CRM
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', opacity: 0.5 }}>
+                    Built with: LangGraph • Groq • FastAPI • React • MongoDB
+                </p>
             </div>
         </div>
     );
