@@ -1,13 +1,19 @@
 services:
   - type: web
     name: adversarialci-api
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
     envVars:
       - key: MONGODB_URI
         sync: false
       - key: GROQ_API_KEY
         sync: false
       - key: TAVILY_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_KEY
         sync: false
