@@ -7,6 +7,14 @@ import json
 
 import os
 
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    traces_sample_rate=0.1,
+    send_default_pii=False,
+)
+
 # CORS for deployment
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 ALLOWED_ORIGINS = [
@@ -58,7 +66,6 @@ class VendorUpdate(BaseModel):
 class DeleteVendorReq(BaseModel):
     name: str
     vertical: str
-
 
 # --- Vertical API Endpoints ---
 

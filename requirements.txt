@@ -14,3 +14,4 @@ pydantic
 feedparser
 httpx
 sse-starlette
+sentry-sdk[fastapi]
