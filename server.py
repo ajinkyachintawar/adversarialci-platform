@@ -47,6 +47,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_RESPONSE_SIZE_THRESHOLD = 5 * 1024  # 5 KB
+
+@app.middleware("http")
+async def log_large_responses(request: Request, call_next):
+    response = await call_next(request)
+    # Only buffer JSON-ish responses; skip streaming endpoints
+    content_type = response.headers.get("content-type", "")
+    if "application/json" in content_type:
+        body = b""
+        async for chunk in response.body_iterator:
+            body += chunk
+        size = len(body)
+        if size > _RESPONSE_SIZE_THRESHOLD:
+            print(f"[LARGE_RESPONSE] {request.method} {request.url.path} → {size} bytes")
+        from starlette.responses import Response
+        return Response(
+            content=body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            media_type=response.media_type,
+        )
+    return response
+
+
 # --- Pydantic Models for Input Validation ---
 
 class VendorCreate(BaseModel):
@@ -530,8 +554,6 @@ async def api_get_enriched_vendors(vertical: str):
             "blog_tavily": config.get("blog_tavily", []),
             "migration_queries": config.get("migration_queries", []),
             "complaint_queries": config.get("complaint_queries", []),
-            "added_at": config.get("added_at"),
-            "added_by": config.get("added_by", "unknown"),
         }
         
         # Merge Atlas data if available
@@ -543,6 +565,42 @@ async def api_get_enriched_vendors(vertical: str):
         enriched.append(vendor_info)
     
     return enriched
+
+
+@app.get("/api/vendors/{vertical}/list")
+async def api_list_vendors_slim(vertical: str):
+    """Returns minimal vendor data for list views."""
+    try:
+        get_vertical(vertical)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Vertical not found")
+
+    vendor_names = list_vendors(vertical)
+    result = []
+
+    atlas_data = {}
+    try:
+        from db.atlas import connect, get_collection, get_vendor_status as atlas_vendor_status
+        connect()
+        research_col = get_collection("research_data")
+        for name in vendor_names:
+            latest = research_col.find_one({"company": name}, sort=[("scraped_at", -1)])
+            last_scraped = latest["scraped_at"].isoformat() if latest and latest.get("scraped_at") else None
+            atlas_data[name] = {
+                "research_count": research_col.count_documents({"company": name}),
+                "last_scraped": last_scraped,
+                "status": atlas_vendor_status(name),
+            }
+    except Exception as e:
+        print(f"Atlas connection failed (non-fatal): {e}")
+
+    for name in vendor_names:
+        entry = {"name": name, "status": None, "research_count": 0, "last_scraped": None}
+        if name in atlas_data:
+            entry.update(atlas_data[name])
+        result.append(entry)
+
+    return result
 
 
 @app.get("/api/atlas/freshness")
@@ -622,9 +680,7 @@ async def api_get_sessions(
                 "plaintiff_profile": {
                     "company": plaintiff.get("company_name", ""),
                     "budget": plaintiff.get("budget", ""),
-                    "use_case": plaintiff.get("use_case", ""),
                     "priority": plaintiff.get("priority", ""),
-                    "team_size": plaintiff.get("team_size", ""),
                 } if mode_val != "analyst" else None,
                 "created_at": doc.get("created_at").isoformat() if doc.get("created_at") else None,
                 "report_id": report_id,
