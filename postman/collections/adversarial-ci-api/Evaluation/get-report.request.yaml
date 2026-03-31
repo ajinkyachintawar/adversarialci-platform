@@ -1,0 +1,9 @@
+$kind: http-request
+name: Get Report
+method: GET
+url: '{{baseUrl}}/api/reports/:report_id'
+order: 3000
+pathVariables:
+  - key: report_id
+    value: buyer_report_20260303_105634
+description: 'Reads the report from MongoDB or fallback to disk.'

@@ -1,0 +1,16 @@
+$kind: http-request
+name: Get Session Trends
+method: GET
+url: '{{baseUrl}}/api/sessions/trends'
+order: 2000
+queryParams:
+  - key: mode
+    value: buyer
+    disabled: true
+  - key: vertical
+    value: database
+    disabled: true
+  - key: days
+    value: '30'
+    disabled: true
+description: 'Returns winner distribution for trend visualization.'

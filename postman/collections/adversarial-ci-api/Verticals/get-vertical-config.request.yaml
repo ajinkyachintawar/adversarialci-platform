@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get Vertical Config
+method: GET
+url: '{{baseUrl}}/api/verticals/:vertical'
+order: 2000
+pathVariables:
+  - key: vertical
+    value: database

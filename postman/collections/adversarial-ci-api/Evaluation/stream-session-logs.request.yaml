@@ -1,0 +1,9 @@
+$kind: http-request
+name: 'Stream Session Logs (SSE)'
+method: GET
+url: '{{baseUrl}}/api/stream/:session_id'
+order: 2000
+pathVariables:
+  - key: session_id
+    value: '{{sessionId}}'
+description: 'SSE endpoint for streaming terminal logs to the UI.'

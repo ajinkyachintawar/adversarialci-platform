@@ -1,0 +1,18 @@
+$kind: http-request
+name: 'Refresh Vendor (Admin, SSE)'
+method: POST
+url: '{{baseUrl}}/api/vendors/refresh'
+order: 6000
+headers:
+  - key: x-admin-key
+    value: '{{adminKey}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "ExampleVendor",
+      "vertical": "database"
+    }
+description: "Triggers a re-scrape of a vendor's intelligence data via SSE. Runs all 6 source agents and streams progress back."

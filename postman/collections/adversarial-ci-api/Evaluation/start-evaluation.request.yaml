@@ -1,0 +1,25 @@
+$kind: http-request
+name: Start Evaluation
+method: POST
+url: '{{baseUrl}}/api/evaluate'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "vertical": "database",
+      "mode": "buyer",
+      "primary": "PrimaryVendor",
+      "competitors": ["Competitor1", "Competitor2"],
+      "plaintiff": {
+        "company_name": "Acme Corp",
+        "budget": "50000",
+        "use_case": "OLTP workloads",
+        "priority": "performance",
+        "team_size": "10"
+      }
+    }
+description: 'Starts an async court session. Returns a session_id immediately. Rate limited to 5 sessions/day per IP.'

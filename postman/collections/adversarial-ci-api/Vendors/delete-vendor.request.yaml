@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'Delete Vendor (Admin)'
+method: DELETE
+url: '{{baseUrl}}/api/vendors'
+order: 5000
+headers:
+  - key: x-admin-key
+    value: '{{adminKey}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "ExampleVendor",
+      "vertical": "database"
+    }

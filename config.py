@@ -18,7 +18,7 @@ COLLECTION_COMPANIES = "companies"
 COLLECTION_SESSIONS  = "court_sessions"
 
 # Freshness threshold (days)
-FRESHNESS_DAYS  = 30
+FRESHNESS_DAYS  = 14
 
 # LLM
 LLM_MODEL       = "llama-3.3-70b-versatile"

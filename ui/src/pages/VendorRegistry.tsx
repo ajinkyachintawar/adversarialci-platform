@@ -5,8 +5,9 @@ import ErrorState from '../components/ErrorState';
 import { useAllVendors } from '../hooks/useApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || '';
 
-const ADMIN_MODE = false; // Set true only for local development
+const ADMIN_MODE = true; // Set true only for local development
 
 interface AtlasData {
     research_count: number;
@@ -67,7 +68,7 @@ export default function VendorRegistry() {
         try {
             const res = await fetch(`${API_BASE_URL}/api/vendors`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
                 body: JSON.stringify({ name, vertical }),
             });
             if (res.ok) {
@@ -90,7 +91,7 @@ export default function VendorRegistry() {
 
         fetch(`${API_BASE_URL}/api/vendors/refresh`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
             body: JSON.stringify({ name, vertical }),
         }).then(async (response) => {
             const reader = response.body?.getReader();
@@ -160,7 +161,7 @@ export default function VendorRegistry() {
 
             fetch(`${API_BASE_URL}/api/vendors/refresh`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
                 body: JSON.stringify({ name, vertical }),
             }).then(async (response) => {
                 const reader = response.body?.getReader();
@@ -675,7 +676,7 @@ function AddVendorModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
         try {
             const res = await fetch(`${API_BASE_URL}/api/vendors`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
                 body: JSON.stringify({
                     name: form.name.trim(),
                     vertical: form.vertical,

@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Verticals
+method: GET
+url: '{{baseUrl}}/api/verticals'
+order: 1000

@@ -1,0 +1,22 @@
+$kind: http-request
+name: List Sessions
+method: GET
+url: '{{baseUrl}}/api/sessions'
+order: 1000
+queryParams:
+  - key: mode
+    value: buyer
+    disabled: true
+  - key: vertical
+    value: database
+    disabled: true
+  - key: days
+    value: '30'
+    disabled: true
+  - key: limit
+    value: '20'
+    disabled: true
+  - key: offset
+    value: '0'
+    disabled: true
+description: 'Returns paginated list of court sessions with filters and aggregate stats.'

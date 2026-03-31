@@ -1,0 +1,18 @@
+$kind: http-request
+name: Update Vendor
+method: PUT
+url: '{{baseUrl}}/api/vendors'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "ExampleVendor",
+      "vertical": "database",
+      "pricing_url": "https://example.com/pricing",
+      "github_repo": "https://github.com/example/repo",
+      "blog_rss": "https://example.com/rss"
+    }

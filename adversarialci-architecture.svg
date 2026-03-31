@@ -1,0 +1,436 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 920" font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="ingestionGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="storageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="agentGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="llmGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="backendGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="frontendGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="deployGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+    <linearGradient id="metricGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glowBlue">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#3b82f6" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowGreen">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#10b981" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowAmber">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#f59e0b" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowPurple">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#8b5cf6" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowMetric">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.5"/>
+    </filter>
+
+    <!-- Arrow marker -->
+    <marker id="arrowWhite" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="920" fill="url(#bgGrad)" rx="16"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.03">
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(100,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(200,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(300,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(400,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(500,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(600,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(700,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(800,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(900,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(1000,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(1100,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(1200,0)"/>
+    <line x1="0" y1="0" x2="0" y2="920" stroke="#fff" stroke-width="1" transform="translate(1300,0)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- TITLE -->
+  <!-- ============================================ -->
+  <text x="700" y="48" text-anchor="middle" fill="#f8fafc" font-size="26" font-weight="700" letter-spacing="1">
+    AdversarialCI — System Architecture
+  </text>
+  <text x="700" y="72" text-anchor="middle" fill="#64748b" font-size="13" font-weight="400" letter-spacing="0.5">
+    Multi-Agent Competitive Intelligence Platform
+  </text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 1: DATA INGESTION (Blue) -->
+  <!-- ============================================ -->
+  <!-- Layer background -->
+  <rect x="30" y="95" width="220" height="500" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="30" y="95" width="220" height="36" rx="12" fill="url(#ingestionGrad)" opacity="0.15"/>
+  <!-- Clip the bottom corners of the header highlight -->
+  <rect x="30" y="115" width="220" height="16" fill="url(#ingestionGrad)" opacity="0.15"/>
+
+  <!-- Layer label -->
+  <circle cx="52" cy="113" r="5" fill="#3b82f6"/>
+  <text x="64" y="117" fill="#93c5fd" font-size="11" font-weight="600" letter-spacing="1.5" text-transform="uppercase">DATA INGESTION</text>
+
+  <!-- Crawl4AI -->
+  <rect x="48" y="145" width="184" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" filter="url(#glowBlue)" opacity="0.9"/>
+  <text x="78" y="170" fill="#93c5fd" font-size="10" font-weight="600" letter-spacing="0.5">🌐</text>
+  <text x="96" y="171" fill="#e2e8f0" font-size="13" font-weight="600">Crawl4AI</text>
+  <text x="68" y="190" fill="#94a3b8" font-size="10">Web scraping: company data,</text>
+  <text x="68" y="203" fill="#94a3b8" font-size="10">news, docs, pricing pages</text>
+
+  <!-- PRAW -->
+  <rect x="48" y="228" width="184" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" filter="url(#glowBlue)" opacity="0.9"/>
+  <text x="78" y="253" fill="#93c5fd" font-size="10" font-weight="600" letter-spacing="0.5">💬</text>
+  <text x="96" y="254" fill="#e2e8f0" font-size="13" font-weight="600">PRAW</text>
+  <text x="68" y="273" fill="#94a3b8" font-size="10">Reddit API for community</text>
+  <text x="68" y="286" fill="#94a3b8" font-size="10">sentiment &amp; discussions</text>
+
+  <!-- GitHub API -->
+  <rect x="48" y="311" width="184" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" filter="url(#glowBlue)" opacity="0.9"/>
+  <text x="78" y="336" fill="#93c5fd" font-size="10" font-weight="600" letter-spacing="0.5">⚙️</text>
+  <text x="96" y="337" fill="#e2e8f0" font-size="13" font-weight="600">GitHub API</text>
+  <text x="68" y="356" fill="#94a3b8" font-size="10">Repository analysis: stars,</text>
+  <text x="68" y="369" fill="#94a3b8" font-size="10">commits, contributors, issues</text>
+
+  <!-- Tavily -->
+  <rect x="48" y="394" width="184" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" filter="url(#glowBlue)" opacity="0.9"/>
+  <text x="78" y="419" fill="#93c5fd" font-size="10" font-weight="600" letter-spacing="0.5">🔍</text>
+  <text x="96" y="420" fill="#e2e8f0" font-size="13" font-weight="600">Tavily Search</text>
+  <text x="68" y="439" fill="#94a3b8" font-size="10">Real-time web search API</text>
+  <text x="68" y="452" fill="#94a3b8" font-size="10">for latest competitive data</text>
+
+  <!-- Source count badge -->
+  <rect x="78" y="480" width="124" height="28" rx="14" fill="#3b82f620" stroke="#3b82f6" stroke-width="1"/>
+  <text x="140" y="498" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">4 Data Sources</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 2: VECTOR DB & RAG (Green) -->
+  <!-- ============================================ -->
+  <rect x="290" y="95" width="220" height="500" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="290" y="95" width="220" height="36" rx="12" fill="url(#storageGrad)" opacity="0.15"/>
+  <rect x="290" y="115" width="220" height="16" fill="url(#storageGrad)" opacity="0.15"/>
+
+  <circle cx="312" cy="113" r="5" fill="#10b981"/>
+  <text x="324" y="117" fill="#6ee7b7" font-size="11" font-weight="600" letter-spacing="1.5">VECTOR DB &amp; RAG</text>
+
+  <!-- MongoDB Atlas -->
+  <rect x="308" y="145" width="184" height="95" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5" filter="url(#glowGreen)" opacity="0.9"/>
+  <text x="338" y="172" fill="#6ee7b7" font-size="12" font-weight="600" letter-spacing="0.5">🍃</text>
+  <text x="356" y="173" fill="#e2e8f0" font-size="13" font-weight="600">MongoDB Atlas</text>
+  <text x="328" y="195" fill="#94a3b8" font-size="10">Vector Search for semantic</text>
+  <text x="328" y="208" fill="#94a3b8" font-size="10">document retrieval</text>
+  <rect x="328" y="218" width="80" height="16" rx="3" fill="#10b98120"/>
+  <text x="368" y="229" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="600">cosine similarity</text>
+
+  <!-- Embedding Pipeline -->
+  <rect x="308" y="258" width="184" height="85" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5" filter="url(#glowGreen)" opacity="0.9"/>
+  <text x="338" y="283" fill="#6ee7b7" font-size="12" font-weight="600" letter-spacing="0.5">📦</text>
+  <text x="356" y="284" fill="#e2e8f0" font-size="13" font-weight="600">Embedding Pipeline</text>
+  <text x="328" y="306" fill="#94a3b8" font-size="10">Document chunking</text>
+  <text x="328" y="319" fill="#94a3b8" font-size="10">Vector embeddings generation</text>
+  <text x="328" y="332" fill="#94a3b8" font-size="10">Retrieval-Augmented Generation</text>
+
+  <!-- Document store icon -->
+  <rect x="308" y="360" width="184" height="58" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1" opacity="0.7"/>
+  <text x="400" y="385" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">research_data collection</text>
+  <text x="400" y="400" text-anchor="middle" fill="#64748b" font-size="9">Structured + unstructured docs</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 3: MULTI-AGENT ORCHESTRATION (Amber) -->
+  <!-- ============================================ -->
+  <rect x="550" y="95" width="310" height="500" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="550" y="95" width="310" height="36" rx="12" fill="url(#agentGrad)" opacity="0.15"/>
+  <rect x="550" y="115" width="310" height="16" fill="url(#agentGrad)" opacity="0.15"/>
+
+  <circle cx="572" cy="113" r="5" fill="#f59e0b"/>
+  <text x="584" y="117" fill="#fcd34d" font-size="11" font-weight="600" letter-spacing="1.5">MULTI-AGENT ORCHESTRATION</text>
+
+  <!-- LangGraph label -->
+  <rect x="660" y="138" width="100" height="22" rx="11" fill="#f59e0b20" stroke="#f59e0b" stroke-width="1"/>
+  <text x="710" y="153" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">🔗 LangGraph</text>
+
+  <!-- Agent 1: Researcher -->
+  <rect x="575" y="175" width="260" height="80" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" filter="url(#glowAmber)"/>
+  <rect x="585" y="185" width="28" height="28" rx="14" fill="#f59e0b30"/>
+  <text x="599" y="204" text-anchor="middle" fill="#fcd34d" font-size="14" font-weight="700">1</text>
+  <text x="625" y="201" fill="#e2e8f0" font-size="14" font-weight="700">Researcher Agent</text>
+  <text x="625" y="220" fill="#94a3b8" font-size="10">Gathers &amp; retrieves relevant data from</text>
+  <text x="625" y="233" fill="#94a3b8" font-size="10">vector store and external sources</text>
+  <rect x="750" y="186" width="72" height="18" rx="4" fill="#3b82f615" stroke="#3b82f6" stroke-width="0.5"/>
+  <text x="786" y="198" text-anchor="middle" fill="#93c5fd" font-size="8" font-weight="600">RAG retrieval</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="705" y1="255" x2="705" y2="285" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" stroke-dasharray="4,3"/>
+  <text x="718" y="274" fill="#64748b" font-size="8" font-style="italic">state pass</text>
+
+  <!-- Agent 2: Analyst -->
+  <rect x="575" y="285" width="260" height="80" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" filter="url(#glowAmber)"/>
+  <rect x="585" y="295" width="28" height="28" rx="14" fill="#f59e0b30"/>
+  <text x="599" y="314" text-anchor="middle" fill="#fcd34d" font-size="14" font-weight="700">2</text>
+  <text x="625" y="311" fill="#e2e8f0" font-size="14" font-weight="700">Analyst Agent</text>
+  <text x="625" y="330" fill="#94a3b8" font-size="10">Synthesizes insights from retrieved</text>
+  <text x="625" y="343" fill="#94a3b8" font-size="10">context into structured analysis</text>
+  <rect x="750" y="296" width="72" height="18" rx="4" fill="#8b5cf615" stroke="#8b5cf6" stroke-width="0.5"/>
+  <text x="786" y="308" text-anchor="middle" fill="#c4b5fd" font-size="8" font-weight="600">LLM chains</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="705" y1="365" x2="705" y2="395" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" stroke-dasharray="4,3"/>
+  <text x="718" y="384" fill="#64748b" font-size="8" font-style="italic">state pass</text>
+
+  <!-- Agent 3: Adversarial Challenger -->
+  <rect x="575" y="395" width="260" height="90" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2" filter="url(#glowAmber)"/>
+  <rect x="585" y="405" width="28" height="28" rx="14" fill="#ef444430"/>
+  <text x="599" y="424" text-anchor="middle" fill="#fca5a5" font-size="14" font-weight="700">3</text>
+  <text x="625" y="420" fill="#e2e8f0" font-size="14" font-weight="700">Adversarial Challenger</text>
+  <text x="625" y="439" fill="#94a3b8" font-size="10">Stress-tests conclusions, catches</text>
+  <text x="625" y="452" fill="#94a3b8" font-size="10">weak arguments, demands evidence</text>
+  <rect x="625" y="462" width="76" height="16" rx="3" fill="#ef444420"/>
+  <text x="663" y="473" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="600">⚡ stress-test</text>
+
+  <!-- Adversarial Feedback Loop Arrow -->
+  <path d="M 840 440 C 870 440, 870 220, 840 220" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrowAmber)" stroke-dasharray="6,3"/>
+  <rect x="855" y="315" width="85" height="36" rx="6" fill="#f59e0b15" stroke="#f59e0b" stroke-width="1" transform="rotate(0)"/>
+  <text x="897" y="330" text-anchor="middle" fill="#fcd34d" font-size="8" font-weight="700">ADVERSARIAL</text>
+  <text x="897" y="342" text-anchor="middle" fill="#fcd34d" font-size="8" font-weight="700">FEEDBACK LOOP</text>
+
+  <!-- State Management badge -->
+  <rect x="600" y="502" width="210" height="24" rx="12" fill="#f59e0b10" stroke="#f59e0b" stroke-width="1"/>
+  <text x="705" y="518" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="600">🔄 LangGraph State Management</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 4: LLM INFERENCE (Purple) - positioned to the right -->
+  <!-- ============================================ -->
+  <rect x="950" y="95" width="200" height="240" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="950" y="95" width="200" height="36" rx="12" fill="url(#llmGrad)" opacity="0.15"/>
+  <rect x="950" y="115" width="200" height="16" fill="url(#llmGrad)" opacity="0.15"/>
+
+  <circle cx="972" cy="113" r="5" fill="#8b5cf6"/>
+  <text x="984" y="117" fill="#c4b5fd" font-size="11" font-weight="600" letter-spacing="1.5">LLM INFERENCE</text>
+
+  <!-- Groq -->
+  <rect x="968" y="145" width="164" height="70" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5" filter="url(#glowPurple)" opacity="0.9"/>
+  <text x="998" y="171" fill="#c4b5fd" font-size="12" font-weight="600">⚡</text>
+  <text x="1016" y="172" fill="#e2e8f0" font-size="13" font-weight="600">Groq API</text>
+  <text x="988" y="192" fill="#94a3b8" font-size="10">Llama-3.3-70b</text>
+  <text x="988" y="205" fill="#94a3b8" font-size="10">Ultra-fast inference</text>
+
+  <!-- LangChain -->
+  <rect x="968" y="228" width="164" height="70" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5" filter="url(#glowPurple)" opacity="0.9"/>
+  <text x="998" y="254" fill="#c4b5fd" font-size="12" font-weight="600">🦜</text>
+  <text x="1016" y="255" fill="#e2e8f0" font-size="13" font-weight="600">LangChain</text>
+  <text x="988" y="275" fill="#94a3b8" font-size="10">Prompt management</text>
+  <text x="988" y="288" fill="#94a3b8" font-size="10">Chain orchestration</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 5: BACKEND (Red) -->
+  <!-- ============================================ -->
+  <rect x="950" y="355" width="200" height="240" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="950" y="355" width="200" height="36" rx="12" fill="url(#backendGrad)" opacity="0.15"/>
+  <rect x="950" y="375" width="200" height="16" fill="url(#backendGrad)" opacity="0.15"/>
+
+  <circle cx="972" cy="373" r="5" fill="#ef4444"/>
+  <text x="984" y="377" fill="#fca5a5" font-size="11" font-weight="600" letter-spacing="1.5">BACKEND API</text>
+
+  <!-- FastAPI -->
+  <rect x="968" y="405" width="164" height="55" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="1.5" opacity="0.9"/>
+  <text x="998" y="428" fill="#fca5a5" font-size="12" font-weight="600">🚀</text>
+  <text x="1016" y="429" fill="#e2e8f0" font-size="13" font-weight="600">FastAPI</text>
+  <text x="988" y="449" fill="#94a3b8" font-size="10">15 API endpoints</text>
+
+  <!-- SSE -->
+  <rect x="968" y="470" width="164" height="45" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="1.5" opacity="0.9"/>
+  <text x="998" y="497" fill="#fca5a5" font-size="12" font-weight="600">📡</text>
+  <text x="1016" y="498" fill="#e2e8f0" font-size="12" font-weight="600">SSE Streaming</text>
+  <text x="988" y="509" fill="#94a3b8" font-size="9">Real-time response streaming</text>
+
+  <!-- Sentry -->
+  <rect x="968" y="525" width="164" height="45" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="1" opacity="0.7"/>
+  <text x="998" y="552" fill="#fca5a5" font-size="12" font-weight="600">🛡️</text>
+  <text x="1018" y="553" fill="#e2e8f0" font-size="12" font-weight="600">Sentry</text>
+  <text x="988" y="565" fill="#94a3b8" font-size="9">Error monitoring &amp; observability</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 6: FRONTEND (Cyan) -->
+  <!-- ============================================ -->
+  <rect x="1190" y="355" width="180" height="240" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="1190" y="355" width="180" height="36" rx="12" fill="url(#frontendGrad)" opacity="0.15"/>
+  <rect x="1190" y="375" width="180" height="16" fill="url(#frontendGrad)" opacity="0.15"/>
+
+  <circle cx="1212" cy="373" r="5" fill="#06b6d4"/>
+  <text x="1224" y="377" fill="#67e8f9" font-size="11" font-weight="600" letter-spacing="1.5">FRONTEND</text>
+
+  <!-- React -->
+  <rect x="1208" y="405" width="144" height="70" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5" opacity="0.9"/>
+  <text x="1238" y="432" fill="#67e8f9" font-size="14" font-weight="600">⚛</text>
+  <text x="1256" y="433" fill="#e2e8f0" font-size="13" font-weight="600">React</text>
+  <text x="1228" y="452" fill="#94a3b8" font-size="10">Interactive dashboard</text>
+  <text x="1228" y="465" fill="#94a3b8" font-size="10">Real-time streaming UI</text>
+
+  <!-- Features list -->
+  <rect x="1208" y="488" width="144" height="80" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="1" opacity="0.7"/>
+  <text x="1228" y="507" fill="#67e8f9" font-size="9" font-weight="600">Features:</text>
+  <text x="1228" y="522" fill="#94a3b8" font-size="9">• Report generation</text>
+  <text x="1228" y="535" fill="#94a3b8" font-size="9">• Vendor registry</text>
+  <text x="1228" y="548" fill="#94a3b8" font-size="9">• Signal feed</text>
+  <text x="1228" y="561" fill="#94a3b8" font-size="9">• Intelligence tracker</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER 7: DEPLOYMENT (Pink) -->
+  <!-- ============================================ -->
+  <rect x="30" y="630" width="1340" height="90" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="30" y="630" width="1340" height="36" rx="12" fill="url(#deployGrad)" opacity="0.1"/>
+  <rect x="30" y="650" width="1340" height="16" fill="url(#deployGrad)" opacity="0.1"/>
+
+  <circle cx="52" cy="648" r="5" fill="#ec4899"/>
+  <text x="64" y="652" fill="#f9a8d4" font-size="11" font-weight="600" letter-spacing="1.5">DEPLOYMENT &amp; INFRASTRUCTURE</text>
+
+  <!-- Docker -->
+  <rect x="100" y="675" width="200" height="34" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="1"/>
+  <text x="130" y="696" fill="#f9a8d4" font-size="11" font-weight="600">🐳</text>
+  <text x="148" y="697" fill="#e2e8f0" font-size="12" font-weight="600">Docker</text>
+  <text x="210" y="697" fill="#94a3b8" font-size="10">Containerized backend</text>
+
+  <!-- Render -->
+  <rect x="370" y="675" width="200" height="34" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="1"/>
+  <text x="400" y="696" fill="#f9a8d4" font-size="11" font-weight="600">☁️</text>
+  <text x="418" y="697" fill="#e2e8f0" font-size="12" font-weight="600">Render</text>
+  <text x="475" y="697" fill="#94a3b8" font-size="10">Backend hosting</text>
+
+  <!-- Vercel -->
+  <rect x="640" y="675" width="200" height="34" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="1"/>
+  <text x="670" y="696" fill="#f9a8d4" font-size="11" font-weight="600">▲</text>
+  <text x="688" y="697" fill="#e2e8f0" font-size="12" font-weight="600">Vercel</text>
+  <text x="740" y="697" fill="#94a3b8" font-size="10">Frontend hosting</text>
+
+  <!-- MongoDB Atlas Cloud -->
+  <rect x="910" y="675" width="220" height="34" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="1"/>
+  <text x="940" y="696" fill="#f9a8d4" font-size="11" font-weight="600">🍃</text>
+  <text x="958" y="697" fill="#e2e8f0" font-size="12" font-weight="600">MongoDB Atlas</text>
+  <text x="1060" y="697" fill="#94a3b8" font-size="10">Cloud database</text>
+
+  <!-- ============================================ -->
+  <!-- CONNECTION ARROWS -->
+  <!-- ============================================ -->
+
+  <!-- Ingestion → Vector DB -->
+  <line x1="250" y1="180" x2="308" y2="180" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <line x1="250" y1="260" x2="308" y2="290" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <line x1="250" y1="345" x2="308" y2="310" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <line x1="250" y1="430" x2="308" y2="380" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+
+  <!-- Vector DB → Agents -->
+  <line x1="510" y1="200" x2="575" y2="215" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <line x1="510" y1="300" x2="575" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+
+  <!-- Agents → LLM -->
+  <line x1="835" y1="215" x2="950" y2="180" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <line x1="835" y1="325" x2="950" y2="260" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <!-- LLM → Agents (inference responses) -->
+  <line x1="950" y1="195" x2="835" y2="230" stroke="#c4b5fd" stroke-width="1" marker-end="url(#arrowWhite)" opacity="0.3" stroke-dasharray="3,3"/>
+  <line x1="950" y1="275" x2="835" y2="340" stroke="#c4b5fd" stroke-width="1" marker-end="url(#arrowWhite)" opacity="0.3" stroke-dasharray="3,3"/>
+
+  <!-- Agents → Backend -->
+  <line x1="835" y1="440" x2="950" y2="440" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+
+  <!-- Backend → Frontend -->
+  <line x1="1150" y1="470" x2="1190" y2="470" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhite)" opacity="0.6"/>
+  <!-- SSE label on this arrow -->
+  <rect x="1155" y="452" width="30" height="14" rx="3" fill="#ef444420"/>
+  <text x="1170" y="462" text-anchor="middle" fill="#fca5a5" font-size="7" font-weight="700">SSE</text>
+
+  <!-- ============================================ -->
+  <!-- METRICS CALLOUT -->
+  <!-- ============================================ -->
+  <rect x="1190" y="130" width="180" height="80" rx="12" fill="#1e293b" stroke="url(#metricGrad)" stroke-width="2" filter="url(#glowMetric)"/>
+  <text x="1280" y="157" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700" letter-spacing="1">ADVERSARIAL ACCURACY</text>
+  <text x="1280" y="185" text-anchor="middle" fill="#f8fafc" font-size="26" font-weight="800">87.9%</text>
+  <text x="1280" y="202" text-anchor="middle" fill="#94a3b8" font-size="9">robustness score</text>
+
+  <!-- ============================================ -->
+  <!-- LEGEND -->
+  <!-- ============================================ -->
+  <rect x="30" y="750" width="1340" height="70" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <text x="60" y="774" fill="#64748b" font-size="10" font-weight="600" letter-spacing="1">LEGEND</text>
+
+  <!-- Legend items -->
+  <rect x="130" y="764" width="12" height="12" rx="3" fill="#3b82f6"/>
+  <text x="148" y="774" fill="#94a3b8" font-size="10">Data Ingestion</text>
+
+  <rect x="270" y="764" width="12" height="12" rx="3" fill="#10b981"/>
+  <text x="288" y="774" fill="#94a3b8" font-size="10">Vector DB &amp; RAG</text>
+
+  <rect x="415" y="764" width="12" height="12" rx="3" fill="#f59e0b"/>
+  <text x="433" y="774" fill="#94a3b8" font-size="10">Agent Orchestration</text>
+
+  <rect x="580" y="764" width="12" height="12" rx="3" fill="#8b5cf6"/>
+  <text x="598" y="774" fill="#94a3b8" font-size="10">LLM Inference</text>
+
+  <rect x="720" y="764" width="12" height="12" rx="3" fill="#ef4444"/>
+  <text x="738" y="774" fill="#94a3b8" font-size="10">Backend API</text>
+
+  <rect x="840" y="764" width="12" height="12" rx="3" fill="#06b6d4"/>
+  <text x="858" y="774" fill="#94a3b8" font-size="10">Frontend</text>
+
+  <rect x="950" y="764" width="12" height="12" rx="3" fill="#ec4899"/>
+  <text x="968" y="774" fill="#94a3b8" font-size="10">Deployment</text>
+
+  <!-- Dashed line legend -->
+  <line x1="1090" y1="770" x2="1120" y2="770" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="1128" y="774" fill="#94a3b8" font-size="10">Data flow</text>
+
+  <line x1="1220" y1="770" x2="1250" y2="770" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="1258" y="774" fill="#94a3b8" font-size="10">Feedback loop</text>
+
+  <!-- Bottom text -->
+  <text x="700" y="808" text-anchor="middle" fill="#475569" font-size="10" letter-spacing="0.5">
+    AdversarialCI — Production-Deployed Multi-Agent Competitive Intelligence Platform
+  </text>
+  <text x="700" y="824" text-anchor="middle" fill="#334155" font-size="9">
+    Built with LangGraph • LangChain • Groq • MongoDB Atlas • FastAPI • React
+  </text>
+
+  <!-- Decorative corner accents -->
+  <line x1="32" y1="100" x2="32" y2="85" stroke="#3b82f640" stroke-width="2"/>
+  <line x1="32" y1="85" x2="47" y2="85" stroke="#3b82f640" stroke-width="2"/>
+  <line x1="1368" y1="100" x2="1368" y2="85" stroke="#3b82f640" stroke-width="2"/>
+  <line x1="1368" y1="85" x2="1353" y2="85" stroke="#3b82f640" stroke-width="2"/>
+</svg>

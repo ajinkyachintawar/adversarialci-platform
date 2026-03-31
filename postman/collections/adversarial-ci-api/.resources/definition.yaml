@@ -1,0 +1,9 @@
+$kind: collection
+name: Adversarial CI API
+variables:
+  - key: baseUrl
+    value: 'http://localhost:8000'
+  - key: adminKey
+    value: 'change-me-in-production'
+  - key: sessionId
+    value: ''

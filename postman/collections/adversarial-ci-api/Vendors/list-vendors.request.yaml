@@ -1,0 +1,8 @@
+$kind: http-request
+name: List Vendors
+method: GET
+url: '{{baseUrl}}/api/vendors/:vertical'
+order: 1000
+pathVariables:
+  - key: vertical
+    value: database

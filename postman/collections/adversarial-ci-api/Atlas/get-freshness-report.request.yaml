@@ -1,0 +1,6 @@
+$kind: http-request
+name: Get Freshness Report
+method: GET
+url: '{{baseUrl}}/api/atlas/freshness'
+order: 1000
+description: 'Returns Atlas data freshness report for all companies.'

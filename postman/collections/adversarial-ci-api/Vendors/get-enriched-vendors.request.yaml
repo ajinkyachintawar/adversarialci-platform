@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get Enriched Vendors
+method: GET
+url: '{{baseUrl}}/api/vendors/:vertical/enriched'
+order: 2000
+pathVariables:
+  - key: vertical
+    value: database
