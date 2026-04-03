@@ -7,7 +7,7 @@ import { useAllVendors } from '../hooks/useApi';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || '';
 
-const ADMIN_MODE = true; // Set true only for local development
+const ADMIN_MODE = false; // Set true only for local development
 
 interface AtlasData {
     research_count: number;
