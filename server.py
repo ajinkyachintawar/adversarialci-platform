@@ -17,13 +17,15 @@ sentry_sdk.init(
     send_default_pii=False,
 )
 
-# CORS for deployment
+# CORS for deployment. Static list for localhost + one prod URL; regex covers
+# every Vercel preview deploy (URL changes on each push).
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
-    FRONTEND_URL
+    FRONTEND_URL,
 ]
+ALLOWED_ORIGIN_REGEX = r"https://.*\.vercel\.app"
 
 # Local imports from the Adversarial CI project
 from vendor_registry import (
@@ -48,6 +50,7 @@ app.add_middleware(SupabaseJWTMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
