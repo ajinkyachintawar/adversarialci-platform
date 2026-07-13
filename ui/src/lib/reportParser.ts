@@ -149,7 +149,7 @@ function getSection(content: string, sectionName: string | RegExp): string {
     for (const line of lines) {
         if (capturing) {
             // Stop at next section header (line of ━ followed by emoji header)
-            if (/^[━═─]{4,}/.test(line.trim()) && result.length > 0) {
+            if (/^[━═]{20,}/.test(line.trim()) && result.length > 0) {
                 break;
             }
             result.push(line);
@@ -159,8 +159,8 @@ function getSection(content: string, sectionName: string | RegExp): string {
     }
 
     // Remove leading/trailing separator lines
-    while (result.length && /^[━═─]{4,}$/.test(result[0].trim())) result.shift();
-    while (result.length && /^[━═─]{4,}$/.test(result[result.length - 1].trim())) result.pop();
+    while (result.length && /^[━═]{20,}$/.test(result[0].trim())) result.shift();
+    while (result.length && /^[━═]{20,}$/.test(result[result.length - 1].trim())) result.pop();
 
     return result.join('\n').trim();
 }
@@ -203,18 +203,33 @@ export function parseReport(rawText: string): ParsedReport {
 // ─── Buyer Extractors ──────────────────────────────────────────
 
 export function extractWinner(content: string): string {
+    // Legacy ASCII format
     const m = content.match(/BEST FIT FOR YOU:\s*(.+)/i);
-    return m ? m[1].trim() : '';
+    if (m) return m[1].trim();
+    // Markdown format used by the current pipeline/buyer report
+    const md = content.match(/^##\s+Why\s+([^\n]+?)\s*$/mi);
+    if (md) return md[1].trim();
+    // Fallback: "we recommend {vendor} as the winner"
+    const rec = content.match(/recommend\s+([A-Z][A-Za-z0-9 .&/-]+?)\s+(?:as the winner|for|based on)/);
+    if (rec) return rec[1].trim();
+    return '';
 }
 
 export function extractConfidence(content: string): number {
     const m = content.match(/CONFIDENCE:\s*(\d+)%/i);
-    return m ? parseInt(m[1]) : 0;
+    if (m) return parseInt(m[1]);
+    const md = content.match(/confidence[^0-9]{0,20}(\d{1,3})%/i);
+    if (md) return parseInt(md[1]);
+    return 0;
 }
 
 export function extractSummary(content: string): string {
     const m = content.match(/WHY:\s*([^\n]+)/i);
-    return m ? m[1].trim() : '';
+    if (m) return m[1].trim();
+    // Markdown Recommendation section body — first paragraph after "## Recommendation".
+    const md = content.match(/^##\s+Recommendation\s*\n+([^\n#][^\n]{0,600})/mi);
+    if (md) return md[1].trim();
+    return '';
 }
 
 export function extractProfile(content: string): ProfileData | null {
@@ -704,7 +719,7 @@ export function extractVendorProfiles(content: string): VendorProfile[] {
             if (/Strengths:/i.test(line)) { mode = 'str'; continue; }
             if (/Weaknesses:/i.test(line)) { mode = 'weak'; continue; }
 
-            const clean = line.replace(/^[✅⚠️]\s*/, '').trim();
+            const clean = line.replace(/^[✅⚠️\s]+/, '').trim();
             if (!clean || clean === '(none in this comparison)') continue;
 
             if (mode === 'str' && line.includes('✅')) strengths.push(clean);

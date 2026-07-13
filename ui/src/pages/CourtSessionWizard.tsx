@@ -1,760 +1,618 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Target, User, ServerCog, Cpu, ShieldAlert, ArrowRight, ArrowLeft, Check, BarChart3, Crosshair, Briefcase } from 'lucide-react';
-import TerminalLoader from '../components/TerminalLoader';
+import { useQuery } from '@tanstack/react-query';
+import { StagedProgress } from '../components/design';
+import type { Stage } from '../components/design';
+import { useAllVendors } from '../hooks/useApi';
+import { authFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
-// ─── Step definitions per mode ────────────────────────────────
-type StepDef = { key: string; label: string; icon: React.ElementType };
+type Mode = 'buyer' | 'seller' | 'analyst' | 'sourcing';
+type Vertical = 'database' | 'cloud' | 'crm';
 
-const BUYER_STEPS: StepDef[] = [
-    { key: 'SETUP', label: 'Mission', icon: ServerCog },
-    { key: 'VENDORS', label: 'Vendors', icon: Target },
-    { key: 'PROFILE', label: 'Your Profile', icon: User },
-    { key: 'DELIB', label: 'Deliberation', icon: Cpu },
-];
-const SELLER_STEPS: StepDef[] = [
-    { key: 'SETUP', label: 'Mission', icon: ServerCog },
-    { key: 'MY_COMPANY', label: 'Your Product', icon: Briefcase },
-    { key: 'COMPETITORS', label: 'Competitors', icon: Crosshair },
-    { key: 'PROSPECT', label: 'Prospect', icon: User },
-    { key: 'DELIB', label: 'Deliberation', icon: Cpu },
-];
-const ANALYST_STEPS: StepDef[] = [
-    { key: 'SETUP', label: 'Mission', icon: ServerCog },
-    { key: 'VENDORS', label: 'Vendors', icon: Target },
-    { key: 'FOCUS', label: 'Focus Areas', icon: BarChart3 },
-    { key: 'DELIB', label: 'Deliberation', icon: Cpu },
-];
-
-function getStepsForMode(mode: string): StepDef[] {
-    if (mode === 'seller') return SELLER_STEPS;
-    if (mode === 'analyst') return ANALYST_STEPS;
-    return BUYER_STEPS;
+interface EnrichedVendor {
+    name: string;
+    vertical: string;
+    atlas: { research_count: number; status: string; sources?: Record<string, number> } | null;
 }
 
-const FOCUS_AREAS = ['Cost', 'Performance', 'Scalability', 'Security', 'Ease of Use', 'Ecosystem'];
+interface PlaintiffQuestion {
+    key: string;
+    prompt: string;
+    example?: string;
+    required?: boolean;
+}
 
-const MODE_CARDS = [
-    { key: 'buyer', label: 'Buyer Evaluation', desc: 'Find the best fit for your requirements.', color: 'var(--accent-cyan)', muted: 'var(--accent-cyan-muted)', icon: Target },
-    { key: 'seller', label: 'Seller Battlecard', desc: 'Generate competitive positioning.', color: 'var(--accent-purple)', muted: 'var(--accent-purple-muted)', icon: ShieldAlert },
-    { key: 'analyst', label: 'Analyst Comparison', desc: 'Objective market analysis.', color: 'var(--accent-green)', muted: 'var(--accent-green-muted)', icon: BarChart3 },
+interface VerticalConfig { plaintiff_questions?: PlaintiffQuestion[]; }
+
+const VERTICAL_META: Record<Vertical, { icon: string; label: string }> = {
+    database: { icon: '▤', label: 'Database' },
+    cloud:    { icon: '◇', label: 'Cloud' },
+    crm:      { icon: '◈', label: 'CRM' },
+};
+
+const MODES: { key: Mode; label: string; desc: string }[] = [
+    { key: 'buyer',    label: 'Buyer',    desc: 'Which vendor should I pick?' },
+    { key: 'seller',   label: 'Seller',   desc: 'How do I position vs. a competitor?' },
+    { key: 'analyst',  label: 'Analyst',  desc: 'Neutral comparison, no declared winner.' },
+    { key: 'sourcing', label: 'Sourcing', desc: 'Freshness check only, no court session.' },
 ];
+
+const RUN_STAGES: Stage[] = [
+    { label: 'Researching vendors', sub: 'Pricing, GitHub activity, blog posts, forums' },
+    { label: 'Building the case',   sub: 'Adversarial argument for each vendor' },
+    { label: 'Scoring & judging',   sub: 'Weighing evidence against your priorities' },
+    { label: 'Writing report',      sub: 'Assembling verdict and comparison tables' },
+];
+
+/** Map a raw SSE log line to a stage index. */
+function lineToStage(line: string): number {
+    if (/report|writing|drafting|assembling|winner|section/i.test(line))              return 3;
+    if (/judg|verdict|score|weigh|deliberat|confidence/i.test(line))                  return 2;
+    if (/argument|advocate|counsel|round|adversar|challenge/i.test(line))             return 1;
+    return 0;
+}
+
+const LOG_COLORS = ['var(--accent)', 'var(--text-3)', 'var(--warn)'];
 
 export default function CourtSessionWizard() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
-    // Core state
-    const [stepKey, setStepKey] = useState('SETUP');
-    const [vertical, setVertical] = useState('database');
-    const [mode, setMode] = useState(searchParams.get('mode') || 'buyer');
+    const [step, setStep] = useState(0);
+    const [vertical, setVertical] = useState<Vertical>('database');
+    const [mode, setMode] = useState<Mode>(() => {
+        const m = searchParams.get('mode');
+        return (m === 'buyer' || m === 'seller' || m === 'analyst' || m === 'sourcing') ? m : 'buyer';
+    });
+    const [briefMode, setBriefMode] = useState(false);
+    const [briefText, setBriefText] = useState('');
 
-    // Vendor list from API
-    const [verticalVendors, setVerticalVendors] = useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [profileAnswers, setProfileAnswers] = useState<Record<string, string>>({});
 
-    // Buyer: multi-select vendors (2-4)
-    const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
+    const [sessionId, setSessionId] = useState('');
+    const [runStage, setRunStage] = useState(0);
+    const [runLog, setRunLog] = useState<{ text: string; color: string }[]>([]);
+    const [runComplete, setRunComplete] = useState(false);
+    const streamAbort = useRef<AbortController | null>(null);
 
-    // Seller: single primary + multi competitors
-    const [myCompany, setMyCompany] = useState('');
-    const [sellerCompetitors, setSellerCompetitors] = useState<string[]>([]);
+    /* ─── Data ───────────────────────────────────── */
 
-    // Analyst: optional focus areas
-    const [focusAreas, setFocusAreas] = useState<string[]>([]);
+    const { data: verticalConfig } = useQuery<VerticalConfig>({
+        queryKey: ['vertical-config', vertical],
+        queryFn: () => authFetch(`/api/verticals/${vertical}`).then(r => r.json()),
+    });
 
-    // Profile fields (Buyer / Seller prospect)
-    const [pCompany, setPCompany] = useState('');
-    const [pBudget, setPBudget] = useState('');
-    const [pTeamSize, setPTeamSize] = useState('');
-    const [pPriority, setPPriority] = useState('cost');
-    const [pUseCase, setPUseCase] = useState('');
-    const [pScale, setPScale] = useState('');
-    const [pCloud, setPCloud] = useState('');
+    const { data: vendorData } = useAllVendors();
+    const verticalVendors: EnrichedVendor[] = useMemo(() => {
+        if (!vendorData) return [];
+        return (vendorData[vertical] || []) as EnrichedVendor[];
+    }, [vendorData, vertical]);
 
-    // Session
-    const [session, setSession] = useState('');
+    /* ─── Derived ────────────────────────────────── */
 
-    // Read mode from URL on mount
-    useEffect(() => {
-        const urlMode = searchParams.get('mode');
-        if (urlMode && ['buyer', 'seller', 'analyst'].includes(urlMode)) {
-            setMode(urlMode);
-        }
-    }, [searchParams]);
+    const stepLabels = [
+        'Step 1 of 4 — vertical & mode',
+        'Step 2 of 4 — pick vendors',
+        mode === 'sourcing' ? 'Step 3 of 4 — running refresh' : 'Step 3 of 4 — your profile',
+        'Step 4 of 4 — running evaluation',
+    ];
 
-    // Fetch vendors when vertical changes
-    useEffect(() => {
-        fetch(`${API_BASE_URL}/api/vendors/${vertical}`)
-            .then(res => res.json())
-            .then(data => {
-                setVerticalVendors(Object.keys(data || {}));
-                setSelectedVendors([]);
-                setMyCompany('');
-                setSellerCompetitors([]);
+    const questions: PlaintiffQuestion[] = verticalConfig?.plaintiff_questions ?? [];
+    const requiredQs = questions.filter(q => q.required);
+    const profileComplete = requiredQs.every(q => (profileAnswers[q.key] || '').trim().length > 0);
+
+    const step1CanContinue = selectedIds.length >= 2;
+
+    /* ─── Actions ────────────────────────────────── */
+
+    const toggleVendor = (id: string) => {
+        setSelectedIds(prev => {
+            if (prev.includes(id)) return prev.filter(x => x !== id);
+            if (prev.length >= 4) return prev;
+            return [...prev, id];
+        });
+    };
+
+    const advance = () => {
+        if (step === 1 && mode === 'sourcing') { setStep(3); startRun(); return; }
+        if (step === 2) { startRun(); return; }
+        setStep(s => Math.min(s + 1, 3));
+    };
+
+    const goBack = () => setStep(s => {
+        if (s === 3 && mode === 'sourcing') return 1;
+        return Math.max(s - 1, 0);
+    });
+
+    const startRun = () => {
+        setStep(3);
+        setRunStage(0);
+        setRunLog([]);
+        setRunComplete(false);
+
+        const primary = selectedIds[0] || '';
+        const competitors = selectedIds.slice(1);
+
+        const plaintiff: Record<string, string> = { mode, ...profileAnswers };
+        if (briefMode && briefText.trim()) plaintiff.brief = briefText.trim();
+
+        const payload = { vertical, mode, primary, competitors, plaintiff };
+
+        authFetch(`/api/evaluate`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        }).then(r => r.json()).then(data => {
+            if (!data.session_id) throw new Error(data.detail || 'no session_id');
+            setSessionId(data.session_id);
+            openStream(data.session_id);
+        }).catch(err => {
+            setRunLog(l => [...l, { text: `✗ error: ${err.message}`, color: 'var(--danger)' }]);
+        });
+    };
+
+    const openStream = async (sid: string) => {
+        streamAbort.current?.abort();
+        const ctrl = new AbortController();
+        streamAbort.current = ctrl;
+
+        // SSE middleware reads token from ?token= (EventSource-compatible pattern).
+        const { data: { session } } = await supabase.auth.getSession();
+        const tokenQ = session ? `?token=${encodeURIComponent(session.access_token)}` : '';
+
+        fetch(`${API_BASE_URL}/api/stream/${sid}${tokenQ}`, { signal: ctrl.signal })
+            .then(async response => {
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
+                if (!reader) return;
+
+                let buffer = '';
+                let stage = 0;
+                let logIdx = 0;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    for (const line of lines) {
+                        if (!line.startsWith('data:')) continue;
+                        const data = line.substring(5).trim();
+                        if (!data || data === 'keep-alive') continue;
+
+                        if (data.startsWith('__REPORT_READY__:')) {
+                            const reportId = data.substring('__REPORT_READY__:'.length);
+                            setRunStage(RUN_STAGES.length);
+                            setRunComplete(true);
+                            setTimeout(() => navigate(`/report/${reportId}`), 1200);
+                            return;
+                        }
+                        if (data === '__DONE__') return;
+                        if (data.startsWith('ERROR:')) {
+                            setRunLog(l => [...l, { text: data, color: 'var(--danger)' }]);
+                            continue;
+                        }
+
+                        const newStage = lineToStage(data);
+                        if (newStage > stage) { stage = newStage; setRunStage(stage); }
+
+                        const color = LOG_COLORS[logIdx % LOG_COLORS.length];
+                        logIdx += 1;
+                        setRunLog(l => [...l, { text: data, color }]);
+                    }
+                }
             })
-            .catch(e => console.error("Error fetching vendors:", e));
-    }, [vertical]);
-
-    // Derived
-    const steps = getStepsForMode(mode);
-    const stepIndex = steps.findIndex(s => s.key === stepKey);
-
-    // Navigation helpers
-    const nextStep = () => {
-        const idx = steps.findIndex(s => s.key === stepKey);
-        if (idx < steps.length - 1) setStepKey(steps[idx + 1].key);
-    };
-    const prevStep = () => {
-        const idx = steps.findIndex(s => s.key === stepKey);
-        if (idx > 0) setStepKey(steps[idx - 1].key);
-    };
-
-    // Toggle functions
-    const toggleVendor = (v: string) => {
-        if (selectedVendors.includes(v)) {
-            setSelectedVendors(selectedVendors.filter(x => x !== v));
-        } else if (selectedVendors.length < 4) {
-            setSelectedVendors([...selectedVendors, v]);
-        }
-    };
-    const toggleSellerComp = (v: string) => {
-        if (sellerCompetitors.includes(v)) {
-            setSellerCompetitors(sellerCompetitors.filter(x => x !== v));
-        } else if (sellerCompetitors.length < 3) {
-            setSellerCompetitors([...sellerCompetitors, v]);
-        }
-    };
-    const toggleFocus = (f: string) => {
-        if (focusAreas.includes(f)) {
-            setFocusAreas(focusAreas.filter(x => x !== f));
-        } else {
-            setFocusAreas([...focusAreas, f]);
-        }
-    };
-
-    // Build API payload based on mode
-    const buildPayload = () => {
-        if (mode === 'buyer') {
-            // Buyer: first vendor = primary, rest = competitors
-            return {
-                vertical,
-                mode,
-                primary: selectedVendors[0],
-                competitors: selectedVendors.slice(1),
-                plaintiff: {
-                    mode,
-                    company_name: pCompany,
-                    budget: pBudget,
-                    team_size: pTeamSize,
-                    priority: pPriority,
-                    use_case: pUseCase,
-                    scale: pScale,
-                    cloud: pCloud,
-                },
-            };
-        } else if (mode === 'seller') {
-            return {
-                vertical,
-                mode,
-                primary: myCompany,
-                competitors: sellerCompetitors,
-                plaintiff: {
-                    mode,
-                    company_name: pCompany,
-                    budget: pBudget,
-                    team_size: pTeamSize,
-                    priority: pPriority,
-                    use_case: pUseCase,
-                    scale: pScale,
-                    cloud: pCloud,
-                },
-            };
-        } else {
-            // Analyst: no profile, optional focus_areas
-            return {
-                vertical,
-                mode,
-                primary: selectedVendors[0],
-                competitors: selectedVendors.slice(1),
-                plaintiff: {
-                    mode,
-                    company_name: 'Analyst',
-                    budget: 'N/A',
-                    team_size: 'N/A',
-                    priority: 'balanced',
-                    use_case: 'market analysis',
-                    focus_areas: focusAreas,
-                },
-            };
-        }
-    };
-
-    const initiateDeliberation = async () => {
-        setStepKey('DELIB');
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/evaluate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(buildPayload()),
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                setRunLog(l => [...l, { text: `✗ stream error: ${err.message}`, color: 'var(--danger)' }]);
             });
-            const data = await res.json();
-            if (data.session_id) setSession(data.session_id);
-        } catch (e) {
-            console.error("Failed to start session:", e);
-        }
     };
 
-    const onSimulationComplete = (reportId: string) => {
-        navigate(`/report/${reportId}`);
-    };
+    useEffect(() => () => streamAbort.current?.abort(), []);
 
-    // ─── Reusable chip component ──────────────────────────────
-    const Chip = ({ label, selected, onClick, disabled }: { label: string; selected: boolean; onClick: () => void; disabled?: boolean }) => (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            style={{
-                padding: '0.4rem 0.9rem',
-                borderRadius: 'var(--radius-full)',
-                border: `1px solid ${selected ? 'var(--accent-cyan)' : 'var(--border)'}`,
-                background: selected ? 'var(--accent-cyan-muted)' : 'transparent',
-                color: selected ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: selected ? 600 : 400,
-                transition: 'all 0.2s',
-                display: 'flex', alignItems: 'center', gap: 'var(--sp-1)',
-                opacity: disabled ? 0.4 : 1,
-                cursor: disabled ? 'not-allowed' : 'pointer',
-            }}
-        >
-            {selected && <Check size={12} />}
-            {label}
-        </button>
-    );
-
-    // profile completeness for buyer/seller
-    const isProfileComplete = pCompany && pBudget && pTeamSize && pUseCase && pScale;
+    /* ─── Render ─────────────────────────────────── */
 
     return (
-        <div className="animate-fade-in">
-            <div className="page-header">
-                <h1>Court Session</h1>
-                <p>Adversarial intelligence resolution pipeline.</p>
+        <div style={{ padding: '36px 44px', maxWidth: 900 }} className="animate-fade-in">
+            <h1 style={{
+                fontSize: 26, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em',
+            }}>New evaluation</h1>
+            <p style={{ fontSize: 14, color: 'var(--text-3)', margin: '0 0 28px' }}>{stepLabels[step]}</p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
+                {[0, 1, 2, 3].map(i => (
+                    <div key={i} style={{
+                        flex: 1, height: 4, borderRadius: 4,
+                        background: i <= step ? 'var(--accent)' : 'var(--line)',
+                    }} />
+                ))}
             </div>
 
-            {/* ─── Progress Steps ─── */}
-            <div style={{
-                display: 'flex', gap: 'var(--sp-2)', marginBottom: 'var(--sp-8)',
-                padding: 'var(--sp-4) var(--sp-5)', background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border)',
-            }}>
-                {steps.map((s, i) => {
-                    const isComplete = i < stepIndex;
-                    const isCurrent = s.key === stepKey;
+            {step === 0 && (
+                <Step0
+                    vertical={vertical}
+                    setVertical={setVertical}
+                    mode={mode}
+                    setMode={setMode}
+                    briefMode={briefMode}
+                    setBriefMode={setBriefMode}
+                    briefText={briefText}
+                    setBriefText={setBriefText}
+                    vendorCounts={{
+                        database: (vendorData?.database || []).length,
+                        cloud:    (vendorData?.cloud    || []).length,
+                        crm:      (vendorData?.crm      || []).length,
+                    }}
+                    onNext={advance}
+                />
+            )}
+
+            {step === 1 && (
+                <Step1
+                    mode={mode}
+                    vendors={verticalVendors}
+                    selectedIds={selectedIds}
+                    onToggle={toggleVendor}
+                    canContinue={step1CanContinue}
+                    onNext={advance}
+                    onBack={goBack}
+                />
+            )}
+
+            {step === 2 && (
+                <Step2
+                    questions={questions}
+                    answers={profileAnswers}
+                    onChange={(key, val) => setProfileAnswers(p => ({ ...p, [key]: val }))}
+                    canContinue={profileComplete}
+                    onNext={advance}
+                    onBack={goBack}
+                />
+            )}
+
+            {step === 3 && (
+                <Step3
+                    activeStage={runStage}
+                    complete={runComplete}
+                    log={runLog}
+                    initializing={!sessionId}
+                />
+            )}
+        </div>
+    );
+}
+
+/* ─── Step 0 ───────────────────────────────────── */
+
+function Step0({
+    vertical, setVertical, mode, setMode,
+    briefMode, setBriefMode, briefText, setBriefText,
+    vendorCounts, onNext,
+}: {
+    vertical: Vertical;
+    setVertical: (v: Vertical) => void;
+    mode: Mode;
+    setMode: (m: Mode) => void;
+    briefMode: boolean;
+    setBriefMode: (b: boolean) => void;
+    briefText: string;
+    setBriefText: (v: string) => void;
+    vendorCounts: Record<Vertical, number>;
+    onNext: () => void;
+}) {
+    return (
+        <>
+            <h3 style={sectionHeadingStyle}>Vertical</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 30 }}>
+                {(Object.entries(VERTICAL_META) as [Vertical, { icon: string; label: string }][]).map(([key, meta]) => {
+                    const active = vertical === key;
                     return (
-                        <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flex: 1 }}>
-                            <div style={{
-                                width: 28, height: 28, borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 'var(--text-xs)', fontWeight: 700, flexShrink: 0,
-                                background: isComplete ? 'var(--accent-green)' : isCurrent ? 'var(--accent-cyan)' : 'var(--bg-surface-hover)',
-                                color: isComplete || isCurrent ? 'var(--bg-base)' : 'var(--text-muted)',
-                                transition: 'all 0.3s ease',
-                            }}>
-                                {isComplete ? <Check size={14} /> : i + 1}
+                        <div
+                            key={key}
+                            onClick={() => setVertical(key)}
+                            style={{
+                                background: active ? 'var(--accent-10)' : 'var(--surface-1)',
+                                border: `1px solid ${active ? 'oklch(0.66 0.09 205 / 0.4)' : 'var(--line)'}`,
+                                borderRadius: 14, padding: 18, cursor: 'pointer',
+                            }}
+                        >
+                            <div style={{ fontSize: 20, marginBottom: 8 }}>{meta.icon}</div>
+                            <div style={{ fontSize: 15, fontWeight: 700 }}>{meta.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4 }}>
+                                {vendorCounts[key]} vendors tracked
                             </div>
-                            <span style={{
-                                fontSize: 'var(--text-sm)', fontWeight: isCurrent ? 600 : 400,
-                                color: isCurrent ? 'var(--text-primary)' : isComplete ? 'var(--accent-green)' : 'var(--text-muted)',
-                                transition: 'all 0.3s ease', whiteSpace: 'nowrap',
-                            }}>
-                                {s.label}
-                            </span>
-                            {i < steps.length - 1 && (
-                                <div style={{
-                                    flex: 1, height: 1,
-                                    background: isComplete ? 'var(--accent-green)' : 'var(--border)',
-                                    marginLeft: 'var(--sp-2)', marginRight: 'var(--sp-1)',
-                                }} />
-                            )}
                         </div>
                     );
                 })}
             </div>
 
-            <div className="glass-panel" style={{ padding: 'var(--sp-8)', maxWidth: 820, margin: '0 auto' }}>
+            <h3 style={sectionHeadingStyle}>Mode</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 30 }}>
+                {MODES.map(m => {
+                    const active = mode === m.key;
+                    return (
+                        <div
+                            key={m.key}
+                            onClick={() => setMode(m.key)}
+                            style={{
+                                background: active ? 'var(--accent-10)' : 'var(--surface-1)',
+                                border: `1px solid ${active ? 'oklch(0.66 0.09 205 / 0.4)' : 'var(--line)'}`,
+                                borderRadius: 14, padding: 16, cursor: 'pointer',
+                            }}
+                        >
+                            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{m.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.4 }}>{m.desc}</div>
+                        </div>
+                    );
+                })}
+            </div>
 
-                {/* ═══════════════════════════════════════════════════════
-                    STEP: SETUP (same for all modes)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'SETUP' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-6)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <ServerCog size={20} style={{ color: 'var(--accent-cyan)' }} /> Mission Briefing
-                        </h2>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24,
+                background: 'var(--surface-1)', border: '1px solid var(--line)',
+                borderRadius: 12, padding: '14px 16px',
+            }}>
+                <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--accent)',
+                }}>&gt;_</span>
+                <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>Prefer to just describe your situation?</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
+                        Skip the structured form — write a free-text brief and we'll parse it.
+                    </div>
+                </div>
+                <button
+                    onClick={() => setBriefMode(!briefMode)}
+                    style={{
+                        background: briefMode ? 'var(--accent-25)' : 'transparent',
+                        border: '1px solid var(--accent-30)',
+                        color: 'var(--accent)',
+                        padding: '8px 14px', borderRadius: 8,
+                        fontFamily: 'inherit', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                        flexShrink: 0,
+                    }}
+                >
+                    {briefMode ? 'Use structured form' : 'Write a brief instead'}
+                </button>
+            </div>
 
-                        <div style={{ display: 'grid', gap: 'var(--sp-6)' }}>
-                            <div>
-                                <label className="input-label">Select Vertical</label>
-                                <select className="input-field" value={vertical} onChange={e => setVertical(e.target.value)}>
-                                    <option value="database">Database & Data Platforms</option>
-                                    <option value="cloud">Cloud Infrastructure</option>
-                                    <option value="crm">CRM & Sales Tools</option>
-                                </select>
-                            </div>
+            {briefMode && (
+                <textarea
+                    value={briefText}
+                    onChange={e => setBriefText(e.target.value)}
+                    placeholder="e.g. We're a 40-person fintech startup on AWS, need a Postgres-compatible database that scales to 10M rows without ops overhead, budget-conscious…"
+                    style={{
+                        width: '100%', boxSizing: 'border-box', height: 120,
+                        background: 'oklch(1 0 0 / 0.04)', border: '1px solid var(--line-2)',
+                        borderRadius: 12, padding: 14, color: 'var(--text)',
+                        fontFamily: 'var(--font-mono)', fontSize: 13,
+                        resize: 'vertical', outline: 'none', marginBottom: 24,
+                    }}
+                />
+            )}
 
-                            <div>
-                                <label className="input-label">Evaluation Mode</label>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-3)' }}>
-                                    {MODE_CARDS.map(m => {
-                                        const active = mode === m.key;
-                                        return (
-                                            <button
-                                                key={m.key}
-                                                onClick={() => { setMode(m.key); setStepKey('SETUP'); }}
-                                                style={{
-                                                    padding: 'var(--sp-4)',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    border: `1px solid ${active ? m.color : 'var(--border)'}`,
-                                                    background: active ? m.muted : 'transparent',
-                                                    textAlign: 'left',
-                                                    transition: 'all 0.2s',
-                                                    position: 'relative',
-                                                }}
-                                            >
-                                                {active && (
-                                                    <div style={{
-                                                        position: 'absolute', top: 8, right: 8, width: 18, height: 18,
-                                                        borderRadius: '50%', background: m.color,
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    }}>
-                                                        <Check size={11} style={{ color: 'var(--bg-base)' }} />
-                                                    </div>
-                                                )}
-                                                <h3 style={{
-                                                    color: active ? m.color : 'var(--text-primary)',
-                                                    fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 'var(--sp-1)',
-                                                }}>{m.label}</h3>
-                                                <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', lineHeight: 1.5 }}>{m.desc}</p>
-                                            </button>
-                                        );
-                                    })}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={onNext} style={primaryButtonStyle}>Continue →</button>
+            </div>
+        </>
+    );
+}
+
+/* ─── Step 1 ───────────────────────────────────── */
+
+function Step1({
+    mode, vendors, selectedIds, onToggle, canContinue, onNext, onBack,
+}: {
+    mode: Mode;
+    vendors: EnrichedVendor[];
+    selectedIds: string[];
+    onToggle: (id: string) => void;
+    canContinue: boolean;
+    onNext: () => void;
+    onBack: () => void;
+}) {
+    const hint = mode === 'seller'
+        ? 'Pick your company first, then 1-3 competitors.'
+        : 'Pick 2-4 vendors to compare.';
+
+    return (
+        <>
+            <p style={{ fontSize: 13, color: 'var(--text-3)', margin: '0 0 16px' }}>{hint}</p>
+
+            {vendors.length === 0 ? (
+                <div style={{
+                    background: 'var(--surface-1)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: '32px 20px', textAlign: 'center',
+                    color: 'var(--text-3)', fontSize: 13, marginBottom: 28,
+                }}>Loading vendors…</div>
+            ) : (
+                <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: 12, marginBottom: 28,
+                }}>
+                    {vendors.map(v => {
+                        const checked = selectedIds.includes(v.name);
+                        const docTotal = v.atlas?.research_count ?? 0;
+                        const fresh = v.atlas?.status ?? 'new';
+                        return (
+                            <div
+                                key={v.name}
+                                onClick={() => onToggle(v.name)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 12,
+                                    background: checked ? 'var(--accent-8)' : 'var(--surface-1)',
+                                    border: `1px solid ${checked ? 'var(--accent-35)' : 'var(--line)'}`,
+                                    borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+                                }}
+                            >
+                                <div style={{
+                                    width: 20, height: 20, borderRadius: 6,
+                                    border: `2px solid ${checked ? 'var(--accent)' : 'oklch(1 0 0 / 0.2)'}`,
+                                    background: checked ? 'var(--accent)' : 'transparent',
+                                    flexShrink: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 12, color: 'var(--bg)', fontWeight: 700,
+                                }}>{checked ? '✓' : ''}</div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{
+                                        fontSize: 14, fontWeight: 700,
+                                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                    }}>{v.name}</div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-3)' }}>
+                                        {docTotal} docs · {fresh}
+                                    </div>
                                 </div>
                             </div>
+                        );
+                    })}
+                </div>
+            )}
 
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--sp-2)' }}>
-                                <button className="btn btn-primary" onClick={nextStep}>
-                                    {mode === 'seller' ? 'Select Your Product' : 'Select Vendors'} <ArrowRight size={14} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+            <NavRow onBack={onBack} onNext={onNext} nextEnabled={canContinue} />
+        </>
+    );
+}
 
-                {/* ═══════════════════════════════════════════════════════
-                    BUYER: VENDORS (multi-select 2-4 chips)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'VENDORS' && mode === 'buyer' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-2)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <Target size={20} style={{ color: 'var(--accent-cyan)' }} /> Which vendors are you evaluating?
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-6)' }}>
-                            Select 2–4 vendors to compare side-by-side.
-                        </p>
+/* ─── Step 2 ───────────────────────────────────── */
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)', marginBottom: 'var(--sp-6)' }}>
-                            {verticalVendors.map(v => (
-                                <Chip
-                                    key={v}
-                                    label={v}
-                                    selected={selectedVendors.includes(v)}
-                                    onClick={() => toggleVendor(v)}
-                                    disabled={!selectedVendors.includes(v) && selectedVendors.length >= 4}
-                                />
-                            ))}
-                        </div>
-
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginBottom: 'var(--sp-6)' }}>
-                            {selectedVendors.length}/4 selected {selectedVendors.length < 2 && '(min 2)'}
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-primary" onClick={nextStep} disabled={selectedVendors.length < 2}>
-                                Configure Profile <ArrowRight size={14} />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    ANALYST: VENDORS (multi-select 2-4 chips)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'VENDORS' && mode === 'analyst' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-2)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <BarChart3 size={20} style={{ color: 'var(--accent-green)' }} /> Which vendors to compare?
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-6)' }}>
-                            Select 2–4 vendors for objective comparison. No bias, no recommendation.
-                        </p>
-
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)', marginBottom: 'var(--sp-6)' }}>
-                            {verticalVendors.map(v => (
-                                <Chip
-                                    key={v}
-                                    label={v}
-                                    selected={selectedVendors.includes(v)}
-                                    onClick={() => toggleVendor(v)}
-                                    disabled={!selectedVendors.includes(v) && selectedVendors.length >= 4}
-                                />
-                            ))}
-                        </div>
-
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginBottom: 'var(--sp-6)' }}>
-                            {selectedVendors.length}/4 selected {selectedVendors.length < 2 && '(min 2)'}
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-primary" onClick={nextStep} disabled={selectedVendors.length < 2}>
-                                Focus Areas <ArrowRight size={14} />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    SELLER STEP 2: MY COMPANY (single-select dropdown)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'MY_COMPANY' && mode === 'seller' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-2)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <Briefcase size={20} style={{ color: 'var(--accent-purple)' }} /> Who do you sell for?
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-6)' }}>
-                            Select the vendor you represent. The battlecard will be generated from your perspective.
-                        </p>
-
-                        <div style={{ marginBottom: 'var(--sp-6)' }}>
-                            <label className="input-label">Your Product</label>
-                            <select className="input-field" value={myCompany} onChange={e => setMyCompany(e.target.value)}>
-                                <option value="">— Select Your Company —</option>
-                                {verticalVendors.map(v => (
-                                    <option key={v} value={v}>{v}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-primary" onClick={nextStep} disabled={!myCompany}>
-                                Select Competitors <ArrowRight size={14} />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    SELLER STEP 3: COMPETITORS (multi-select chips, 1-3)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'COMPETITORS' && mode === 'seller' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-2)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <Crosshair size={20} style={{ color: 'var(--accent-red)' }} /> Who are you competing against?
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-6)' }}>
-                            Select 1–3 competitors in this deal.
-                        </p>
-
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)', marginBottom: 'var(--sp-6)' }}>
-                            {verticalVendors.filter(v => v !== myCompany).map(v => (
-                                <Chip
-                                    key={v}
-                                    label={v}
-                                    selected={sellerCompetitors.includes(v)}
-                                    onClick={() => toggleSellerComp(v)}
-                                    disabled={!sellerCompetitors.includes(v) && sellerCompetitors.length >= 3}
-                                />
-                            ))}
-                        </div>
-
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginBottom: 'var(--sp-6)' }}>
-                            {sellerCompetitors.length}/3 selected {sellerCompetitors.length < 1 && '(min 1)'}
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-primary" onClick={nextStep} disabled={sellerCompetitors.length < 1}>
-                                Prospect Profile <ArrowRight size={14} />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    BUYER STEP 3: PROFILE
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'PROFILE' && mode === 'buyer' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-6)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <User size={20} style={{ color: 'var(--accent-cyan)' }} /> Your Profile
-                        </h2>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-4)', marginBottom: 'var(--sp-6)' }}>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Company Name *</label>
-                                <input type="text" className="input-field" placeholder="e.g. Acme Corp" value={pCompany} onChange={e => setPCompany(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Team Size *</label>
-                                <input type="text" className="input-field" placeholder="e.g. 10 engineers" value={pTeamSize} onChange={e => setPTeamSize(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Monthly Budget *</label>
-                                <input type="text" className="input-field" placeholder="e.g. $5,000" value={pBudget} onChange={e => setPBudget(e.target.value)} />
-                            </div>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Primary Use Case *</label>
-                                <input type="text" className="input-field" placeholder="e.g. RAG pipeline, semantic search" value={pUseCase} onChange={e => setPUseCase(e.target.value)} />
-                            </div>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Scale — current + 18 months *</label>
-                                <input type="text" className="input-field" placeholder="e.g. 10M vectors now, 500M in 18mo" value={pScale} onChange={e => setPScale(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Cloud Provider</label>
-                                <select className="input-field" value={pCloud} onChange={e => setPCloud(e.target.value)}>
-                                    <option value="">— None —</option>
-                                    <option value="AWS">AWS</option>
-                                    <option value="GCP">GCP</option>
-                                    <option value="Azure">Azure</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="input-label">Top Priority</label>
-                                <select className="input-field" value={pPriority} onChange={e => setPPriority(e.target.value)}>
-                                    <option value="cost">Cost & Budget</option>
-                                    <option value="performance">Raw Performance</option>
-                                    <option value="simplicity">Simplicity / DX</option>
-                                    <option value="no-lock-in">No Vendor Lock-in</option>
-                                    <option value="enterprise">Enterprise Readiness</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Session Summary */}
-                        <div style={{
-                            background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)',
-                            padding: 'var(--sp-4)', marginBottom: 'var(--sp-6)',
-                            border: '1px solid var(--border-subtle)',
-                        }}>
-                            <div className="section-title" style={{ marginBottom: 'var(--sp-2)' }}>Session Summary</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', fontSize: 'var(--text-sm)' }}>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Mode:</span> <span style={{ color: 'var(--accent-cyan)' }}>Buyer Evaluation</span></div>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Vertical:</span> <span style={{ color: 'var(--text-primary)', textTransform: 'capitalize' }}>{vertical}</span></div>
-                                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)' }}>Vendors:</span> <span style={{ color: 'var(--accent-cyan)' }}>{selectedVendors.join(', ')}</span></div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-solid" onClick={initiateDeliberation} disabled={!isProfileComplete} style={{ background: 'var(--accent-red)', borderColor: 'var(--accent-red)' }}>
-                                <Cpu size={14} /> Initiate Deliberation
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    SELLER STEP 4: PROSPECT PROFILE
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'PROSPECT' && mode === 'seller' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-6)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <User size={20} style={{ color: 'var(--accent-purple)' }} /> Prospect Profile
-                        </h2>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-4)', marginBottom: 'var(--sp-6)' }}>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Prospect Company Name *</label>
-                                <input type="text" className="input-field" placeholder="e.g. TechCorp" value={pCompany} onChange={e => setPCompany(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Prospect Team Size *</label>
-                                <input type="text" className="input-field" placeholder="e.g. 20 engineers" value={pTeamSize} onChange={e => setPTeamSize(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Prospect Budget *</label>
-                                <input type="text" className="input-field" placeholder="e.g. $10,000/mo" value={pBudget} onChange={e => setPBudget(e.target.value)} />
-                            </div>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Prospect Use Case *</label>
-                                <input type="text" className="input-field" placeholder="e.g. SaaS platform, analytics" value={pUseCase} onChange={e => setPUseCase(e.target.value)} />
-                            </div>
-                            <div style={{ gridColumn: '1 / -1' }}>
-                                <label className="input-label">Prospect Scale *</label>
-                                <input type="text" className="input-field" placeholder="e.g. 100 VMs now, 500 in 18mo" value={pScale} onChange={e => setPScale(e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="input-label">Prospect Cloud</label>
-                                <select className="input-field" value={pCloud} onChange={e => setPCloud(e.target.value)}>
-                                    <option value="">— None —</option>
-                                    <option value="AWS">AWS</option>
-                                    <option value="GCP">GCP</option>
-                                    <option value="Azure">Azure</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="input-label">Prospect Top Priority</label>
-                                <select className="input-field" value={pPriority} onChange={e => setPPriority(e.target.value)}>
-                                    <option value="cost">Cost & Budget</option>
-                                    <option value="performance">Raw Performance</option>
-                                    <option value="simplicity">Simplicity / DX</option>
-                                    <option value="no-lock-in">No Vendor Lock-in</option>
-                                    <option value="enterprise">Enterprise Readiness</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Session Summary */}
-                        <div style={{
-                            background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)',
-                            padding: 'var(--sp-4)', marginBottom: 'var(--sp-6)',
-                            border: '1px solid var(--border-subtle)',
-                        }}>
-                            <div className="section-title" style={{ marginBottom: 'var(--sp-2)' }}>Battlecard Summary</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', fontSize: 'var(--text-sm)' }}>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Mode:</span> <span style={{ color: 'var(--accent-purple)' }}>Seller Battlecard</span></div>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Vertical:</span> <span style={{ color: 'var(--text-primary)', textTransform: 'capitalize' }}>{vertical}</span></div>
-                                <div><span style={{ color: 'var(--text-muted)' }}>You Sell:</span> <span style={{ color: 'var(--accent-purple)' }}>{myCompany}</span></div>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Against:</span> <span style={{ color: 'var(--accent-red)' }}>{sellerCompetitors.join(', ')}</span></div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-solid" onClick={initiateDeliberation} disabled={!isProfileComplete} style={{ background: 'var(--accent-red)', borderColor: 'var(--accent-red)' }}>
-                                <Cpu size={14} /> Generate Battlecard
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    ANALYST STEP 3: FOCUS AREAS (optional)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'FOCUS' && mode === 'analyst' && (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: 'var(--sp-2)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 'var(--text-lg)' }}>
-                            <BarChart3 size={20} style={{ color: 'var(--accent-green)' }} /> Focus Areas
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-6)' }}>
-                            Focus comparison on specific areas? <strong>This step is optional</strong> — skip if you want a full comparison.
-                        </p>
-
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)', marginBottom: 'var(--sp-6)' }}>
-                            {FOCUS_AREAS.map(f => (
-                                <Chip
-                                    key={f}
-                                    label={f}
-                                    selected={focusAreas.includes(f)}
-                                    onClick={() => toggleFocus(f)}
-                                />
-                            ))}
-                        </div>
-
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginBottom: 'var(--sp-6)' }}>
-                            {focusAreas.length > 0 ? `Focused on: ${focusAreas.join(', ')}` : 'No focus areas selected — full comparison will be generated.'}
-                        </div>
-
-                        {/* Session Summary */}
-                        <div style={{
-                            background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)',
-                            padding: 'var(--sp-4)', marginBottom: 'var(--sp-6)',
-                            border: '1px solid var(--border-subtle)',
-                        }}>
-                            <div className="section-title" style={{ marginBottom: 'var(--sp-2)' }}>Analysis Summary</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', fontSize: 'var(--text-sm)' }}>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Mode:</span> <span style={{ color: 'var(--accent-green)' }}>Analyst Comparison</span></div>
-                                <div><span style={{ color: 'var(--text-muted)' }}>Vertical:</span> <span style={{ color: 'var(--text-primary)', textTransform: 'capitalize' }}>{vertical}</span></div>
-                                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)' }}>Vendors:</span> <span style={{ color: 'var(--accent-green)' }}>{selectedVendors.join(', ')}</span></div>
-                                {focusAreas.length > 0 && (
-                                    <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)' }}>Focus:</span> <span style={{ color: 'var(--accent-yellow)' }}>{focusAreas.join(', ')}</span></div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn btn-secondary" onClick={prevStep}>
-                                <ArrowLeft size={14} /> Back
-                            </button>
-                            <button className="btn btn-solid" onClick={initiateDeliberation} style={{ background: 'var(--accent-green)', borderColor: 'var(--accent-green)' }}>
-                                <Cpu size={14} /> Run Analysis
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ═══════════════════════════════════════════════════════
-                    DELIBERATING (all modes)
-                   ═══════════════════════════════════════════════════════ */}
-                {stepKey === 'DELIB' && (
-                    <div className="animate-fade-in">
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: 'var(--sp-4)',
-                            marginBottom: 'var(--sp-6)',
-                            padding: 'var(--sp-4)',
-                            background: mode === 'seller' ? 'rgba(170,100,255,0.05)' : mode === 'analyst' ? 'rgba(0,255,136,0.05)' : 'rgba(255,68,102,0.05)',
-                            borderRadius: 'var(--radius-md)',
-                            border: `1px solid ${mode === 'seller' ? 'rgba(170,100,255,0.15)' : mode === 'analyst' ? 'rgba(0,255,136,0.15)' : 'rgba(255,68,102,0.15)'}`,
-                        }}>
-                            <ShieldAlert size={28} style={{
-                                color: mode === 'seller' ? 'var(--accent-purple)' : mode === 'analyst' ? 'var(--accent-green)' : 'var(--accent-red)',
-                                flexShrink: 0,
-                            }} className="animate-pulse-glow" />
-                            <div>
-                                <h2 style={{
-                                    color: mode === 'seller' ? 'var(--accent-purple)' : mode === 'analyst' ? 'var(--accent-green)' : 'var(--accent-red)',
-                                    fontSize: 'var(--text-base)', marginBottom: 2,
-                                }}>
-                                    {mode === 'seller' ? 'Generating Battlecard...' : mode === 'analyst' ? 'Running Market Analysis...' : 'AI Court Session In Progress'}
-                                </h2>
-                                <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
-                                    {mode === 'seller'
-                                        ? `${myCompany} vs ${sellerCompetitors.join(', ')} — seller mode`
-                                        : `${selectedVendors.join(' vs ')} — ${mode} mode`}
-                                </p>
-                            </div>
-                        </div>
-
-                        {session ? (
-                            <TerminalLoader sessionId={session} onComplete={onSimulationComplete} />
-                        ) : (
-                            <div style={{
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                height: 200, color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
+function Step2({
+    questions, answers, onChange, canContinue, onNext, onBack,
+}: {
+    questions: PlaintiffQuestion[];
+    answers: Record<string, string>;
+    onChange: (key: string, val: string) => void;
+    canContinue: boolean;
+    onNext: () => void;
+    onBack: () => void;
+}) {
+    return (
+        <>
+            {questions.length === 0 ? (
+                <div style={{
+                    background: 'var(--surface-1)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: '32px 20px', textAlign: 'center',
+                    color: 'var(--text-3)', fontSize: 13, marginBottom: 24,
+                }}>Loading form…</div>
+            ) : (
+                <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: 16, marginBottom: 24,
+                }}>
+                    {questions.map(q => (
+                        <div key={q.key}>
+                            <label style={{
+                                fontSize: 12, fontWeight: 600, color: 'var(--text-3)',
+                                display: 'block', marginBottom: 6,
                             }}>
-                                Initializing connection to war room...
-                            </div>
-                        )}
-                    </div>
-                )}
+                                {q.prompt.replace(/:\s*$/, '')}
+                                {q.required && <span style={{ color: 'var(--warn)' }}> *</span>}
+                            </label>
+                            <input
+                                value={answers[q.key] || ''}
+                                onChange={e => onChange(q.key, e.target.value)}
+                                placeholder={q.example || ''}
+                                style={{
+                                    width: '100%', boxSizing: 'border-box',
+                                    background: 'oklch(1 0 0 / 0.04)', border: '1px solid var(--line-2)',
+                                    borderRadius: 9, padding: '11px 13px',
+                                    color: 'var(--text)', fontFamily: 'inherit', fontSize: 14,
+                                    outline: 'none',
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <NavRow onBack={onBack} onNext={onNext} nextEnabled={canContinue} nextLabel="Run evaluation →" />
+        </>
+    );
+}
+
+/* ─── Step 3 ───────────────────────────────────── */
+
+function Step3({
+    activeStage, complete, log, initializing,
+}: {
+    activeStage: number;
+    complete: boolean;
+    log: { text: string; color: string }[];
+    initializing: boolean;
+}) {
+    return (
+        <>
+            <div style={{ marginBottom: 24 }}>
+                <StagedProgress stages={RUN_STAGES} activeIdx={activeStage} allComplete={complete} />
             </div>
+            {initializing && log.length === 0 ? (
+                <div style={{
+                    background: 'oklch(0 0 0 / 0.35)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: 16, minHeight: 60,
+                    fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-3)',
+                }}>Initializing…</div>
+            ) : (
+                <div style={{
+                    background: 'oklch(0 0 0 / 0.35)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: 16, height: 220, overflowY: 'auto',
+                    fontFamily: 'var(--font-mono)', fontSize: 12, lineHeight: 1.7,
+                }}>
+                    {log.map((l, i) => (
+                        <div key={i} style={{ color: l.color }}>{l.text}</div>
+                    ))}
+                </div>
+            )}
+        </>
+    );
+}
+
+/* ─── Shared bits ──────────────────────────────── */
+
+function NavRow({
+    onBack, onNext, nextEnabled, nextLabel = 'Continue →',
+}: {
+    onBack: () => void;
+    onNext: () => void;
+    nextEnabled: boolean;
+    nextLabel?: string;
+}) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <button
+                onClick={onBack}
+                style={{
+                    background: 'none', border: '1px solid oklch(1 0 0 / 0.12)',
+                    color: 'var(--text)',
+                    padding: '12px 22px', borderRadius: 9,
+                    fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                }}
+            >← Back</button>
+            <button
+                onClick={onNext}
+                disabled={!nextEnabled}
+                style={{
+                    background: nextEnabled ? 'var(--accent)' : 'oklch(1 0 0 / 0.1)',
+                    color: 'var(--bg)', border: 'none',
+                    padding: '12px 24px', borderRadius: 9,
+                    fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
+                    cursor: nextEnabled ? 'pointer' : 'not-allowed',
+                    opacity: nextEnabled ? 1 : 0.6,
+                }}
+            >{nextLabel}</button>
         </div>
     );
 }
+
+const sectionHeadingStyle: React.CSSProperties = {
+    fontSize: 14, fontWeight: 700, color: 'var(--text-3)',
+    textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 12px',
+};
+
+const primaryButtonStyle: React.CSSProperties = {
+    background: 'var(--accent)', color: 'var(--bg)', border: 'none',
+    padding: '12px 24px', borderRadius: 9,
+    fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+};

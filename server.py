@@ -31,6 +31,7 @@ from vendor_registry import (
     vendor_exists, validate_url
 )
 from verticals import list_verticals, get_vertical
+from auth_middleware import SupabaseJWTMiddleware
 
 ADMIN_KEY = os.getenv("ADMIN_KEY", "change-me-in-production")
 
@@ -39,6 +40,9 @@ def require_admin(x_admin_key: str = Header(None)):
         raise HTTPException(status_code=403, detail="Admin access required")
 
 app = FastAPI(title="Adversarial CI API", version="1.0.0")
+
+# Auth added FIRST → CORS wraps it → OPTIONS preflight answered before auth runs.
+app.add_middleware(SupabaseJWTMiddleware)
 
 # Allow the Vite React dev server to communicate with this API
 app.add_middleware(
