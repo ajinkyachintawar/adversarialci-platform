@@ -130,7 +130,7 @@ async def _verify_token(token: str) -> AuthUser:
 
     Returns AuthUser on success, raises ValueError on failure.
     """
-    anon_key = os.getenv("SUPABASE_ANON_KEY", "")
+    anon_key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("VITE_SUPABASE_ANON_KEY", "")
     if not anon_key:
         logger.error("SUPABASE_ANON_KEY env var is not set")
         raise ValueError("Server misconfiguration: SUPABASE_ANON_KEY not set")
