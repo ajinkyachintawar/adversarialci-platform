@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { authFetch } from '../lib/api';
 
-async function fetchArray(path: string): Promise<unknown[]> {
+// Callers cast to their own EnrichedVendor shape; keep as any[] for compat
+// but guarantee at runtime we always return an array.
+async function fetchArray(path: string): Promise<any[]> {
     try {
         const res = await authFetch(path);
         if (!res.ok) return [];
