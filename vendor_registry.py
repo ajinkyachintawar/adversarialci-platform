@@ -13,22 +13,31 @@ from typing import Optional
 
 VENDORS_FILE = Path(__file__).parent / "vendors.json"
 
+_cache: Optional[dict] = None  # ponytail: module-level cache, invalidated on any write
+
 
 def load_vendors() -> dict:
+    global _cache
+    if _cache is not None:
+        return _cache
     if not VENDORS_FILE.exists():
-        return {"database": {}, "cloud": {}, "crm": {}}
+        _cache = {"database": {}, "cloud": {}, "crm": {}}
+        return _cache
     try:
         with open(VENDORS_FILE, "r") as f:
-            return json.load(f)
+            _cache = json.load(f)
     except (json.JSONDecodeError, IOError) as e:
         print(f"  Warning: Error loading vendors.json: {e}")
-        return {"database": {}, "cloud": {}, "crm": {}}
+        _cache = {"database": {}, "cloud": {}, "crm": {}}
+    return _cache
 
 
 def save_vendors(data: dict) -> bool:
+    global _cache
     try:
         with open(VENDORS_FILE, "w") as f:
             json.dump(data, f, indent=2)
+        _cache = data
         return True
     except IOError as e:
         print(f"  Warning: Error saving vendors.json: {e}")

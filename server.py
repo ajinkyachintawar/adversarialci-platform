@@ -458,34 +458,37 @@ async def api_stream_logs(session_id: str):
 @app.get("/api/reports/{report_id}")
 async def api_get_report(report_id: str):
     """Read the report from MongoDB or fallback to disk."""
-    from db.atlas import get_collection
-    
-    try:
-        col = get_collection("court_sessions")
-        
-        # Try to find by report_id first
-        session = col.find_one({"report_id": report_id})
-        
-        # Fallback to most recent
-        if not session:
-            session = col.find_one({}, sort=[("created_at", -1)])
-        
-        if session:
-            # Prefer report_content (full report), fallback to deliberation
-            content = session.get("report_content") or session.get("deliberation", "")
-            if content:
-                return {"id": report_id, "content": content}
-    except Exception as e:
-        print(f"MongoDB report fetch failed: {e}")
-    
-    # Fallback to file system
-    report_path = f"outputs/reports/{report_id}.md"
-    if os.path.exists(report_path):
-        with open(report_path, "r") as f:
-            content = f.read()
-        return {"id": report_id, "content": content}
-    
-    raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
+    def _work():
+        from db.atlas import get_collection
+
+        try:
+            col = get_collection("court_sessions")
+
+            # Try to find by report_id first
+            session = col.find_one({"report_id": report_id})
+
+            # Fallback to most recent
+            if not session:
+                session = col.find_one({}, sort=[("created_at", -1)])
+
+            if session:
+                # Prefer report_content (full report), fallback to deliberation
+                content = session.get("report_content") or session.get("deliberation", "")
+                if content:
+                    return {"id": report_id, "content": content}
+        except Exception as e:
+            print(f"MongoDB report fetch failed: {e}")
+
+        # Fallback to file system
+        report_path = f"outputs/reports/{report_id}.md"
+        if os.path.exists(report_path):
+            with open(report_path, "r") as f:
+                content = f.read()
+            return {"id": report_id, "content": content}
+
+        raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
+
+    return await asyncio.to_thread(_work)
 
 # --- Atlas Intelligence Endpoints ---
 
@@ -501,20 +504,19 @@ async def api_get_enriched_vendors(vertical: str):
         raise HTTPException(status_code=404, detail="Vertical not found")
     
     vendor_names = list_vendors(vertical)
-    enriched = []
-    
-    # Try to get Atlas data
-    atlas_data = {}
-    try:
-        from db.atlas import connect, get_collection, get_vendor_status as atlas_vendor_status
-        connect()
-        research_col = get_collection("research_data")
-        
-        for name in vendor_names:
-            # Count research docs
-            research_count = research_col.count_documents({"company": name})
-            
-            # Get source type breakdown using actual MongoDB source_type values
+
+    def _work():
+        enriched = []
+
+        # Try to get Atlas data
+        atlas_data = {}
+        try:
+            from db.atlas import connect, get_collection, DEFAULT_TTL
+            from datetime import datetime, timedelta
+            connect()
+            research_col = get_collection("research_data")
+            companies_col = get_collection("companies")
+
             SOURCE_TYPE_MAP = {
                 "Pricing":    ["pricing_scrape"],
                 "Blog":       ["blog_rss"],
@@ -524,56 +526,93 @@ async def api_get_enriched_vendors(vertical: str):
                 "Migration":  ["migration_tavily"],
                 "Complaints": ["complaint_tavily"],
             }
-            sources = {}
-            for label, db_types in SOURCE_TYPE_MAP.items():
-                sources[label] = research_col.count_documents({
-                    "company": name,
-                    "source_type": {"$in": db_types}
-                })
-            
-            # Get last scraped time
-            latest = research_col.find_one(
-                {"company": name},
-                sort=[("scraped_at", -1)]
-            )
-            last_scraped = None
-            if latest and latest.get("scraped_at"):
-                last_scraped = latest["scraped_at"].isoformat()
-            
-            atlas_data[name] = {
-                "research_count": research_count,
-                "sources": sources,
-                "last_scraped": last_scraped,
-                "status": atlas_vendor_status(name)
+            # Reverse map: db source_type -> label
+            type_to_label = {
+                t: label for label, types in SOURCE_TYPE_MAP.items() for t in types
             }
-    except Exception as e:
-        print(f"Atlas connection failed (non-fatal): {e}")
-    
-    for name in vendor_names:
-        config = get_vendor(name, vertical)
-        if not config:
-            continue
-            
-        vendor_info = {
-            "name": name,
-            "vertical": vertical,
-            "pricing_url": config.get("pricing_url"),
-            "github_repo": config.get("github_repo"),
-            "blog_rss": config.get("blog_rss", []),
-            "blog_tavily": config.get("blog_tavily", []),
-            "migration_queries": config.get("migration_queries", []),
-            "complaint_queries": config.get("complaint_queries", []),
-        }
-        
-        # Merge Atlas data if available
-        if name in atlas_data:
-            vendor_info["atlas"] = atlas_data[name]
-        else:
-            vendor_info["atlas"] = None
-            
-        enriched.append(vendor_info)
-    
-    return enriched
+
+            # One aggregate for per-company / per-source-type counts + last_scraped
+            pipeline = [
+                {"$match": {"company": {"$in": vendor_names}}},
+                {"$group": {
+                    "_id": {"company": "$company", "source_type": "$source_type"},
+                    "count": {"$sum": 1},
+                    "last": {"$max": "$scraped_at"}
+                }},
+                {"$group": {
+                    "_id": "$_id.company",
+                    "by_source": {"$push": {"source_type": "$_id.source_type", "count": "$count"}},
+                    "total": {"$sum": "$count"},
+                    "last_scraped": {"$max": "$last"}
+                }}
+            ]
+            research_by_company = {doc["_id"]: doc for doc in research_col.aggregate(pipeline)}
+
+            # One query for company statuses
+            cutoff = datetime.utcnow() - timedelta(days=DEFAULT_TTL)
+            company_docs = {
+                doc["name"]: doc
+                for doc in companies_col.find({"name": {"$in": vendor_names}}, {"name": 1, "last_scraped": 1})
+            }
+
+            for name in vendor_names:
+                doc = research_by_company.get(name)
+                sources = {label: 0 for label in SOURCE_TYPE_MAP}
+                research_count = 0
+                last_scraped = None
+                if doc:
+                    research_count = doc.get("total", 0)
+                    for entry in doc.get("by_source", []):
+                        label = type_to_label.get(entry["source_type"])
+                        if label:
+                            sources[label] += entry["count"]
+                    if doc.get("last_scraped"):
+                        last_scraped = doc["last_scraped"].isoformat()
+
+                company_last_scraped = company_docs.get(name, {}).get("last_scraped")
+                if not company_last_scraped:
+                    status = "new"
+                elif company_last_scraped < cutoff:
+                    status = "stale"
+                else:
+                    status = "fresh"
+
+                atlas_data[name] = {
+                    "research_count": research_count,
+                    "sources": sources,
+                    "last_scraped": last_scraped,
+                    "status": status
+                }
+        except Exception as e:
+            print(f"Atlas connection failed (non-fatal): {e}")
+
+        for name in vendor_names:
+            config = get_vendor(name, vertical)
+            if not config:
+                continue
+
+            vendor_info = {
+                "name": name,
+                "vertical": vertical,
+                "pricing_url": config.get("pricing_url"),
+                "github_repo": config.get("github_repo"),
+                "blog_rss": config.get("blog_rss", []),
+                "blog_tavily": config.get("blog_tavily", []),
+                "migration_queries": config.get("migration_queries", []),
+                "complaint_queries": config.get("complaint_queries", []),
+            }
+
+            # Merge Atlas data if available
+            if name in atlas_data:
+                vendor_info["atlas"] = atlas_data[name]
+            else:
+                vendor_info["atlas"] = None
+
+            enriched.append(vendor_info)
+
+        return enriched
+
+    return await asyncio.to_thread(_work)
 
 
 @app.get("/api/vendors/{vertical}/list")
@@ -585,48 +624,86 @@ async def api_list_vendors_slim(vertical: str):
         raise HTTPException(status_code=404, detail="Vertical not found")
 
     vendor_names = list_vendors(vertical)
-    result = []
 
-    atlas_data = {}
-    try:
-        from db.atlas import connect, get_collection, get_vendor_status as atlas_vendor_status
-        connect()
-        research_col = get_collection("research_data")
-        for name in vendor_names:
-            latest = research_col.find_one({"company": name}, sort=[("scraped_at", -1)])
-            last_scraped = latest["scraped_at"].isoformat() if latest and latest.get("scraped_at") else None
-            atlas_data[name] = {
-                "research_count": research_col.count_documents({"company": name}),
-                "last_scraped": last_scraped,
-                "status": atlas_vendor_status(name),
+    def _work():
+        result = []
+
+        atlas_data = {}
+        try:
+            from db.atlas import connect, get_collection, DEFAULT_TTL
+            from datetime import datetime, timedelta
+            connect()
+            research_col = get_collection("research_data")
+            companies_col = get_collection("companies")
+
+            # One aggregate for count + last_scraped per company
+            pipeline = [
+                {"$match": {"company": {"$in": vendor_names}}},
+                {"$group": {
+                    "_id": "$company",
+                    "research_count": {"$sum": 1},
+                    "last_scraped": {"$max": "$scraped_at"}
+                }}
+            ]
+            research_by_company = {doc["_id"]: doc for doc in research_col.aggregate(pipeline)}
+
+            # One query for company statuses
+            cutoff = datetime.utcnow() - timedelta(days=DEFAULT_TTL)
+            company_docs = {
+                doc["name"]: doc
+                for doc in companies_col.find({"name": {"$in": vendor_names}}, {"name": 1, "last_scraped": 1})
             }
-    except Exception as e:
-        print(f"Atlas connection failed (non-fatal): {e}")
 
-    for name in vendor_names:
-        entry = {"name": name, "status": None, "research_count": 0, "last_scraped": None}
-        if name in atlas_data:
-            entry.update(atlas_data[name])
-        result.append(entry)
+            for name in vendor_names:
+                doc = research_by_company.get(name)
+                research_count = doc.get("research_count", 0) if doc else 0
+                last_scraped = doc["last_scraped"].isoformat() if doc and doc.get("last_scraped") else None
 
-    return result
+                company_last_scraped = company_docs.get(name, {}).get("last_scraped")
+                if not company_last_scraped:
+                    status = "new"
+                elif company_last_scraped < cutoff:
+                    status = "stale"
+                else:
+                    status = "fresh"
+
+                atlas_data[name] = {
+                    "research_count": research_count,
+                    "last_scraped": last_scraped,
+                    "status": status,
+                }
+        except Exception as e:
+            print(f"Atlas connection failed (non-fatal): {e}")
+
+        for name in vendor_names:
+            entry = {"name": name, "status": None, "research_count": 0, "last_scraped": None}
+            if name in atlas_data:
+                entry.update(atlas_data[name])
+            result.append(entry)
+
+        return result
+
+    return await asyncio.to_thread(_work)
 
 
 @app.get("/api/atlas/freshness")
 async def api_get_freshness():
     """Returns Atlas data freshness report for all companies."""
-    try:
-        from db.atlas import connect, get_freshness_report
-        connect()
-        report = get_freshness_report()
-        # Convert datetimes to strings
-        for category in ["fresh", "stale", "new"]:
-            for item in report.get(category, []):
-                if item.get("last_scraped"):
-                    item["last_scraped"] = item["last_scraped"].isoformat()
-        return report
-    except Exception as e:
-        return {"fresh": [], "stale": [], "new": [], "error": str(e)}
+    def _work():
+        try:
+            from db.atlas import connect, get_freshness_report
+            connect()
+            report = get_freshness_report()
+            # Convert datetimes to strings
+            for category in ["fresh", "stale", "new"]:
+                for item in report.get(category, []):
+                    if item.get("last_scraped"):
+                        item["last_scraped"] = item["last_scraped"].isoformat()
+            return report
+        except Exception as e:
+            return {"fresh": [], "stale": [], "new": [], "error": str(e)}
+
+    return await asyncio.to_thread(_work)
 
 
 # --- Intelligence Tracker / History ---
@@ -643,142 +720,145 @@ async def api_get_sessions(
     Return paginated list of court sessions with filters and aggregate stats.
     Used by the Intelligence Tracker page.
     """
-    try:
-        from db.atlas import connect, get_collection
-        from datetime import datetime, timedelta
-        connect()
-        col = get_collection("court_sessions")
+    def _work():
+        try:
+            from db.atlas import connect, get_collection
+            from datetime import datetime, timedelta
+            connect()
+            col = get_collection("court_sessions")
         
-        # Build query filter
-        query = {}
-        if mode:
-            query["mode"] = mode
-        if vertical:
-            query["vertical"] = vertical
-        if days and days > 0:
-            cutoff = datetime.utcnow() - timedelta(days=days)
-            query["created_at"] = {"$gte": cutoff}
+            # Build query filter
+            query = {}
+            if mode:
+                query["mode"] = mode
+            if vertical:
+                query["vertical"] = vertical
+            if days and days > 0:
+                cutoff = datetime.utcnow() - timedelta(days=days)
+                query["created_at"] = {"$gte": cutoff}
         
-        # Get total count
-        total = col.count_documents(query)
+            # Get total count
+            total = col.count_documents(query)
         
-        # Get paginated sessions
-        cursor = col.find(query).sort("created_at", -1).skip(offset).limit(limit)
+            # Get paginated sessions
+            cursor = col.find(query).sort("created_at", -1).skip(offset).limit(limit)
         
-        sessions = []
-        for doc in cursor:
-            parsed = doc.get("parsed_verdict", {})
-            plaintiff = doc.get("plaintiff", {})
-            mode_val = doc.get("mode", "buyer")
+            sessions = []
+            for doc in cursor:
+                parsed = doc.get("parsed_verdict", {})
+                plaintiff = doc.get("plaintiff", {})
+                mode_val = doc.get("mode", "buyer")
             
-            # Build report_id from the session
-            # Use saved report_id, fallback to generated one
-            report_id = doc.get("report_id")
-            if not report_id:
-                created = doc.get("created_at")
-                if created:
-                    report_id = f"{mode_val}_report_{created.strftime('%Y%m%d_%H%M%S')}"
+                # Build report_id from the session
+                # Use saved report_id, fallback to generated one
+                report_id = doc.get("report_id")
+                if not report_id:
+                    created = doc.get("created_at")
+                    if created:
+                        report_id = f"{mode_val}_report_{created.strftime('%Y%m%d_%H%M%S')}"
             
-            session = {
-                "id": str(doc["_id"]),
-                "mode": mode_val,
-                "vertical": doc.get("vertical", "database"),
-                "vendors": doc.get("companies", []),
-                "winner": parsed.get("overall_winner") if mode_val != "analyst" else None,
-                "confidence": None,
-                "plaintiff_profile": {
-                    "company": plaintiff.get("company_name", ""),
-                    "budget": plaintiff.get("budget", ""),
-                    "priority": plaintiff.get("priority", ""),
-                } if mode_val != "analyst" else None,
-                "created_at": doc.get("created_at").isoformat() if doc.get("created_at") else None,
-                "report_id": report_id,
-            }
+                session = {
+                    "id": str(doc["_id"]),
+                    "mode": mode_val,
+                    "vertical": doc.get("vertical", "database"),
+                    "vendors": doc.get("companies", []),
+                    "winner": parsed.get("overall_winner") if mode_val != "analyst" else None,
+                    "confidence": None,
+                    "plaintiff_profile": {
+                        "company": plaintiff.get("company_name", ""),
+                        "budget": plaintiff.get("budget", ""),
+                        "priority": plaintiff.get("priority", ""),
+                    } if mode_val != "analyst" else None,
+                    "created_at": doc.get("created_at").isoformat() if doc.get("created_at") else None,
+                    "report_id": report_id,
+                }
             
-            # Parse confidence
-            conf_str = parsed.get("confidence", "")
-            if conf_str and conf_str != "N/A":
+                # Parse confidence
+                conf_str = parsed.get("confidence", "")
+                if conf_str and conf_str != "N/A":
+                    import re
+                    match = re.search(r'(\d+)', str(conf_str))
+                    if match:
+                        session["confidence"] = int(match.group(1))
+            
+                sessions.append(session)
+        
+            # Compute aggregate stats USING THE SAME FILTERS
+            # Build a filter-aware stats query (same as session query but without pagination)
+            stats_query = {}
+            if mode:
+                stats_query["mode"] = mode
+            if vertical:
+                stats_query["vertical"] = vertical
+            if days and days > 0:
+                stats_cutoff = datetime.utcnow() - timedelta(days=days)
+                stats_query["created_at"] = {"$gte": stats_cutoff}
+        
+            month_cutoff = datetime.utcnow() - timedelta(days=30)
+        
+            total_verdicts = col.count_documents(stats_query)
+        
+            # "This month" within the filtered set
+            month_query = {**stats_query, "created_at": {"$gte": month_cutoff}}
+            this_month = col.count_documents(month_query)
+        
+            # Top winner (filtered)
+            winner_match = {**stats_query, "parsed_verdict.overall_winner": {"$exists": True, "$ne": None}}
+            pipeline = [
+                {"$match": winner_match},
+                {"$group": {"_id": "$parsed_verdict.overall_winner", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}},
+                {"$limit": 1}
+            ]
+            top_winner_result = list(col.aggregate(pipeline))
+            top_winner = None
+            if top_winner_result and total_verdicts > 0:
+                tw = top_winner_result[0]
+                top_winner = {
+                    "vendor": tw["_id"],
+                    "percentage": round(tw["count"] / total_verdicts * 100)
+                }
+        
+            # Average confidence (filtered)
+            conf_pipeline = [
+                {"$match": {**stats_query, "parsed_verdict.confidence": {"$exists": True}}},
+                {"$project": {"conf_str": "$parsed_verdict.confidence"}},
+            ]
+            conf_docs = list(col.aggregate(conf_pipeline))
+            conf_values = []
+            for cd in conf_docs:
                 import re
-                match = re.search(r'(\d+)', str(conf_str))
-                if match:
-                    session["confidence"] = int(match.group(1))
-            
-            sessions.append(session)
+                m = re.search(r'(\d+)', str(cd.get("conf_str", "")))
+                if m:
+                    conf_values.append(int(m.group(1)))
+            avg_confidence = round(sum(conf_values) / len(conf_values)) if conf_values else 0
         
-        # Compute aggregate stats USING THE SAME FILTERS
-        # Build a filter-aware stats query (same as session query but without pagination)
-        stats_query = {}
-        if mode:
-            stats_query["mode"] = mode
-        if vertical:
-            stats_query["vertical"] = vertical
-        if days and days > 0:
-            stats_cutoff = datetime.utcnow() - timedelta(days=days)
-            stats_query["created_at"] = {"$gte": stats_cutoff}
-        
-        month_cutoff = datetime.utcnow() - timedelta(days=30)
-        
-        total_verdicts = col.count_documents(stats_query)
-        
-        # "This month" within the filtered set
-        month_query = {**stats_query, "created_at": {"$gte": month_cutoff}}
-        this_month = col.count_documents(month_query)
-        
-        # Top winner (filtered)
-        winner_match = {**stats_query, "parsed_verdict.overall_winner": {"$exists": True, "$ne": None}}
-        pipeline = [
-            {"$match": winner_match},
-            {"$group": {"_id": "$parsed_verdict.overall_winner", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}},
-            {"$limit": 1}
-        ]
-        top_winner_result = list(col.aggregate(pipeline))
-        top_winner = None
-        if top_winner_result and total_verdicts > 0:
-            tw = top_winner_result[0]
-            top_winner = {
-                "vendor": tw["_id"],
-                "percentage": round(tw["count"] / total_verdicts * 100)
+            return {
+                "sessions": sessions,
+                "total": total,
+                "stats": {
+                    "total_verdicts": total_verdicts,
+                    "this_month": this_month,
+                    "top_winner": top_winner,
+                    "avg_confidence": avg_confidence
+                }
             }
-        
-        # Average confidence (filtered)
-        conf_pipeline = [
-            {"$match": {**stats_query, "parsed_verdict.confidence": {"$exists": True}}},
-            {"$project": {"conf_str": "$parsed_verdict.confidence"}},
-        ]
-        conf_docs = list(col.aggregate(conf_pipeline))
-        conf_values = []
-        for cd in conf_docs:
-            import re
-            m = re.search(r'(\d+)', str(cd.get("conf_str", "")))
-            if m:
-                conf_values.append(int(m.group(1)))
-        avg_confidence = round(sum(conf_values) / len(conf_values)) if conf_values else 0
-        
-        return {
-            "sessions": sessions,
-            "total": total,
-            "stats": {
-                "total_verdicts": total_verdicts,
-                "this_month": this_month,
-                "top_winner": top_winner,
-                "avg_confidence": avg_confidence
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return {
+                "sessions": [],
+                "total": 0,
+                "stats": {
+                    "total_verdicts": 0,
+                    "this_month": 0,
+                    "top_winner": None,
+                    "avg_confidence": 0
+                },
+                "error": str(e)
             }
-        }
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return {
-            "sessions": [],
-            "total": 0,
-            "stats": {
-                "total_verdicts": 0,
-                "this_month": 0,
-                "top_winner": None,
-                "avg_confidence": 0
-            },
-            "error": str(e)
-        }
+
+    return await asyncio.to_thread(_work)
 
 
 @app.get("/api/sessions/trends")
@@ -790,96 +870,99 @@ async def api_get_session_trends(
     """
     Return winner distribution for trend visualization.
     """
-    try:
-        from db.atlas import connect, get_collection
-        from datetime import datetime, timedelta
-        connect()
-        col = get_collection("court_sessions")
+    def _work():
+        try:
+            from db.atlas import connect, get_collection
+            from datetime import datetime, timedelta
+            connect()
+            col = get_collection("court_sessions")
         
-        query = {}
-        if vertical:
-            query["vertical"] = vertical
-        if days and days > 0:
-            cutoff = datetime.utcnow() - timedelta(days=days)
-            query["created_at"] = {"$gte": cutoff}
+            query = {}
+            if vertical:
+                query["vertical"] = vertical
+            if days and days > 0:
+                cutoff = datetime.utcnow() - timedelta(days=days)
+                query["created_at"] = {"$gte": cutoff}
         
-        # If mode is specified AND it's not analyst, filter to that mode
-        # If mode is analyst, there are no winners so return empty
-        if mode and mode == "analyst":
+            # If mode is specified AND it's not analyst, filter to that mode
+            # If mode is analyst, there are no winners so return empty
+            if mode and mode == "analyst":
+                return {
+                    "vertical": vertical or "all",
+                    "period_days": days,
+                    "total_verdicts": 0,
+                    "distribution": [],
+                    "insights": ["Analyst mode does not declare winners"]
+                }
+            elif mode:
+                query["mode"] = mode
+            else:
+                # Exclude analyst (no winners) when no mode filter
+                query["mode"] = {"$ne": "analyst"}
+        
+            query["parsed_verdict.overall_winner"] = {"$exists": True, "$ne": None}
+        
+            total_verdicts = col.count_documents(query)
+        
+            # Win distribution
+            pipeline = [
+                {"$match": query},
+                {"$group": {"_id": "$parsed_verdict.overall_winner", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            results = list(col.aggregate(pipeline))
+        
+            distribution = []
+            for r in results:
+                if r["_id"]:
+                    pct = round(r["count"] / total_verdicts * 100) if total_verdicts > 0 else 0
+                    distribution.append({
+                        "vendor": r["_id"],
+                        "wins": r["count"],
+                        "percentage": pct
+                    })
+        
+            # Generate simple insights
+            insights = []
+            if distribution:
+                top = distribution[0]
+                insights.append(f"{top['vendor']} leads with {top['percentage']}% of verdicts ({top['wins']} wins)")
+        
+            # Check priority-specific wins
+            priority_pipeline = [
+                {"$match": {**query, "priority": {"$exists": True}}},
+                {"$group": {
+                    "_id": {"winner": "$parsed_verdict.overall_winner", "priority": "$priority"},
+                    "count": {"$sum": 1}
+                }},
+                {"$sort": {"count": -1}},
+                {"$limit": 3}
+            ]
+            priority_results = list(col.aggregate(priority_pipeline))
+            for pr in priority_results:
+                if pr["_id"]["winner"] and pr["_id"]["priority"]:
+                    insights.append(
+                        f"{pr['_id']['winner']} wins {pr['count']}x when {pr['_id']['priority']} is top priority"
+                    )
+        
+            return {
+                "vertical": vertical or "all",
+                "period_days": days,
+                "total_verdicts": total_verdicts,
+                "distribution": distribution,
+                "insights": insights[:3]  # cap at 3
+            }
+        except Exception as e:
             return {
                 "vertical": vertical or "all",
                 "period_days": days,
                 "total_verdicts": 0,
                 "distribution": [],
-                "insights": ["Analyst mode does not declare winners"]
+                "insights": [],
+                "error": str(e)
             }
-        elif mode:
-            query["mode"] = mode
-        else:
-            # Exclude analyst (no winners) when no mode filter
-            query["mode"] = {"$ne": "analyst"}
-        
-        query["parsed_verdict.overall_winner"] = {"$exists": True, "$ne": None}
-        
-        total_verdicts = col.count_documents(query)
-        
-        # Win distribution
-        pipeline = [
-            {"$match": query},
-            {"$group": {"_id": "$parsed_verdict.overall_winner", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}}
-        ]
-        results = list(col.aggregate(pipeline))
-        
-        distribution = []
-        for r in results:
-            if r["_id"]:
-                pct = round(r["count"] / total_verdicts * 100) if total_verdicts > 0 else 0
-                distribution.append({
-                    "vendor": r["_id"],
-                    "wins": r["count"],
-                    "percentage": pct
-                })
-        
-        # Generate simple insights
-        insights = []
-        if distribution:
-            top = distribution[0]
-            insights.append(f"{top['vendor']} leads with {top['percentage']}% of verdicts ({top['wins']} wins)")
-        
-        # Check priority-specific wins
-        priority_pipeline = [
-            {"$match": {**query, "priority": {"$exists": True}}},
-            {"$group": {
-                "_id": {"winner": "$parsed_verdict.overall_winner", "priority": "$priority"},
-                "count": {"$sum": 1}
-            }},
-            {"$sort": {"count": -1}},
-            {"$limit": 3}
-        ]
-        priority_results = list(col.aggregate(priority_pipeline))
-        for pr in priority_results:
-            if pr["_id"]["winner"] and pr["_id"]["priority"]:
-                insights.append(
-                    f"{pr['_id']['winner']} wins {pr['count']}x when {pr['_id']['priority']} is top priority"
-                )
-        
-        return {
-            "vertical": vertical or "all",
-            "period_days": days,
-            "total_verdicts": total_verdicts,
-            "distribution": distribution,
-            "insights": insights[:3]  # cap at 3
-        }
-    except Exception as e:
-        return {
-            "vertical": vertical or "all",
-            "period_days": days,
-            "total_verdicts": 0,
-            "distribution": [],
-            "insights": [],
-            "error": str(e)
-        }
+
+    return await asyncio.to_thread(_work)
 
 
 # --- Health Check ---

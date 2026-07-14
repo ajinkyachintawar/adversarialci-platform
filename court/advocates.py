@@ -5,6 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor
 from groq import Groq
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -14,28 +16,30 @@ MAX_ARGS_PER_DIM = 5
 
 
 def call_groq(messages: list, temperature: float = 0.3) -> str:
-    """Call Groq API for advocate responses."""
-    try:
-        client = Groq(api_key=GROQ_API_KEY)
-        
-        groq_messages = []
-        for msg in messages:
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            groq_messages.append({"role": role, "content": content})
-        
-        response = client.chat.completions.create(
-            model=ADVOCATE_MODEL,
-            messages=groq_messages,
-            temperature=temperature,
-            max_tokens=2048
-        )
-        
-        return response.choices[0].message.content
-        
-    except Exception as e:
-        print(f"  ⚠️  Groq API error: {e}")
-        return f"ERROR: {e}"
+    """Call Groq API for advocate responses. One retry on failure."""
+    groq_messages = []
+    for msg in messages:
+        role = msg.get("role", "user")
+        content = msg.get("content", "")
+        groq_messages.append({"role": role, "content": content})
+
+    for attempt in range(2):
+        try:
+            client = Groq(api_key=GROQ_API_KEY)
+            response = client.chat.completions.create(
+                model=ADVOCATE_MODEL,
+                messages=groq_messages,
+                temperature=temperature,
+                max_tokens=2048
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            if attempt == 0:
+                print(f"  ⚠️  Groq API error (retrying in 5s): {e}")
+                time.sleep(5)
+            else:
+                print(f"  ⚠️  Groq API error: {e}")
+                return f"ERROR: {e}"
 
 
 def format_arguments_for_prompt(
@@ -233,14 +237,18 @@ def run_advocates(
 
     print("\n  ROUND 1 — Opening Statements")
     print("  " + "─" * 36)
-    for company in companies:
-        print(f"  🎙️  {company} opening...")
-        statement = opening_statement(
-            company, argument_banks[company],
-            plaintiff, dimensions
-        )
-        results["round_1"][company] = statement
-        print(f"     ✅ Done")
+    with ThreadPoolExecutor(max_workers=len(companies)) as pool:
+        futures = {
+            company: pool.submit(
+                opening_statement, company, argument_banks[company],
+                plaintiff, dimensions
+            )
+            for company in companies
+        }
+        for company in companies:
+            print(f"  🎙️  {company} opening...")
+            results["round_1"][company] = futures[company].result()
+            print(f"     ✅ Done")
 
     print("\n  ROUND 2 — Cross Examination")
     print("  " + "─" * 36)
@@ -259,13 +267,17 @@ def run_advocates(
 
     print("\n  ROUND 3 — Plaintiff Challenge")
     print("  " + "─" * 36)
-    for company in companies:
-        print(f"  📋 {company} responding to challenge...")
-        response = plaintiff_challenge(
-            company, argument_banks[company],
-            plaintiff, challenge, dimensions
-        )
-        results["round_3"][company] = response
-        print(f"     ✅ Done")
+    with ThreadPoolExecutor(max_workers=len(companies)) as pool:
+        futures = {
+            company: pool.submit(
+                plaintiff_challenge, company, argument_banks[company],
+                plaintiff, challenge, dimensions
+            )
+            for company in companies
+        }
+        for company in companies:
+            print(f"  📋 {company} responding to challenge...")
+            results["round_3"][company] = futures[company].result()
+            print(f"     ✅ Done")
 
     return results

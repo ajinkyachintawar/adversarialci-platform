@@ -36,6 +36,8 @@ DEFAULT_TTL = FRESHNESS_DAYS  # Fallback
 
 def connect():
     global client, db
+    if client is not None:
+        return
     try:
         client = MongoClient(
     MONGODB_URI,
@@ -45,9 +47,24 @@ def connect():
         client.admin.command("ping")
         db = client[DB_NAME]
         print("✅ Atlas connected")
+        _ensure_indexes()
     except ConnectionFailure as e:
+        client = None
         print(f"❌ Atlas connection failed: {e}")
         raise
+
+
+def _ensure_indexes():
+    """Create indexes once per process (idempotent). Called after first connect().
+    Never fatal: a failed index build (e.g. pre-existing duplicate names) must not
+    take the server down — queries just stay unindexed."""
+    try:
+        db["companies"].create_index("name", unique=True)
+        db["research_data"].create_index([("company", 1), ("source_type", 1), ("verified", 1)])
+        db["research_data"].create_index([("company", 1), ("scraped_at", 1)])
+        db["court_sessions"].create_index([("created_at", 1), ("mode", 1), ("vertical", 1)])
+    except Exception as e:
+        print(f"⚠️  Index creation failed (continuing without): {e}")
 
 
 def get_collection(name: str):
@@ -263,10 +280,17 @@ def get_freshness_report() -> dict:
         "new": []
     }
     
+    cutoff = datetime.utcnow() - timedelta(days=DEFAULT_TTL)
     for company in companies:
         name = company["name"]
-        status = get_vendor_status(name)
-        
+        last_scraped = company.get("last_scraped")
+        if not last_scraped:
+            status = "new"
+        elif last_scraped < cutoff:
+            status = "stale"
+        else:
+            status = "fresh"
+
         report[status].append({
             "name": name,
             "last_scraped": company.get("last_scraped"),

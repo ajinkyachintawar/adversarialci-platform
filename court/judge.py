@@ -32,6 +32,7 @@ def call_groq(messages: list, temperature: float = 0.2) -> str:
         "temperature": temperature,
         "max_tokens":  2000
     }
+    backoffs = [5, 15, 45]
     for attempt in range(3):
         try:
             response = requests.post(
@@ -42,7 +43,7 @@ def call_groq(messages: list, temperature: float = 0.2) -> str:
             )
             data = response.json()
             if "choices" not in data:
-                wait = 60
+                wait = backoffs[attempt]
                 print(f"  ⏳ Rate limit — waiting {wait}s "
                       f"(attempt {attempt + 1}/3)...")
                 time.sleep(wait)
