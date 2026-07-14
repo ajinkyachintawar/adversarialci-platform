@@ -35,7 +35,7 @@ from vendor_registry import (
 from verticals import list_verticals, get_vertical
 from auth_middleware import SupabaseJWTMiddleware
 
-ADMIN_KEY = os.getenv("ADMIN_KEY", "change-me-in-production")
+ADMIN_KEY = os.getenv("ADMIN_KEY") or os.getenv("VITE_ADMIN_KEY") or "change-me-in-production"
 
 def require_admin(x_admin_key: str = Header(None)):
     if x_admin_key != ADMIN_KEY:
