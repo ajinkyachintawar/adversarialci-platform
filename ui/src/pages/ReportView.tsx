@@ -17,6 +17,11 @@ import {
     extractDimensionAnalysis,
     extractVendorProfiles,
     extractBestFitScenarios,
+    extractDimensionBreakdown,
+    extractRunnerUp,
+    extractQuestions,
+    extractBuyerNextSteps,
+    extractConfidenceBreakdown,
 } from '../lib/reportParser';
 
 export default function ReportView() {
@@ -38,12 +43,18 @@ export default function ReportView() {
     const mode = parsed?.mode || 'buyer';
     const hasWinner = !!winner && mode !== 'analyst';
     const isAnalyst = mode === 'analyst';
+    const isBuyer   = mode === 'buyer';
     const analystSummary  = content && isAnalyst ? extractAnalystSummary(content)   : null;
     const dataQuality     = content && isAnalyst ? extractDataQuality(content)      : null;
     const analystMatrix   = content && isAnalyst ? extractAnalystMatrix(content)    : null;
     const dimAnalysis     = content && isAnalyst ? extractDimensionAnalysis(content): [];
     const vendorProfiles  = content && isAnalyst ? extractVendorProfiles(content)   : [];
     const bestFit         = content && isAnalyst ? extractBestFitScenarios(content) : [];
+    const dimBreakdown    = content && isBuyer   ? extractDimensionBreakdown(content)   : [];
+    const runnerUp        = content && isBuyer   ? extractRunnerUp(content)             : null;
+    const questions       = content && isBuyer   ? extractQuestions(content)            : [];
+    const nextSteps       = content && isBuyer   ? extractBuyerNextSteps(content)       : [];
+    const confBreakdown   = content && isBuyer   ? extractConfidenceBreakdown(content)  : null;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(content);
@@ -234,7 +245,46 @@ export default function ReportView() {
                 </>
             )}
 
-            {!isAnalyst && (
+            {isBuyer && dimBreakdown.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Dimension breakdown</h2>
+                    <div style={{
+                        display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28,
+                    }}>
+                        {dimBreakdown.map(d => <BuyerDimensionRow key={d.name} d={d} />)}
+                    </div>
+                </>
+            )}
+
+            {isBuyer && runnerUp && runnerUp.vendor && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Runner-up</h2>
+                    <RunnerUpCard r={runnerUp} />
+                </>
+            )}
+
+            {isBuyer && questions.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Questions to ask</h2>
+                    <QuestionsCard questions={questions} />
+                </>
+            )}
+
+            {isBuyer && nextSteps.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Recommended next steps</h2>
+                    <NextStepsCard steps={nextSteps} />
+                </>
+            )}
+
+            {isBuyer && confBreakdown && confBreakdown.overall > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Confidence breakdown</h2>
+                    <ConfidenceBreakdownCard cb={confBreakdown} />
+                </>
+            )}
+
+            {!isAnalyst && !isBuyer && (
                 <>
                     <h2 style={sectionHeadingStyle}>Full report</h2>
                     <div style={{
@@ -245,6 +295,183 @@ export default function ReportView() {
                     </div>
                 </>
             )}
+        </div>
+    );
+}
+
+/* ─── Buyer body components ─────────────────────── */
+
+function BuyerDimensionRow({
+    d,
+}: { d: import('../lib/reportParser').DimensionDetail }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)',
+            border: `1px solid ${d.isPriority ? 'var(--warn-30)' : 'var(--line)'}`,
+            borderRadius: 12, padding: '14px 16px',
+        }}>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap',
+            }}>
+                <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+                    color: d.isPriority ? 'var(--warn)' : 'var(--text-3)',
+                    textTransform: 'uppercase', letterSpacing: '0.04em',
+                }}>{d.name}</span>
+                {d.isPriority && (
+                    <span style={{
+                        fontSize: 10, padding: '2px 8px', borderRadius: 100,
+                        background: 'var(--warn-15)', color: 'var(--warn)',
+                        fontWeight: 700, letterSpacing: '0.04em',
+                    }}>TOP PRIORITY</span>
+                )}
+                {d.winner && (
+                    <span style={{
+                        fontSize: 11, padding: '2px 8px', borderRadius: 100,
+                        background: 'var(--success-15)', color: 'var(--success)',
+                        fontWeight: 700,
+                    }}>Winner: {d.winner}</span>
+                )}
+            </div>
+            {d.why && (
+                <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)' }}>
+                    {d.why}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function RunnerUpCard({
+    r,
+}: { r: import('../lib/reportParser').RunnerUpData }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: 20, marginBottom: 28,
+            display: 'flex', gap: 18, alignItems: 'flex-start',
+        }}>
+            <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: 'var(--surface-2)', border: '1px solid var(--line-2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700,
+                color: 'var(--text-2)', flexShrink: 0,
+            }}>2nd</div>
+            <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{r.vendor}</div>
+                {r.reason && (
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 8 }}>
+                        {r.reason}
+                    </div>
+                )}
+                {r.swingFactor && (
+                    <div style={{
+                        fontSize: 12, color: 'var(--text-3)',
+                        borderLeft: '2px solid var(--accent-30)', paddingLeft: 10,
+                    }}>
+                        <span style={{ fontWeight: 700, color: 'var(--accent)' }}>Swing factor: </span>
+                        {r.swingFactor}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function QuestionsCard({ questions }: { questions: string[] }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+        }}>
+            <ol style={{
+                margin: 0, paddingLeft: 22, color: 'var(--text-2)',
+                fontSize: 13, lineHeight: 1.7,
+            }}>
+                {questions.map((q, i) => (
+                    <li key={i} style={{ marginBottom: 6 }}>{q}</li>
+                ))}
+            </ol>
+        </div>
+    );
+}
+
+function NextStepsCard({ steps }: { steps: string[] }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+        }}>
+            {steps.map((s, i) => (
+                <div key={i} style={{
+                    display: 'flex', gap: 12, alignItems: 'center',
+                    padding: '10px 0',
+                    borderBottom: i === steps.length - 1 ? 'none' : '1px solid var(--surface-3)',
+                }}>
+                    <span style={{
+                        width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+                        background: 'var(--accent-12)', color: 'var(--accent)',
+                        fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{i + 1}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{s}</span>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function ConfidenceBreakdownCard({
+    cb,
+}: { cb: import('../lib/reportParser').ConfidenceData }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: 20, marginBottom: 40,
+            display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 24, alignItems: 'center',
+        }}>
+            <div style={{ textAlign: 'center', minWidth: 100 }}>
+                <div style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 32, fontWeight: 700,
+                    color: 'var(--accent)',
+                }}>{cb.overall}%</div>
+                {cb.label && (
+                    <div style={{
+                        fontSize: 10, marginTop: 4, padding: '2px 8px', borderRadius: 100,
+                        background: 'var(--accent-12)', color: 'var(--accent)',
+                        fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+                        display: 'inline-block',
+                    }}>{cb.label}</div>
+                )}
+            </div>
+            <div style={{
+                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16,
+                borderLeft: '1px solid var(--line)', paddingLeft: 22,
+            }}>
+                <ConfMetric label="Dimensions won" value={cb.dimensionsWon} />
+                <ConfMetric label="Priority won" value={cb.priorityWon ? 'Yes' : 'No'}
+                    tone={cb.priorityWon ? 'success' : 'warn'} />
+                <ConfMetric label="Dominance" value={cb.dominance} />
+            </div>
+        </div>
+    );
+}
+
+function ConfMetric({
+    label, value, tone,
+}: { label: string; value: string; tone?: 'success' | 'warn' }) {
+    const color = tone === 'success' ? 'var(--success)' :
+                  tone === 'warn' ? 'var(--warn)' : 'var(--text)';
+    return (
+        <div>
+            <div style={{
+                fontSize: 10, color: 'var(--text-3)', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4,
+            }}>{label}</div>
+            <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color,
+            }}>{value || '—'}</div>
         </div>
     );
 }
