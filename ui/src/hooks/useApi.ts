@@ -1,14 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
 import { authFetch } from '../lib/api';
 
+async function fetchArray(path: string): Promise<unknown[]> {
+    try {
+        const res = await authFetch(path);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+    } catch {
+        return [];
+    }
+}
+
 export function useAllVendors() {
     return useQuery({
         queryKey: ['vendors', 'all'],
         queryFn: async () => {
             const [database, cloud, crm] = await Promise.all([
-                authFetch(`/api/vendors/database/enriched`).then(r => r.json()).catch(() => []),
-                authFetch(`/api/vendors/cloud/enriched`).then(r => r.json()).catch(() => []),
-                authFetch(`/api/vendors/crm/enriched`).then(r => r.json()).catch(() => []),
+                fetchArray(`/api/vendors/database/enriched`),
+                fetchArray(`/api/vendors/cloud/enriched`),
+                fetchArray(`/api/vendors/crm/enriched`),
             ]);
             return { database, cloud, crm };
         },

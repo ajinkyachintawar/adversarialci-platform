@@ -70,6 +70,11 @@ class SupabaseJWTMiddleware(BaseHTTPMiddleware):
         if path in _PUBLIC_PATHS or not path.startswith("/api/"):
             return await call_next(request)
 
+        # GETs are public reads (Landing/Dashboard/report view work anonymous).
+        # Mutations (POST/PUT/DELETE) and SSE still require a token.
+        if request.method == "GET" and not path.startswith("/api/stream/"):
+            return await call_next(request)
+
         # Bypass auth for localhost development
         client_host = request.client.host if request.client else ""
         if client_host in ("127.0.0.1", "::1", "localhost"):
