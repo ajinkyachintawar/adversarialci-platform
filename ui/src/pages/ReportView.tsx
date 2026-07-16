@@ -22,6 +22,14 @@ import {
     extractQuestions,
     extractBuyerNextSteps,
     extractConfidenceBreakdown,
+    extractAdvantages,
+    extractVulnerabilities,
+    extractLandmines,
+    extractTalkTrack,
+    extractDoNotSay,
+    extractObjectionHandling,
+    extractSellerNextSteps,
+    extractDealSummary,
 } from '../lib/reportParser';
 
 export default function ReportView() {
@@ -44,6 +52,7 @@ export default function ReportView() {
     const hasWinner = !!winner && mode !== 'analyst';
     const isAnalyst = mode === 'analyst';
     const isBuyer   = mode === 'buyer';
+    const isSeller  = mode === 'seller';
     const analystSummary  = content && isAnalyst ? extractAnalystSummary(content)   : null;
     const dataQuality     = content && isAnalyst ? extractDataQuality(content)      : null;
     const analystMatrix   = content && isAnalyst ? extractAnalystMatrix(content)    : null;
@@ -55,6 +64,19 @@ export default function ReportView() {
     const questions       = content && isBuyer   ? extractQuestions(content)            : [];
     const nextSteps       = content && isBuyer   ? extractBuyerNextSteps(content)       : [];
     const confBreakdown   = content && isBuyer   ? extractConfidenceBreakdown(content)  : null;
+    const advantages      = content && isSeller  ? extractAdvantages(content)          : [];
+    const vulnerabilities = content && isSeller  ? extractVulnerabilities(content)      : [];
+    const landmines       = content && isSeller  ? extractLandmines(content)            : null;
+    const talkTrack       = content && isSeller  ? extractTalkTrack(content)            : null;
+    const doNotSay        = content && isSeller  ? extractDoNotSay(content)             : [];
+    const objections      = content && isSeller  ? extractObjectionHandling(content)    : [];
+    const sellerNextSteps = content && isSeller  ? extractSellerNextSteps(content)      : [];
+    const dealSummary     = content && isSeller  ? extractDealSummary(content)          : {};
+    const sellerHasData   = isSeller && (
+        advantages.length > 0 || vulnerabilities.length > 0 || !!landmines ||
+        !!talkTrack || doNotSay.length > 0 || objections.length > 0 ||
+        sellerNextSteps.length > 0 || Object.keys(dealSummary).length > 0
+    );
 
     const handleCopy = () => {
         navigator.clipboard.writeText(content);
@@ -163,6 +185,8 @@ export default function ReportView() {
                     dataQuality={dataQuality}
                     fallback={summary}
                 />
+            ) : sellerHasData ? (
+                null /* seller verdict lives in the Deal summary card */
             ) : (
                 <NoWinnerCard summary={summary} />
             )}
@@ -284,7 +308,85 @@ export default function ReportView() {
                 </>
             )}
 
-            {!isAnalyst && !isBuyer && (
+            {isSeller && Object.keys(dealSummary).length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Deal summary</h2>
+                    <DealSummaryCard summary={dealSummary} />
+                </>
+            )}
+
+            {isSeller && (advantages.length > 0 || vulnerabilities.length > 0) && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Advantages &amp; vulnerabilities</h2>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: advantages.length > 0 && vulnerabilities.length > 0 ? 'repeat(2, 1fr)' : '1fr',
+                        gap: 14, marginBottom: 28, alignItems: 'start',
+                    }}>
+                        {advantages.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {advantages.map((a, i) => <AdvantageRow key={i} a={a} />)}
+                            </div>
+                        )}
+                        {vulnerabilities.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {vulnerabilities.map((v, i) => <VulnerabilityRow key={i} v={v} />)}
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
+            {isSeller && talkTrack && (talkTrack.opening || talkTrack.keyPoints.length > 0 || talkTrack.close) && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Talk track</h2>
+                    <TalkTrackCard t={talkTrack} />
+                </>
+            )}
+
+            {isSeller && landmines && landmines.theySay.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Landmines to plant</h2>
+                    <LandminesCard l={landmines} />
+                </>
+            )}
+
+            {isSeller && objections.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Objection handling</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+                        {objections.map((o, i) => <ObjectionRow key={i} o={o} />)}
+                    </div>
+                </>
+            )}
+
+            {isSeller && doNotSay.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Do not say</h2>
+                    <DoNotSayCard items={doNotSay} />
+                </>
+            )}
+
+            {isSeller && sellerNextSteps.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Next steps</h2>
+                    <SellerNextStepsCard groups={sellerNextSteps} />
+                </>
+            )}
+
+            {!isAnalyst && !isBuyer && !isSeller && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Full report</h2>
+                    <div style={{
+                        background: 'var(--surface-1)', border: '1px solid var(--line)',
+                        borderRadius: 14, padding: '24px 28px', marginBottom: 40,
+                    }}>
+                        <ReactMarkdown components={mdComponents}>{content}</ReactMarkdown>
+                    </div>
+                </>
+            )}
+
+            {isSeller && !sellerHasData && (
                 <>
                     <h2 style={sectionHeadingStyle}>Full report</h2>
                     <div style={{
@@ -472,6 +574,226 @@ function ConfMetric({
             <div style={{
                 fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color,
             }}>{value || '—'}</div>
+        </div>
+    );
+}
+
+/* ─── Seller body components ─────────────────────── */
+
+function DealSummaryCard({ summary }: { summary: Record<string, string> }) {
+    const entries = Object.entries(summary);
+    return (
+        <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28,
+        }}>
+            {entries.map(([k, v]) => (
+                <div key={k} style={{
+                    background: 'var(--surface-1)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: '10px 14px', minWidth: 140,
+                }}>
+                    <div style={{
+                        fontSize: 10, color: 'var(--text-3)', fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4,
+                    }}>{k}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{v}</div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function AdvantageRow({ a }: { a: import('../lib/reportParser').AdvantageItem }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)',
+            border: `1px solid ${a.isPriority ? 'var(--success-30)' : 'var(--line)'}`,
+            borderRadius: 12, padding: '14px 16px',
+        }}>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap',
+            }}>
+                <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+                    color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.04em',
+                }}>{a.title}</span>
+                {a.isPriority && (
+                    <span style={{
+                        fontSize: 10, padding: '2px 8px', borderRadius: 100,
+                        background: 'var(--success-15)', color: 'var(--success)',
+                        fontWeight: 700, letterSpacing: '0.04em',
+                    }}>TOP PRIORITY</span>
+                )}
+            </div>
+            {a.quote && (
+                <div style={{
+                    fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)', fontStyle: 'italic',
+                    marginBottom: a.tip ? 6 : 0,
+                }}>&ldquo;{a.quote}&rdquo;</div>
+            )}
+            {a.tip && (
+                <div style={{ fontSize: 12, color: 'var(--success)' }}>→ {a.tip}</div>
+            )}
+        </div>
+    );
+}
+
+function VulnerabilityRow({ v }: { v: import('../lib/reportParser').VulnerabilityItem }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--warn-30)',
+            borderRadius: 12, padding: '14px 16px',
+        }}>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap',
+            }}>
+                <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+                    color: 'var(--warn)', textTransform: 'uppercase', letterSpacing: '0.04em',
+                }}>{v.title}</span>
+                {v.competitor && (
+                    <span style={{
+                        fontSize: 11, padding: '2px 8px', borderRadius: 100,
+                        background: 'var(--warn-15)', color: 'var(--warn)', fontWeight: 700,
+                    }}>{v.competitor} wins</span>
+                )}
+            </div>
+            {v.quote && (
+                <div style={{
+                    fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)', fontStyle: 'italic',
+                    marginBottom: v.tip ? 6 : 0,
+                }}>&ldquo;{v.quote}&rdquo;</div>
+            )}
+            {v.tip && (
+                <div style={{ fontSize: 12, color: 'var(--warn)' }}>→ {v.tip}</div>
+            )}
+        </div>
+    );
+}
+
+function TalkTrackCard({ t }: { t: import('../lib/reportParser').TalkTrackData }) {
+    const steps = [
+        { label: 'Opening', text: t.opening },
+        ...t.keyPoints.map((p, i) => ({ label: `Key point ${i + 1}`, text: p })),
+        { label: 'Close', text: t.close },
+    ].filter(s => s.text);
+
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+        }}>
+            {steps.map((s, i) => (
+                <div key={i} style={{
+                    display: 'flex', gap: 12, alignItems: 'flex-start',
+                    padding: '10px 0',
+                    borderBottom: i === steps.length - 1 ? 'none' : '1px solid var(--surface-3)',
+                }}>
+                    <span style={{
+                        width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+                        background: 'var(--accent-12)', color: 'var(--accent)',
+                        fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{i + 1}</span>
+                    <div>
+                        <div style={{
+                            fontSize: 10, color: 'var(--text-3)', fontWeight: 700,
+                            textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3,
+                        }}>{s.label}</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>{s.text}</div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function LandminesCard({ l }: { l: import('../lib/reportParser').LandmineData }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--warn-30)',
+            borderRadius: 14, padding: 20, marginBottom: 28,
+        }}>
+            <div style={{
+                fontSize: 10, fontWeight: 700, color: 'var(--warn)',
+                textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8,
+            }}>If they say</div>
+            <ul style={{ margin: '0 0 16px', paddingLeft: 18, fontSize: 13, color: 'var(--text-2)', lineHeight: 1.7 }}>
+                {l.theySay.map((s, i) => <li key={i} style={{ marginBottom: 4 }}>&ldquo;{s}&rdquo;</li>)}
+            </ul>
+            {l.youSay && (
+                <>
+                    <div style={{
+                        fontSize: 10, fontWeight: 700, color: 'var(--accent)',
+                        textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8,
+                    }}>You say</div>
+                    <div style={{
+                        fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6,
+                        borderLeft: '2px solid var(--accent-30)', paddingLeft: 12, whiteSpace: 'pre-line',
+                    }}>{l.youSay}</div>
+                </>
+            )}
+        </div>
+    );
+}
+
+function ObjectionRow({ o }: { o: import('../lib/reportParser').ObjectionItem }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 12, padding: '14px 16px',
+        }}>
+            <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>{o.objection}</div>
+            {o.response && (
+                <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 6 }}>→ {o.response}</div>
+            )}
+        </div>
+    );
+}
+
+function DoNotSayCard({ items }: { items: string[] }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--danger-30)',
+            borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+        }}>
+            <ul style={{ margin: 0, paddingLeft: 20, color: 'var(--danger)', fontSize: 13, lineHeight: 1.8 }}>
+                {items.map((it, i) => (
+                    <li key={i} style={{ color: 'var(--text-2)' }}>{it}</li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+function SellerNextStepsCard({ groups }: { groups: import('../lib/reportParser').NextStepGroup[] }) {
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: '18px 20px', marginBottom: 40,
+        }}>
+            {groups.map((g, gi) => (
+                <div key={g.phase} style={{ marginBottom: gi === groups.length - 1 ? 0 : 18 }}>
+                    <div style={{
+                        fontSize: 10, fontWeight: 700, color: 'var(--text-3)',
+                        textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8,
+                    }}>{g.phase}</div>
+                    {g.items.map((s, i) => (
+                        <div key={i} style={{
+                            display: 'flex', gap: 12, alignItems: 'center',
+                            padding: '8px 0',
+                            borderBottom: i === g.items.length - 1 ? 'none' : '1px solid var(--surface-3)',
+                        }}>
+                            <span style={{
+                                width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                                background: 'var(--accent-12)', color: 'var(--accent)',
+                                fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>{i + 1}</span>
+                            <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{s}</span>
+                        </div>
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }
