@@ -29,6 +29,14 @@ interface TrendItem {
 }
 
 type ModeKey = 'all' | 'buyer' | 'seller' | 'analyst' | 'sourcing';
+type RangeKey = '30' | '90' | '365' | '3650';
+
+const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
+    { key: '30',   label: '30 days' },
+    { key: '90',   label: '90 days' },
+    { key: '365',  label: 'This year' },
+    { key: '3650', label: 'All time' },
+];
 
 const MODE_OPTIONS: { key: ModeKey; label: string }[] = [
     { key: 'all',      label: 'All modes' },
@@ -48,10 +56,12 @@ function shortDate(iso: string | null): string {
 export default function IntelligenceTracker() {
     const navigate = useNavigate();
     const [mode, setMode] = useState<ModeKey>('all');
-    const days = 90; // "this quarter" per mock heading
+    const [range, setRange] = useState<RangeKey>('3650');
+    const days = Number(range);
 
     const backendMode = mode === 'all' ? '' : mode;
-    const { data: sessionData, isLoading } = useSessions(days, 20, 0, backendMode, '');
+    // ponytail: flat 200-row fetch, add real pagination if history outgrows it
+    const { data: sessionData, isLoading } = useSessions(days, 200, 0, backendMode, '');
     const { data: trendsData } = useSessionTrends(days, backendMode, '');
 
     const sessions: Session[] = sessionData?.sessions || [];
@@ -147,12 +157,17 @@ export default function IntelligenceTracker() {
                 )}
             </div>
 
-            {/* Mode filter */}
-            <div style={{ marginBottom: 16 }}>
+            {/* Mode + time range filters */}
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                 <PillFilter<ModeKey>
                     options={MODE_OPTIONS}
                     value={mode}
                     onChange={setMode}
+                />
+                <PillFilter<RangeKey>
+                    options={RANGE_OPTIONS}
+                    value={range}
+                    onChange={setRange}
                 />
             </div>
 
