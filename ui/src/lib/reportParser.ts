@@ -548,16 +548,23 @@ export function extractObjectionHandling(content: string): ObjectionItem[] {
     if (!section) return [];
 
     const items: ObjectionItem[] = [];
+    // Preferred format: "Objection: ... Suggested response: ..."
     const parts = section.split(/\n\s*(?=\d+\.\s*Objection:)/);
-
     for (const part of parts) {
         const objMatch = part.match(/Objection:\s*"?(.+?)"?\s*Suggested response:\s*"?(.+?)"?\s*$/is);
         if (objMatch) {
             items.push({ objection: objMatch[1].trim(), response: objMatch[2].trim() });
         }
     }
+    if (items.length > 0) return items;
 
-    return items;
+    // Actual pipeline format: a plain numbered list of watch-out-for lines
+    // (e.g. "1. They will say X, acknowledge it but reframe on Y.")
+    return section
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => /^\d+\.\s/.test(l))
+        .map(l => ({ objection: l.replace(/^\d+\.\s*/, '').trim(), response: '' }));
 }
 
 export function extractSellerNextSteps(content: string): NextStepGroup[] {

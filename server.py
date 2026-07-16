@@ -6,6 +6,7 @@ import asyncio
 import json
 
 import os
+import re
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -467,9 +468,18 @@ async def api_get_report(report_id: str):
             # Try to find by report_id first
             session = col.find_one({"report_id": report_id})
 
-            # Fallback to most recent
+            # Old sessions predate the stored report_id field; the sessions
+            # list derives "{mode}_report_{YYYYMMDD_HHMMSS}" from created_at,
+            # so reverse that derivation to find them. Never fall back to an
+            # unrelated "most recent" session — wrong report is worse than 404.
             if not session:
-                session = col.find_one({}, sort=[("created_at", -1)])
+                m = re.match(r"([a-z]+)_report_(\d{8}_\d{6})$", report_id)
+                if m:
+                    ts = datetime.strptime(m.group(2), "%Y%m%d_%H%M%S")
+                    session = col.find_one({
+                        "mode": m.group(1),
+                        "created_at": {"$gte": ts, "$lt": ts + timedelta(seconds=1)},
+                    })
 
             if session:
                 # Prefer report_content (full report), fallback to deliberation
