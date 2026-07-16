@@ -5,6 +5,7 @@ Mode-aware verdict processing and report generation.
 Supports: Buyer, Seller, Analyst output formats.
 """
 
+import re
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -514,6 +515,27 @@ if __name__ == "__main__":
 
 # ─── Seller Confidence Calculation ──────────────────────────
 
+def _norm_dim(s: str) -> str:
+    """Normalize a dimension name for lookups: 'Ease of Use' / 'ease-of-use' → 'ease_of_use'.
+    The wizard sends priorities with spaces while parsed verdict keys use underscores."""
+    return re.sub(r"[^a-z0-9]+", "_", (s or "").lower()).strip("_")
+
+
+def _get_dim(dimensions: dict, name: str) -> dict:
+    """Fetch a dimension entry regardless of separator style in its key."""
+    target = _norm_dim(name)
+    for key, data in (dimensions or {}).items():
+        if _norm_dim(key) == target:
+            return data
+    return {}
+
+
+def _fmt_budget(budget) -> str:
+    """Append /month only when the value doesn't already carry a period."""
+    b = str(budget or "N/A")
+    return b if "month" in b.lower() or b == "N/A" else f"{b}/month"
+
+
 def calculate_seller_confidence(parsed: dict, plaintiff: dict, my_company: str) -> dict:
     """
     Calculate win probability for seller mode.
@@ -528,10 +550,8 @@ def calculate_seller_confidence(parsed: dict, plaintiff: dict, my_company: str) 
     total_dims = len(dimensions) if dimensions else 1
     
     # Did I win the priority dimension?
-    priority = plaintiff.get("priority", "").lower().replace("-", "_")
-    priority_win = False
-    if priority in dimensions:
-        priority_win = my_company.lower() in dimensions[priority].get("winner", "").lower()
+    priority_data = _get_dim(dimensions, plaintiff.get("priority", ""))
+    priority_win = my_company.lower() in priority_data.get("winner", "").lower()
     
     # Am I the overall winner?
     is_winner = my_company.lower() in winner.lower()
@@ -635,15 +655,15 @@ def generate_seller_report(
     md.append("")
     
     # Why you can/can't win
-    priority = plaintiff.get("priority", "cost").lower().replace("-", "_")
-    priority_data = parsed.get("dimensions", {}).get(priority, {})
+    priority = _norm_dim(plaintiff.get("priority", "cost"))
+    priority_data = _get_dim(parsed.get("dimensions", {}), priority)
     priority_winner = priority_data.get("winner", "")
-    
+
     md.append("  KEY FACTORS:")
     if my_company.lower() in priority_winner.lower():
         md.append(f"    ✅ You win on {priority.replace('_', ' ')} (prospect's TOP priority)")
     else:
-        md.append(f"    ❌ {priority_winner} wins on {priority.replace('_', ' ')} (prospect's TOP priority)")
+        md.append(f"    ❌ {priority_winner or 'A competitor'} wins on {priority.replace('_', ' ')} (prospect's TOP priority)")
         md.append(f"       → You MUST reframe the conversation away from {priority.replace('_', ' ')}")
     md.append("")
     
@@ -654,7 +674,7 @@ def generate_seller_report(
 """)
     md.append(f"  Company      : {plaintiff.get('company_name', 'N/A')}")
     md.append(f"  Team         : {plaintiff.get('team_size', 'N/A')}")
-    md.append(f"  Budget       : {plaintiff.get('budget', 'N/A')}/month")
+    md.append(f"  Budget       : {_fmt_budget(plaintiff.get('budget'))}")
     md.append(f"  Use Case     : {plaintiff.get('use_case', 'N/A')}")
     md.append(f"  Scale        : {plaintiff.get('scale', 'N/A')}")
     md.append(f"  TOP PRIORITY : {plaintiff.get('priority', 'N/A').upper()}")
@@ -671,7 +691,7 @@ def generate_seller_report(
         for dim, data in parsed["dimensions"].items():
             if my_company.lower() in data.get("winner", "").lower():
                 dim_label = dim.replace("_", " ").title()
-                is_priority = dim == priority
+                is_priority = _norm_dim(dim) == priority
                 advantages.append({
                     "dimension": dim_label,
                     "reason": data.get("reason", ""),
@@ -685,7 +705,7 @@ def generate_seller_report(
         for i, adv in enumerate(advantages, 1):
             priority_marker = " ⭐ (THEIR TOP PRIORITY)" if adv["is_priority"] else ""
             md.append(f"  {i}. {adv['dimension'].upper()}{priority_marker}")
-            md.append(f"     \"{adv['reason'][:100]}...\"")
+            md.append(f"     \"{adv['reason']}\"")
             md.append(f"     → Lead with this when discussing {adv['dimension'].lower()}")
             md.append("")
     else:
@@ -705,7 +725,7 @@ def generate_seller_report(
             if my_company.lower() not in data.get("winner", "").lower():
                 dim_label = dim.replace("_", " ").title()
                 dim_winner = data.get("winner", "Competitor")
-                is_priority = dim == priority
+                is_priority = _norm_dim(dim) == priority
                 vulnerabilities.append({
                     "dimension": dim_label,
                     "winner": dim_winner,
@@ -720,7 +740,7 @@ def generate_seller_report(
         for i, vuln in enumerate(vulnerabilities, 1):
             danger = "🚨 CRITICAL" if vuln["is_priority"] else "⚠️"
             md.append(f"  {i}. {danger} {vuln['dimension'].upper()}")
-            md.append(f"     {vuln['winner']} wins here: \"{vuln['reason'][:80]}...\"")
+            md.append(f"     {vuln['winner']} wins here: \"{vuln['reason']}\"")
             
             # Generate counter-strategy
             if vuln["is_priority"]:
@@ -753,7 +773,7 @@ def generate_seller_report(
         if comp_wins:
             md.append(f"  IF {comp.upper()} SAYS:")
             for win in comp_wins[:2]:  # Top 2 per competitor
-                md.append(f"    \"{win['reason'][:60]}...\"")
+                md.append(f"    \"{win['reason']}\"")
             md.append(f"")
             md.append(f"  YOU SAY:")
             md.append(f"    \"That's one perspective. But for {plaintiff.get('company_name', 'your')}'s")
@@ -784,12 +804,12 @@ def generate_seller_report(
     md.append("  KEY POINTS TO MAKE:")
     if advantages:
         for i, adv in enumerate(advantages[:3], 1):
-            md.append(f"    {i}. {adv['dimension']}: {adv['reason'][:60]}...")
+            md.append(f"    {i}. {adv['dimension']}: {adv['reason']}")
     md.append("")
     
     # Close
     md.append("  CLOSE:")
-    md.append(f"    \"Given your {plaintiff.get('budget', 'budget')} budget and timeline,")
+    md.append(f"    \"Given your {_fmt_budget(plaintiff.get('budget', 'budget'))} budget and timeline,")
     md.append(f"     I'd recommend a [pilot/POC] focused on {plaintiff.get('use_case', 'your core use case')}.")
     md.append(f"     Can we schedule that for next week?\"")
     md.append("")
