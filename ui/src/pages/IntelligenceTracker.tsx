@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from '../components/Skeleton';
 import { PillFilter } from '../components/design';
-import { useSessions, useSessionTrends } from '../hooks/useApi';
+import { useSessions } from '../hooks/useApi';
 
 interface Session {
     id: string;
@@ -20,12 +20,6 @@ interface Stats {
     this_month: number;
     top_winner: { vendor: string; percentage: number } | null;
     avg_confidence: number;
-}
-
-interface TrendItem {
-    vendor: string;
-    wins: number;
-    percentage: number;
 }
 
 type ModeKey = 'all' | 'buyer' | 'seller' | 'analyst' | 'sourcing';
@@ -57,20 +51,22 @@ export default function IntelligenceTracker() {
     const navigate = useNavigate();
     const [mode, setMode] = useState<ModeKey>('all');
     const [range, setRange] = useState<RangeKey>('3650');
+    const [page, setPage] = useState(1);
     const days = Number(range);
 
     const backendMode = mode === 'all' ? '' : mode;
     // ponytail: flat 200-row fetch, add real pagination if history outgrows it
     const { data: sessionData, isLoading } = useSessions(days, 200, 0, backendMode, '');
-    const { data: trendsData } = useSessionTrends(days, backendMode, '');
 
     const sessions: Session[] = sessionData?.sessions || [];
     const stats: Stats = sessionData?.stats || {
         total_verdicts: 0, this_month: 0, top_winner: null, avg_confidence: 0,
     };
-    const distribution: TrendItem[] = trendsData?.distribution || [];
 
-    const maxPct = Math.max(1, ...distribution.map(d => d.percentage));
+    const pageSize = 10;
+    const totalPages = Math.max(1, Math.ceil(sessions.length / pageSize));
+    const currentPage = Math.min(page, totalPages);
+    const pageSessions = sessions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const kpis = [
         { label: 'Total verdicts',       value: String(stats.total_verdicts) },
@@ -117,57 +113,17 @@ export default function IntelligenceTracker() {
                 }
             </div>
 
-            {/* Win distribution */}
-            <div style={{
-                background: 'var(--surface-1)', border: '1px solid var(--line)',
-                borderRadius: 14, padding: 22, marginBottom: 26,
-            }}>
-                <h2 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 16px' }}>
-                    Win distribution — this quarter
-                </h2>
-                {distribution.length === 0 ? (
-                    <div style={{ fontSize: 13, color: 'var(--text-3)', padding: '8px 0' }}>
-                        No verdicts yet in this window.
-                    </div>
-                ) : (
-                    distribution.map(d => (
-                        <div key={d.vendor} style={{
-                            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10,
-                        }}>
-                            <span style={{
-                                width: 90, fontSize: 12, color: 'var(--text-2)', flexShrink: 0,
-                            }}>{d.vendor}</span>
-                            <div style={{
-                                flex: 1, height: 10, borderRadius: 5,
-                                background: 'var(--surface-3)',
-                            }}>
-                                <div style={{
-                                    height: '100%', borderRadius: 5,
-                                    width: `${(d.percentage / maxPct) * 100}%`,
-                                    background: 'var(--accent)',
-                                }} />
-                            </div>
-                            <span style={{
-                                width: 26, fontSize: 12,
-                                fontFamily: 'var(--font-mono)', color: 'var(--text-3)',
-                                textAlign: 'right',
-                            }}>{d.wins}</span>
-                        </div>
-                    ))
-                )}
-            </div>
-
             {/* Mode + time range filters */}
             <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                 <PillFilter<ModeKey>
                     options={MODE_OPTIONS}
                     value={mode}
-                    onChange={setMode}
+                    onChange={m => { setMode(m); setPage(1); }}
                 />
                 <PillFilter<RangeKey>
                     options={RANGE_OPTIONS}
                     value={range}
-                    onChange={setRange}
+                    onChange={r => { setRange(r); setPage(1); }}
                 />
             </div>
 
@@ -188,7 +144,7 @@ export default function IntelligenceTracker() {
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {sessions.map(s => {
+                    {pageSessions.map(s => {
                         const clickable = !!s.report_id;
                         return (
                             <div
@@ -229,8 +185,42 @@ export default function IntelligenceTracker() {
                             </div>
                         );
                     })}
+                    {totalPages > 1 && (
+                        <div style={{
+                            display: 'flex', justifyContent: 'center', alignItems: 'center',
+                            gap: 6, marginTop: 10,
+                        }}>
+                            <PagerButton label="←" disabled={currentPage === 1}
+                                onClick={() => setPage(currentPage - 1)} />
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                <PagerButton key={p} label={String(p)} active={p === currentPage}
+                                    onClick={() => setPage(p)} />
+                            ))}
+                            <PagerButton label="→" disabled={currentPage === totalPages}
+                                onClick={() => setPage(currentPage + 1)} />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
+    );
+}
+
+function PagerButton({ label, onClick, active = false, disabled = false }: {
+    label: string; onClick: () => void; active?: boolean; disabled?: boolean;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            style={{
+                minWidth: 32, height: 32, borderRadius: 8,
+                border: '1px solid var(--line)',
+                background: active ? 'var(--accent)' : 'var(--surface-1)',
+                color: active ? 'var(--accent-contrast, #0b0b0b)' : disabled ? 'var(--text-3)' : 'var(--text-2)',
+                fontSize: 12, fontFamily: 'var(--font-mono)', fontWeight: 600,
+                cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.45 : 1,
+            }}
+        >{label}</button>
     );
 }
