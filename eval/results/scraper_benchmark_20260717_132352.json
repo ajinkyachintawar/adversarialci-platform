@@ -1,0 +1,300 @@
+{
+  "timestamp": "2026-07-17T13:23:52.043426",
+  "note": "crawl4ai skipped: not installed, not a candidate (Firecrawl API chosen path)",
+  "summary": {
+    "bs4": {
+      "success_rate": "5/6",
+      "avg_seconds": 0.45,
+      "total_dollar_amounts": 117,
+      "total_pricing_hits": 989,
+      "total_junk_hits": 2
+    },
+    "firecrawl": {
+      "success_rate": "6/6",
+      "avg_seconds": 0.78,
+      "total_dollar_amounts": 79,
+      "total_pricing_hits": 1199,
+      "total_junk_hits": 67
+    }
+  },
+  "results": {
+    "MongoDB": {
+      "url": "https://www.mongodb.com/pricing",
+      "bs4": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 1.23,
+        "text_chars": 22034,
+        "pricing_pattern_hits": 177,
+        "distinct_dollar_amounts": 69,
+        "dollar_amounts_sample": [
+          "$0",
+          "$0.000000005",
+          "$0.00000008",
+          "$0.000002",
+          "$0.011",
+          "$0.0110",
+          "$0.0205",
+          "$0.0288",
+          "$0.0356",
+          "$0.0411",
+          "$0.06",
+          "$0.08",
+          "$0.11",
+          "$0.12",
+          "$0.13"
+        ],
+        "junk_hits": 0,
+        "sample": "Pricing | MongoDB Announcement Learn why MongoDB was named a Leader in the 2025 Gartner\u00ae Magic Quadrant\u2122 Learn more > MongoDB Pricing The data platform built by - and for - developers Atlas Developer Data Platform Enterprise Advanced Self-Managed Database & Services MongoDB Atlas The multi-cloud dev"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.87,
+        "text_chars": 22565,
+        "pricing_pattern_hits": 92,
+        "distinct_dollar_amounts": 15,
+        "dollar_amounts_sample": [
+          "$0",
+          "$0.011",
+          "$0.08",
+          "$0.12",
+          "$0.24",
+          "$0.48",
+          "$0.99",
+          "$1.77",
+          "$150",
+          "$2.50",
+          "$3.26",
+          "$30",
+          "$50",
+          "$500",
+          "$56.94"
+        ],
+        "junk_hits": 0,
+        "sample": "[AnnouncementLearn why MongoDB was named a Leader in the 2025 Gartner\u00ae Magic Quadrant\u2122 Learn more >Learn why MongoDB was named a Leader in the 2025 Gartner\u00ae Magic Quadrant\u2122 >>](https://www.mongodb.com/resources/solutions/use-cases/gartner-magic-quadrant-leader?tck=pencil_banner)\n\n# MongoDB Pricing\n\n"
+      }
+    },
+    "Pinecone": {
+      "url": "https://www.pinecone.io/pricing/",
+      "bs4": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.26,
+        "text_chars": 8798,
+        "pricing_pattern_hits": 144,
+        "distinct_dollar_amounts": 26,
+        "dollar_amounts_sample": [
+          "$0.0005",
+          "$0.001",
+          "$0.08",
+          "$0.10",
+          "$0.15",
+          "$0.16",
+          "$0.25",
+          "$0.33",
+          "$15",
+          "$16",
+          "$18",
+          "$190",
+          "$2",
+          "$20",
+          "$24"
+        ],
+        "junk_hits": 0,
+        "sample": "Pricing | Pinecone Pinecone Nexus is now in Public Preview - Read the announcement Dismiss Pricing Start free, scale effortlessly Pinecone runs on fully managed infrastructure that scales with you. Start building today with product and support plans tailored to your needs. ALSO AVAILABLE ON YOUR CLO"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.68,
+        "text_chars": 16916,
+        "pricing_pattern_hits": 162,
+        "distinct_dollar_amounts": 26,
+        "dollar_amounts_sample": [
+          "$0.0005",
+          "$0.001",
+          "$0.08",
+          "$0.10",
+          "$0.15",
+          "$0.16",
+          "$0.25",
+          "$0.33",
+          "$15",
+          "$16",
+          "$18",
+          "$190",
+          "$2",
+          "$20",
+          "$24"
+        ],
+        "junk_hits": 0,
+        "sample": "[Pinecone Nexus is now in Public Preview-Read the announcement](https://www.pinecone.io/blog/pinecone-nexus-public-preview/) Dismiss\n\nPricing\n\n# Start free, scale effortlessly\n\nPinecone runs on fully managed infrastructure that scales with you. Start building today with product and support plans tai"
+      }
+    },
+    "Weaviate": {
+      "url": "https://weaviate.io/pricing",
+      "bs4": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.19,
+        "text_chars": 6880,
+        "pricing_pattern_hits": 58,
+        "distinct_dollar_amounts": 16,
+        "dollar_amounts_sample": [
+          "$0",
+          "$0.002718",
+          "$0.003875",
+          "$0.0042",
+          "$0.00465",
+          "$0.0063",
+          "$0.025",
+          "$0.0264",
+          "$0.040",
+          "$0.065",
+          "$0.10",
+          "$0.12",
+          "$0.1505",
+          "$30",
+          "$400"
+        ],
+        "junk_hits": 1,
+        "sample": "Vector Database Pricing | Weaviate Skip to main content Introducing Engram by Weaviate - now GA - Read our Blog Contact Log in Try now \u2630 All the power your AI needs, without the overhead Flexible deployment options and pricing to meet the needs of every use case. Database Engram \u2726 Always free Free F"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.52,
+        "text_chars": 8306,
+        "pricing_pattern_hits": 57,
+        "distinct_dollar_amounts": 16,
+        "dollar_amounts_sample": [
+          "$0",
+          "$0.002718",
+          "$0.003875",
+          "$0.0042",
+          "$0.00465",
+          "$0.0063",
+          "$0.025",
+          "$0.0264",
+          "$0.040",
+          "$0.065",
+          "$0.10",
+          "$0.12",
+          "$0.1505",
+          "$30",
+          "$400"
+        ],
+        "junk_hits": 0,
+        "sample": "![](https://px.ads.linkedin.com/collect/?pid=6758089&fmt=gif)\n\n[Skip to main content](https://weaviate.io/pricing#__docusaurus_skipToContent_fallback)\n\n[Introducing Engram by Weaviate - now GA - Read our Blog](https://weaviate.io/blog/engram-generally-available)\n\n\u2726 Always free\n\n### Free\n\nForever$0/m"
+      }
+    },
+    "AWS": {
+      "url": "https://aws.amazon.com/pricing/",
+      "bs4": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.2,
+        "text_chars": 4527,
+        "pricing_pattern_hits": 10,
+        "distinct_dollar_amounts": 0,
+        "dollar_amounts_sample": [],
+        "junk_hits": 0,
+        "sample": "AWS Product and Service Pricing | Amazon Web Services Skip to main content AWS Pricing Overview Free Tier Cost Optimization Resources AWS Pricing Get started for free Request a pricing quote How does AWS pricing work? AWS offers you a pay-as-you-go approach for pricing for the vast majority of our c"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.87,
+        "text_chars": 11897,
+        "pricing_pattern_hits": 16,
+        "distinct_dollar_amounts": 3,
+        "dollar_amounts_sample": [
+          "$0.021",
+          "$0.022",
+          "$0.023"
+        ],
+        "junk_hits": 31,
+        "sample": "## Select your cookie preferences\n\nWe use essential cookies and similar tools that are necessary to provide our site and services. We use performance cookies to collect anonymous statistics, so we can understand how customers use our site and make improvements. Essential cookies cannot be deactivate"
+      }
+    },
+    "Salesforce": {
+      "url": "https://www.salesforce.com/editions-pricing/sales-cloud/",
+      "bs4": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.42,
+        "text_chars": 23183,
+        "pricing_pattern_hits": 600,
+        "distinct_dollar_amounts": 6,
+        "dollar_amounts_sample": [
+          "$10",
+          "$100",
+          "$125",
+          "$200",
+          "$220",
+          "$25"
+        ],
+        "junk_hits": 1,
+        "sample": "Salesforce Sales Pricing | Salesforce Skip to content Sales Pricing Unleash growth with fully customizable sales force automation software. Choose the right suite for your needs. Currency converter US Dollar (USD) Australian Dollar (AUD) British Pound (GBP) Euro (EUR) Japanese Yen (JPY) Swedish Kron"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.99,
+        "text_chars": 35131,
+        "pricing_pattern_hits": 827,
+        "distinct_dollar_amounts": 15,
+        "dollar_amounts_sample": [
+          "$0",
+          "$10",
+          "$100",
+          "$125",
+          "$140",
+          "$175",
+          "$200",
+          "$220",
+          "$245",
+          "$25",
+          "$35",
+          "$350",
+          "$490",
+          "$550",
+          "$770"
+        ],
+        "junk_hits": 32,
+        "sample": "[Skip to content](https://www.salesforce.com/sales/pricing/#main-content)\n\n![Home](https://a.sfdcstatic.com/shared/images/c360-nav/salesforce-no-type-logo.svg)\n\nSales\n\n[![](https://a.sfdcstatic.com/shared/images/c360-nav/salesforce-no-type-logo.svg)\\\\\nSales](https://www.salesforce.com/sales/)\n\nTry S"
+      }
+    },
+    "HubSpot": {
+      "url": "https://www.hubspot.com/pricing/crm",
+      "bs4": {
+        "success": false,
+        "http_status": 200,
+        "seconds": 0.4,
+        "text_chars": 20,
+        "pricing_pattern_hits": 0,
+        "distinct_dollar_amounts": 0,
+        "dollar_amounts_sample": [],
+        "junk_hits": 0,
+        "sample": "Free Tools | HubSpot"
+      },
+      "firecrawl": {
+        "success": true,
+        "http_status": 200,
+        "seconds": 0.74,
+        "text_chars": 11339,
+        "pricing_pattern_hits": 45,
+        "distinct_dollar_amounts": 4,
+        "dollar_amounts_sample": [
+          "$0",
+          "$20",
+          "$7",
+          "$9.00"
+        ],
+        "junk_hits": 4,
+        "sample": "Logo - Full (Color)\n\n##### Save up to 65% on Starter\n\nSmarter tools, lower price. Get special Starter pricing when you choose a monthly or annual subscription. New customers only. Select offers available for a limited time.\n\n# Free Tools\n\nGet access to all of HubSpot's free foundational tools\n\n## Fr"
+      }
+    }
+  }
+}

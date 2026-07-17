@@ -5,6 +5,7 @@ load_dotenv()
 # API Keys
 GROQ_API_KEY    = os.getenv("GROQ_API_KEY")
 TAVILY_API_KEY  = os.getenv("TAVILY_API_KEY")
+FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY")
 REDDIT_CLIENT_ID     = os.getenv("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
 GITHUB_TOKEN    = os.getenv("GITHUB_TOKEN")

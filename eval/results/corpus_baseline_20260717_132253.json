@@ -1,0 +1,2088 @@
+{
+  "label": "baseline",
+  "timestamp": "2026-07-17T13:22:53.468232",
+  "totals": {
+    "research_docs": 833,
+    "companies": 32,
+    "bullets": 9872,
+    "unique_bullets": 4948,
+    "duplicate_bullets": 4924,
+    "duplicate_pct": 49.9,
+    "junk_bullets": 187,
+    "junk_pct": 1.9,
+    "truncated_bullets": 5705,
+    "truncated_pct": 57.8,
+    "bullets_with_url": 9421,
+    "url_pct": 95.4,
+    "avg_bullet_chars": 298.4
+  },
+  "freshness_days": {
+    "newest": 2,
+    "oldest": 144,
+    "median": 123
+  },
+  "by_company": {
+    "1": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 2,
+        "truncated_bullets": 10,
+        "bullets_with_url": 12,
+        "chars": 8036
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 16,
+        "bullets_with_url": 19,
+        "chars": 2272
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 1,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 0,
+        "chars": 510
+      },
+      "github": {
+        "docs": 1,
+        "bullets": 13,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 10,
+        "chars": 3103
+      },
+      "blog_rss": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 12,
+        "junk_bullets": 2,
+        "truncated_bullets": 12,
+        "bullets_with_url": 12,
+        "chars": 7348
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 2777
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 4,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 3,
+        "bullets_with_url": 4,
+        "chars": 2863
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 49,
+        "bullets_with_url": 50,
+        "chars": 7479
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 48,
+        "bullets_with_url": 49,
+        "chars": 7317
+      }
+    },
+    "AWS": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 75,
+        "dup_bullets": 15,
+        "junk_bullets": 2,
+        "truncated_bullets": 61,
+        "bullets_with_url": 72,
+        "chars": 48112
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 100,
+        "dup_bullets": 99,
+        "junk_bullets": 0,
+        "truncated_bullets": 85,
+        "bullets_with_url": 90,
+        "chars": 11964
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 3,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 44,
+        "dup_bullets": 14,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 12256
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 120,
+        "dup_bullets": 92,
+        "junk_bullets": 5,
+        "truncated_bullets": 0,
+        "bullets_with_url": 120,
+        "chars": 29289
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 19,
+        "junk_bullets": 0,
+        "truncated_bullets": 29,
+        "bullets_with_url": 36,
+        "chars": 19515
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 19,
+        "junk_bullets": 3,
+        "truncated_bullets": 35,
+        "bullets_with_url": 36,
+        "chars": 25809
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 48,
+        "bullets_with_url": 47,
+        "chars": 7484
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 47,
+        "bullets_with_url": 45,
+        "chars": 7845
+      }
+    },
+    "Amazon DocumentDB": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 60,
+        "dup_bullets": 19,
+        "junk_bullets": 2,
+        "truncated_bullets": 41,
+        "bullets_with_url": 60,
+        "chars": 22045
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 60,
+        "dup_bullets": 60,
+        "junk_bullets": 0,
+        "truncated_bullets": 60,
+        "bullets_with_url": 60,
+        "chars": 8990
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 3,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 115,
+        "dup_bullets": 90,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 115,
+        "chars": 23853
+      },
+      "migration_tavily": {
+        "docs": 7,
+        "bullets": 34,
+        "dup_bullets": 16,
+        "junk_bullets": 0,
+        "truncated_bullets": 31,
+        "bullets_with_url": 34,
+        "chars": 16464
+      },
+      "complaint_tavily": {
+        "docs": 7,
+        "bullets": 30,
+        "dup_bullets": 14,
+        "junk_bullets": 3,
+        "truncated_bullets": 27,
+        "bullets_with_url": 30,
+        "chars": 15616
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 1,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 1,
+        "chars": 162
+      },
+      "hn_2025": {
+        "docs": 2,
+        "bullets": 2,
+        "dup_bullets": 2,
+        "junk_bullets": 0,
+        "truncated_bullets": 2,
+        "bullets_with_url": 2,
+        "chars": 306
+      }
+    },
+    "Apache Cassandra": {
+      "tavily": {
+        "docs": 6,
+        "bullets": 72,
+        "dup_bullets": 25,
+        "junk_bullets": 0,
+        "truncated_bullets": 61,
+        "bullets_with_url": 72,
+        "chars": 37467
+      },
+      "hn": {
+        "docs": 6,
+        "bullets": 120,
+        "dup_bullets": 120,
+        "junk_bullets": 0,
+        "truncated_bullets": 120,
+        "bullets_with_url": 120,
+        "chars": 16350
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "github": {
+        "docs": 5,
+        "bullets": 50,
+        "dup_bullets": 22,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 50,
+        "chars": 14818
+      },
+      "blog_rss": {
+        "docs": 7,
+        "bullets": 33,
+        "dup_bullets": 17,
+        "junk_bullets": 0,
+        "truncated_bullets": 29,
+        "bullets_with_url": 33,
+        "chars": 16596
+      },
+      "migration_tavily": {
+        "docs": 8,
+        "bullets": 38,
+        "dup_bullets": 21,
+        "junk_bullets": 0,
+        "truncated_bullets": 24,
+        "bullets_with_url": 38,
+        "chars": 21330
+      },
+      "complaint_tavily": {
+        "docs": 8,
+        "bullets": 34,
+        "dup_bullets": 18,
+        "junk_bullets": 0,
+        "truncated_bullets": 26,
+        "bullets_with_url": 34,
+        "chars": 14477
+      },
+      "hn_2024": {
+        "docs": 2,
+        "bullets": 6,
+        "dup_bullets": 2,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 915
+      },
+      "hn_2025": {
+        "docs": 2,
+        "bullets": 4,
+        "dup_bullets": 2,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 4,
+        "chars": 760
+      }
+    },
+    "Azure": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 15,
+        "dup_bullets": 0,
+        "junk_bullets": 3,
+        "truncated_bullets": 11,
+        "bullets_with_url": 15,
+        "chars": 8434
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 15,
+        "bullets_with_url": 17,
+        "chars": 2441
+      },
+      "migration_tavily": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 10,
+        "bullets_with_url": 12,
+        "chars": 6079
+      },
+      "complaint_tavily": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 8,
+        "junk_bullets": 0,
+        "truncated_bullets": 9,
+        "bullets_with_url": 12,
+        "chars": 8643
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 45,
+        "bullets_with_url": 43,
+        "chars": 7768
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 48,
+        "bullets_with_url": 45,
+        "chars": 8542
+      }
+    },
+    "Cassandra": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 5,
+        "junk_bullets": 0,
+        "truncated_bullets": 11,
+        "bullets_with_url": 12,
+        "chars": 7192
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 18,
+        "bullets_with_url": 20,
+        "chars": 2589
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 2,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 2,
+        "bullets_with_url": 2,
+        "chars": 389
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 1,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 1,
+        "chars": 242
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 3373
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 5,
+        "bullets_with_url": 6,
+        "chars": 3373
+      }
+    },
+    "ChromaDB": {
+      "tavily": {
+        "docs": 6,
+        "bullets": 70,
+        "dup_bullets": 28,
+        "junk_bullets": 1,
+        "truncated_bullets": 56,
+        "bullets_with_url": 70,
+        "chars": 36633
+      },
+      "hn": {
+        "docs": 6,
+        "bullets": 70,
+        "dup_bullets": 68,
+        "junk_bullets": 0,
+        "truncated_bullets": 64,
+        "bullets_with_url": 70,
+        "chars": 9077
+      },
+      "github": {
+        "docs": 5,
+        "bullets": 65,
+        "dup_bullets": 11,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 50,
+        "chars": 16355
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 18,
+        "dup_bullets": 8,
+        "junk_bullets": 3,
+        "truncated_bullets": 17,
+        "bullets_with_url": 18,
+        "chars": 7814
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 14,
+        "junk_bullets": 2,
+        "truncated_bullets": 29,
+        "bullets_with_url": 36,
+        "chars": 21821
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 17,
+        "junk_bullets": 0,
+        "truncated_bullets": 31,
+        "bullets_with_url": 36,
+        "chars": 21349
+      }
+    },
+    "CockroachDB": {
+      "tavily": {
+        "docs": 2,
+        "bullets": 24,
+        "dup_bullets": 12,
+        "junk_bullets": 3,
+        "truncated_bullets": 18,
+        "bullets_with_url": 24,
+        "chars": 13819
+      },
+      "hn": {
+        "docs": 2,
+        "bullets": 40,
+        "dup_bullets": 40,
+        "junk_bullets": 0,
+        "truncated_bullets": 40,
+        "bullets_with_url": 40,
+        "chars": 4740
+      },
+      "pricing_scrape": {
+        "docs": 2,
+        "bullets": 2,
+        "dup_bullets": 2,
+        "junk_bullets": 2,
+        "truncated_bullets": 2,
+        "bullets_with_url": 0,
+        "chars": 1020
+      },
+      "github": {
+        "docs": 2,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 20,
+        "chars": 6915
+      },
+      "migration_tavily": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 4,
+        "junk_bullets": 1,
+        "truncated_bullets": 10,
+        "bullets_with_url": 12,
+        "chars": 7803
+      },
+      "complaint_tavily": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 12,
+        "junk_bullets": 0,
+        "truncated_bullets": 10,
+        "bullets_with_url": 12,
+        "chars": 7962
+      }
+    },
+    "DigitalOcean": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 75,
+        "dup_bullets": 41,
+        "junk_bullets": 6,
+        "truncated_bullets": 68,
+        "bullets_with_url": 75,
+        "chars": 49513
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 90,
+        "dup_bullets": 89,
+        "junk_bullets": 0,
+        "truncated_bullets": 85,
+        "bullets_with_url": 90,
+        "chars": 12916
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 3,
+        "junk_bullets": 5,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 52,
+        "dup_bullets": 43,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 10949
+      },
+      "migration_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 2,
+        "junk_bullets": 0,
+        "truncated_bullets": 16,
+        "bullets_with_url": 20,
+        "chars": 13823
+      },
+      "complaint_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 6,
+        "junk_bullets": 1,
+        "truncated_bullets": 17,
+        "bullets_with_url": 20,
+        "chars": 11426
+      }
+    },
+    "Elasticsearch": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 10,
+        "bullets_with_url": 12,
+        "chars": 6679
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 19,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 19,
+        "bullets_with_url": 19,
+        "chars": 2477
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 2100
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 3943
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 48,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 47,
+        "bullets_with_url": 44,
+        "chars": 7054
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 50,
+        "bullets_with_url": 48,
+        "chars": 7498
+      },
+      "hn_2026": {
+        "docs": 1,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 5,
+        "chars": 762
+      }
+    },
+    "GCP": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 15,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 13,
+        "bullets_with_url": 15,
+        "chars": 8475
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 18,
+        "bullets_with_url": 19,
+        "chars": 2788
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 4052
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 4659
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 47,
+        "bullets_with_url": 36,
+        "chars": 6485
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 47,
+        "bullets_with_url": 38,
+        "chars": 6786
+      },
+      "hn_2026": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 19,
+        "bullets_with_url": 16,
+        "chars": 2556
+      }
+    },
+    "Google Cloud": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 75,
+        "dup_bullets": 25,
+        "junk_bullets": 8,
+        "truncated_bullets": 69,
+        "bullets_with_url": 75,
+        "chars": 50510
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 96,
+        "dup_bullets": 94,
+        "junk_bullets": 0,
+        "truncated_bullets": 91,
+        "bullets_with_url": 86,
+        "chars": 13049
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 40,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 14277
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 16,
+        "junk_bullets": 1,
+        "truncated_bullets": 29,
+        "bullets_with_url": 36,
+        "chars": 24919
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 15,
+        "junk_bullets": 0,
+        "truncated_bullets": 32,
+        "bullets_with_url": 36,
+        "chars": 21851
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 42,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 41,
+        "bullets_with_url": 41,
+        "chars": 7215
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 44,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 43,
+        "bullets_with_url": 40,
+        "chars": 7319
+      }
+    },
+    "HubSpot": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 63,
+        "dup_bullets": 20,
+        "junk_bullets": 3,
+        "truncated_bullets": 57,
+        "bullets_with_url": 63,
+        "chars": 40967
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 100,
+        "dup_bullets": 100,
+        "junk_bullets": 0,
+        "truncated_bullets": 100,
+        "bullets_with_url": 95,
+        "chars": 13850
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 52,
+        "dup_bullets": 51,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 13081
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 9,
+        "junk_bullets": 2,
+        "truncated_bullets": 33,
+        "bullets_with_url": 36,
+        "chars": 24566
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 8,
+        "junk_bullets": 3,
+        "truncated_bullets": 30,
+        "bullets_with_url": 36,
+        "chars": 21690
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 3,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 1,
+        "chars": 255
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 2,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 2,
+        "bullets_with_url": 2,
+        "chars": 335
+      }
+    },
+    "LanceDB": {
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 1,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 1,
+        "bullets_with_url": 0,
+        "chars": 510
+      },
+      "blog_rss": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 4,
+        "truncated_bullets": 6,
+        "bullets_with_url": 6,
+        "chars": 3579
+      },
+      "github": {
+        "docs": 1,
+        "bullets": 13,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 10,
+        "chars": 3393
+      }
+    },
+    "LoadTestVendor_30800": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 10,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 8,
+        "bullets_with_url": 10,
+        "chars": 4313
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 4044
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 3,
+        "bullets_with_url": 6,
+        "chars": 2722
+      }
+    },
+    "Microsoft Azure": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 75,
+        "dup_bullets": 16,
+        "junk_bullets": 6,
+        "truncated_bullets": 63,
+        "bullets_with_url": 75,
+        "chars": 49143
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 90,
+        "dup_bullets": 90,
+        "junk_bullets": 0,
+        "truncated_bullets": 85,
+        "bullets_with_url": 90,
+        "chars": 13055
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 5,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 52,
+        "dup_bullets": 11,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 13517
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 60,
+        "dup_bullets": 36,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 60,
+        "chars": 12365
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 11,
+        "junk_bullets": 0,
+        "truncated_bullets": 30,
+        "bullets_with_url": 36,
+        "chars": 21874
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 11,
+        "junk_bullets": 1,
+        "truncated_bullets": 33,
+        "bullets_with_url": 36,
+        "chars": 19456
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 27,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 27,
+        "bullets_with_url": 27,
+        "chars": 4808
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 16,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 16,
+        "bullets_with_url": 14,
+        "chars": 2389
+      }
+    },
+    "Microsoft Dynamics 365": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 63,
+        "dup_bullets": 19,
+        "junk_bullets": 9,
+        "truncated_bullets": 54,
+        "bullets_with_url": 63,
+        "chars": 40163
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 30,
+        "dup_bullets": 30,
+        "junk_bullets": 0,
+        "truncated_bullets": 25,
+        "bullets_with_url": 30,
+        "chars": 4345
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 28,
+        "dup_bullets": 28,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 28,
+        "chars": 7227
+      },
+      "blog_rss": {
+        "docs": 5,
+        "bullets": 13,
+        "dup_bullets": 6,
+        "junk_bullets": 0,
+        "truncated_bullets": 9,
+        "bullets_with_url": 13,
+        "chars": 5459
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 26,
+        "dup_bullets": 8,
+        "junk_bullets": 0,
+        "truncated_bullets": 19,
+        "bullets_with_url": 26,
+        "chars": 14523
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 26,
+        "dup_bullets": 4,
+        "junk_bullets": 2,
+        "truncated_bullets": 24,
+        "bullets_with_url": 26,
+        "chars": 17935
+      }
+    },
+    "Milvus": {
+      "tavily": {
+        "docs": 6,
+        "bullets": 72,
+        "dup_bullets": 36,
+        "junk_bullets": 9,
+        "truncated_bullets": 59,
+        "bullets_with_url": 69,
+        "chars": 45800
+      },
+      "hn": {
+        "docs": 6,
+        "bullets": 49,
+        "dup_bullets": 48,
+        "junk_bullets": 0,
+        "truncated_bullets": 49,
+        "bullets_with_url": 49,
+        "chars": 6751
+      },
+      "pricing_scrape": {
+        "docs": 6,
+        "bullets": 6,
+        "dup_bullets": 6,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 0,
+        "chars": 3060
+      },
+      "github": {
+        "docs": 5,
+        "bullets": 65,
+        "dup_bullets": 10,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 50,
+        "chars": 16721
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 18,
+        "dup_bullets": 11,
+        "junk_bullets": 0,
+        "truncated_bullets": 17,
+        "bullets_with_url": 18,
+        "chars": 12047
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 10,
+        "junk_bullets": 0,
+        "truncated_bullets": 30,
+        "bullets_with_url": 36,
+        "chars": 22656
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 13,
+        "junk_bullets": 7,
+        "truncated_bullets": 24,
+        "bullets_with_url": 36,
+        "chars": 19204
+      }
+    },
+    "MongoDB": {
+      "tavily": {
+        "docs": 9,
+        "bullets": 108,
+        "dup_bullets": 59,
+        "junk_bullets": 6,
+        "truncated_bullets": 72,
+        "bullets_with_url": 108,
+        "chars": 57958
+      },
+      "hn": {
+        "docs": 9,
+        "bullets": 180,
+        "dup_bullets": 180,
+        "junk_bullets": 0,
+        "truncated_bullets": 162,
+        "bullets_with_url": 180,
+        "chars": 22131
+      },
+      "pricing_scrape": {
+        "docs": 8,
+        "bullets": 16,
+        "dup_bullets": 16,
+        "junk_bullets": 8,
+        "truncated_bullets": 16,
+        "bullets_with_url": 0,
+        "chars": 8160
+      },
+      "github": {
+        "docs": 8,
+        "bullets": 80,
+        "dup_bullets": 77,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 80,
+        "chars": 23299
+      },
+      "blog_rss": {
+        "docs": 10,
+        "bullets": 492,
+        "dup_bullets": 486,
+        "junk_bullets": 3,
+        "truncated_bullets": 0,
+        "bullets_with_url": 492,
+        "chars": 89144
+      },
+      "migration_tavily": {
+        "docs": 10,
+        "bullets": 64,
+        "dup_bullets": 41,
+        "junk_bullets": 0,
+        "truncated_bullets": 48,
+        "bullets_with_url": 64,
+        "chars": 44613
+      },
+      "complaint_tavily": {
+        "docs": 10,
+        "bullets": 46,
+        "dup_bullets": 30,
+        "junk_bullets": 0,
+        "truncated_bullets": 41,
+        "bullets_with_url": 46,
+        "chars": 33035
+      },
+      "hn_2024": {
+        "docs": 3,
+        "bullets": 108,
+        "dup_bullets": 108,
+        "junk_bullets": 0,
+        "truncated_bullets": 106,
+        "bullets_with_url": 106,
+        "chars": 16347
+      },
+      "hn_2025": {
+        "docs": 3,
+        "bullets": 107,
+        "dup_bullets": 107,
+        "junk_bullets": 0,
+        "truncated_bullets": 101,
+        "bullets_with_url": 93,
+        "chars": 16573
+      }
+    },
+    "MySQL": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 10,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 9,
+        "bullets_with_url": 10,
+        "chars": 3407
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 19,
+        "bullets_with_url": 19,
+        "chars": 2196
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 1365
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 6,
+        "chars": 1345
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 49,
+        "bullets_with_url": 49,
+        "chars": 6702
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 50,
+        "bullets_with_url": 49,
+        "chars": 7163
+      },
+      "hn_2026": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 49,
+        "bullets_with_url": 48,
+        "chars": 7223
+      }
+    },
+    "Oracle Cloud": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 75,
+        "dup_bullets": 29,
+        "junk_bullets": 6,
+        "truncated_bullets": 63,
+        "bullets_with_url": 75,
+        "chars": 50282
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 85,
+        "dup_bullets": 85,
+        "junk_bullets": 0,
+        "truncated_bullets": 70,
+        "bullets_with_url": 70,
+        "chars": 12005
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 5,
+        "junk_bullets": 5,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 4,
+        "bullets": 52,
+        "dup_bullets": 43,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 40,
+        "chars": 13499
+      },
+      "blog_rss": {
+        "docs": 5,
+        "bullets": 9,
+        "dup_bullets": 5,
+        "junk_bullets": 1,
+        "truncated_bullets": 9,
+        "bullets_with_url": 9,
+        "chars": 3449
+      },
+      "migration_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 11,
+        "junk_bullets": 3,
+        "truncated_bullets": 17,
+        "bullets_with_url": 20,
+        "chars": 14331
+      },
+      "complaint_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 10,
+        "junk_bullets": 1,
+        "truncated_bullets": 17,
+        "bullets_with_url": 20,
+        "chars": 14913
+      }
+    },
+    "Pinecone": {
+      "tavily": {
+        "docs": 8,
+        "bullets": 96,
+        "dup_bullets": 58,
+        "junk_bullets": 5,
+        "truncated_bullets": 79,
+        "bullets_with_url": 96,
+        "chars": 65118
+      },
+      "hn": {
+        "docs": 8,
+        "bullets": 152,
+        "dup_bullets": 152,
+        "junk_bullets": 0,
+        "truncated_bullets": 152,
+        "bullets_with_url": 152,
+        "chars": 19936
+      },
+      "pricing_scrape": {
+        "docs": 8,
+        "bullets": 8,
+        "dup_bullets": 6,
+        "junk_bullets": 8,
+        "truncated_bullets": 8,
+        "bullets_with_url": 0,
+        "chars": 4080
+      },
+      "github": {
+        "docs": 7,
+        "bullets": 91,
+        "dup_bullets": 82,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 70,
+        "chars": 25319
+      },
+      "blog_rss": {
+        "docs": 9,
+        "bullets": 48,
+        "dup_bullets": 36,
+        "junk_bullets": 3,
+        "truncated_bullets": 42,
+        "bullets_with_url": 48,
+        "chars": 30390
+      },
+      "migration_tavily": {
+        "docs": 10,
+        "bullets": 46,
+        "dup_bullets": 29,
+        "junk_bullets": 0,
+        "truncated_bullets": 44,
+        "bullets_with_url": 46,
+        "chars": 31705
+      },
+      "complaint_tavily": {
+        "docs": 10,
+        "bullets": 46,
+        "dup_bullets": 25,
+        "junk_bullets": 0,
+        "truncated_bullets": 42,
+        "bullets_with_url": 46,
+        "chars": 28853
+      },
+      "hn_2024": {
+        "docs": 2,
+        "bullets": 54,
+        "dup_bullets": 28,
+        "junk_bullets": 0,
+        "truncated_bullets": 53,
+        "bullets_with_url": 53,
+        "chars": 7630
+      },
+      "hn_2025": {
+        "docs": 2,
+        "bullets": 20,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 20,
+        "bullets_with_url": 19,
+        "chars": 2786
+      }
+    },
+    "PostgreSQL": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 7,
+        "bullets_with_url": 12,
+        "chars": 7072
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 16,
+        "bullets_with_url": 20,
+        "chars": 2149
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 4097
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 3,
+        "bullets_with_url": 6,
+        "chars": 2119
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 50,
+        "bullets_with_url": 50,
+        "chars": 7007
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 50,
+        "bullets_with_url": 50,
+        "chars": 7205
+      },
+      "hn_2026": {
+        "docs": 1,
+        "bullets": 50,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 50,
+        "bullets_with_url": 49,
+        "chars": 7342
+      }
+    },
+    "Qdrant": {
+      "pricing_scrape": {
+        "docs": 8,
+        "bullets": 8,
+        "dup_bullets": 6,
+        "junk_bullets": 0,
+        "truncated_bullets": 8,
+        "bullets_with_url": 0,
+        "chars": 4080
+      },
+      "blog_rss": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 3179
+      },
+      "github": {
+        "docs": 6,
+        "bullets": 78,
+        "dup_bullets": 47,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 60,
+        "chars": 19036
+      },
+      "tavily": {
+        "docs": 7,
+        "bullets": 83,
+        "dup_bullets": 49,
+        "junk_bullets": 3,
+        "truncated_bullets": 61,
+        "bullets_with_url": 83,
+        "chars": 42488
+      },
+      "hn": {
+        "docs": 7,
+        "bullets": 91,
+        "dup_bullets": 90,
+        "junk_bullets": 0,
+        "truncated_bullets": 84,
+        "bullets_with_url": 91,
+        "chars": 11213
+      },
+      "migration_tavily": {
+        "docs": 7,
+        "bullets": 42,
+        "dup_bullets": 26,
+        "junk_bullets": 2,
+        "truncated_bullets": 34,
+        "bullets_with_url": 42,
+        "chars": 26141
+      },
+      "complaint_tavily": {
+        "docs": 7,
+        "bullets": 42,
+        "dup_bullets": 32,
+        "junk_bullets": 2,
+        "truncated_bullets": 40,
+        "bullets_with_url": 42,
+        "chars": 32298
+      }
+    },
+    "Salesforce": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 63,
+        "dup_bullets": 17,
+        "junk_bullets": 0,
+        "truncated_bullets": 52,
+        "bullets_with_url": 63,
+        "chars": 40436
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 100,
+        "dup_bullets": 99,
+        "junk_bullets": 0,
+        "truncated_bullets": 95,
+        "bullets_with_url": 95,
+        "chars": 15175
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "github": {
+        "docs": 1,
+        "bullets": 0,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 0,
+        "chars": 0
+      },
+      "blog_rss": {
+        "docs": 5,
+        "bullets": 50,
+        "dup_bullets": 10,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 50,
+        "chars": 7441
+      },
+      "migration_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 12,
+        "junk_bullets": 2,
+        "truncated_bullets": 27,
+        "bullets_with_url": 36,
+        "chars": 23046
+      },
+      "complaint_tavily": {
+        "docs": 6,
+        "bullets": 36,
+        "dup_bullets": 6,
+        "junk_bullets": 1,
+        "truncated_bullets": 29,
+        "bullets_with_url": 36,
+        "chars": 24954
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 4,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 4,
+        "chars": 614
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 12,
+        "bullets_with_url": 12,
+        "chars": 2381
+      }
+    },
+    "Typesense": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 12,
+        "chars": 4168
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 15,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 14,
+        "bullets_with_url": 14,
+        "chars": 1713
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 3,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 3,
+        "bullets_with_url": 0,
+        "chars": 1428
+      },
+      "blog_rss": {
+        "docs": 2,
+        "bullets": 8,
+        "dup_bullets": 8,
+        "junk_bullets": 0,
+        "truncated_bullets": 6,
+        "bullets_with_url": 8,
+        "chars": 3408
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 2,
+        "truncated_bullets": 5,
+        "bullets_with_url": 6,
+        "chars": 3437
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 2,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 3369
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 2,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 2,
+        "bullets_with_url": 2,
+        "chars": 298
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 4,
+        "chars": 557
+      }
+    },
+    "Vald": {
+      "tavily": {
+        "docs": 8,
+        "bullets": 96,
+        "dup_bullets": 63,
+        "junk_bullets": 0,
+        "truncated_bullets": 75,
+        "bullets_with_url": 96,
+        "chars": 28206
+      },
+      "hn": {
+        "docs": 8,
+        "bullets": 24,
+        "dup_bullets": 24,
+        "junk_bullets": 0,
+        "truncated_bullets": 24,
+        "bullets_with_url": 24,
+        "chars": 3472
+      },
+      "migration_tavily": {
+        "docs": 8,
+        "bullets": 48,
+        "dup_bullets": 28,
+        "junk_bullets": 1,
+        "truncated_bullets": 33,
+        "bullets_with_url": 48,
+        "chars": 18716
+      },
+      "complaint_tavily": {
+        "docs": 8,
+        "bullets": 48,
+        "dup_bullets": 25,
+        "junk_bullets": 1,
+        "truncated_bullets": 38,
+        "bullets_with_url": 48,
+        "chars": 14271
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 1,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 1,
+        "bullets_with_url": 1,
+        "chars": 134
+      },
+      "github": {
+        "docs": 5,
+        "bullets": 65,
+        "dup_bullets": 49,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 50,
+        "chars": 16053
+      },
+      "blog_rss": {
+        "docs": 6,
+        "bullets": 30,
+        "dup_bullets": 10,
+        "junk_bullets": 1,
+        "truncated_bullets": 21,
+        "bullets_with_url": 30,
+        "chars": 8815
+      }
+    },
+    "Weaviate": {
+      "tavily": {
+        "docs": 8,
+        "bullets": 96,
+        "dup_bullets": 60,
+        "junk_bullets": 4,
+        "truncated_bullets": 85,
+        "bullets_with_url": 96,
+        "chars": 56251
+      },
+      "hn": {
+        "docs": 8,
+        "bullets": 160,
+        "dup_bullets": 160,
+        "junk_bullets": 0,
+        "truncated_bullets": 136,
+        "bullets_with_url": 136,
+        "chars": 21184
+      },
+      "pricing_scrape": {
+        "docs": 8,
+        "bullets": 8,
+        "dup_bullets": 6,
+        "junk_bullets": 1,
+        "truncated_bullets": 8,
+        "bullets_with_url": 0,
+        "chars": 4080
+      },
+      "github": {
+        "docs": 7,
+        "bullets": 91,
+        "dup_bullets": 46,
+        "junk_bullets": 0,
+        "truncated_bullets": 9,
+        "bullets_with_url": 70,
+        "chars": 24055
+      },
+      "blog_rss": {
+        "docs": 9,
+        "bullets": 1609,
+        "dup_bullets": 1601,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 1609,
+        "chars": 183216
+      },
+      "migration_tavily": {
+        "docs": 10,
+        "bullets": 46,
+        "dup_bullets": 37,
+        "junk_bullets": 0,
+        "truncated_bullets": 44,
+        "bullets_with_url": 46,
+        "chars": 27814
+      },
+      "complaint_tavily": {
+        "docs": 10,
+        "bullets": 42,
+        "dup_bullets": 23,
+        "junk_bullets": 1,
+        "truncated_bullets": 36,
+        "bullets_with_url": 42,
+        "chars": 26797
+      },
+      "hn_2024": {
+        "docs": 2,
+        "bullets": 20,
+        "dup_bullets": 4,
+        "junk_bullets": 0,
+        "truncated_bullets": 18,
+        "bullets_with_url": 13,
+        "chars": 2638
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 3,
+        "chars": 588
+      }
+    },
+    "Zoho": {
+      "tavily": {
+        "docs": 1,
+        "bullets": 12,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 8,
+        "bullets_with_url": 12,
+        "chars": 5694
+      },
+      "hn": {
+        "docs": 1,
+        "bullets": 20,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 20,
+        "bullets_with_url": 20,
+        "chars": 2718
+      },
+      "migration_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 4,
+        "bullets_with_url": 6,
+        "chars": 3336
+      },
+      "complaint_tavily": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 6,
+        "chars": 3241
+      },
+      "hn_2024": {
+        "docs": 1,
+        "bullets": 6,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 4,
+        "chars": 818
+      },
+      "hn_2025": {
+        "docs": 1,
+        "bullets": 11,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 10,
+        "bullets_with_url": 10,
+        "chars": 1657
+      }
+    },
+    "Zoho CRM": {
+      "tavily": {
+        "docs": 5,
+        "bullets": 60,
+        "dup_bullets": 17,
+        "junk_bullets": 2,
+        "truncated_bullets": 51,
+        "bullets_with_url": 60,
+        "chars": 36750
+      },
+      "hn": {
+        "docs": 5,
+        "bullets": 25,
+        "dup_bullets": 25,
+        "junk_bullets": 0,
+        "truncated_bullets": 20,
+        "bullets_with_url": 25,
+        "chars": 3060
+      },
+      "pricing_scrape": {
+        "docs": 5,
+        "bullets": 5,
+        "dup_bullets": 5,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2550
+      },
+      "migration_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 9,
+        "junk_bullets": 0,
+        "truncated_bullets": 14,
+        "bullets_with_url": 20,
+        "chars": 8802
+      },
+      "complaint_tavily": {
+        "docs": 5,
+        "bullets": 20,
+        "dup_bullets": 4,
+        "junk_bullets": 1,
+        "truncated_bullets": 13,
+        "bullets_with_url": 20,
+        "chars": 8657
+      }
+    },
+    "mognodb": {
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2340
+      },
+      "blog_rss": {
+        "docs": 1,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 1,
+        "truncated_bullets": 4,
+        "bullets_with_url": 5,
+        "chars": 2518
+      },
+      "github": {
+        "docs": 1,
+        "bullets": 10,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 10,
+        "chars": 3194
+      }
+    },
+    "pgvector": {
+      "blog_rss": {
+        "docs": 2,
+        "bullets": 12,
+        "dup_bullets": 12,
+        "junk_bullets": 0,
+        "truncated_bullets": 12,
+        "bullets_with_url": 12,
+        "chars": 6516
+      },
+      "github": {
+        "docs": 2,
+        "bullets": 20,
+        "dup_bullets": 20,
+        "junk_bullets": 0,
+        "truncated_bullets": 0,
+        "bullets_with_url": 20,
+        "chars": 6388
+      },
+      "pricing_scrape": {
+        "docs": 1,
+        "bullets": 5,
+        "dup_bullets": 0,
+        "junk_bullets": 0,
+        "truncated_bullets": 5,
+        "bullets_with_url": 0,
+        "chars": 2340
+      }
+    }
+  }
+}
