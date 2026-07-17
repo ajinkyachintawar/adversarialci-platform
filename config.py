@@ -11,6 +11,10 @@ REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
 GITHUB_TOKEN    = os.getenv("GITHUB_TOKEN")
 MONGODB_URI     = os.getenv("MONGODB_URI")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# comma-separated fallback keys (different Google projects = separate quotas)
+GEMINI_API_KEYS = [k.strip() for k in
+                   os.getenv("GEMINI_API_KEYS", GEMINI_API_KEY or "").split(",")
+                   if k.strip()]
 
 # MongoDB
 DB_NAME         = "war_room"
