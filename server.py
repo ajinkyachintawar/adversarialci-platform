@@ -245,10 +245,27 @@ async def api_refresh_vendor(req: RefreshRequest, _: str = Depends(require_admin
                     
                     total = run_present_scrape(req.name, req.vertical)
                     mark_scraped(req.name)
-                    
+
+                    # New RAG ingestion path runs alongside the bullet pipeline
+                    # during the transition — failure here never fails the refresh.
+                    try:
+                        from ingest.pipeline import ingest_company
+                        from ingest.embedder import (embed_missing_chunks,
+                                                     remove_near_duplicates)
+                        print(f"━━━━━━━━━━━━━━━━━━━━")
+                        print(f"🧠 RAG ingest: scraping clean pages for {req.name}...")
+                        summary = ingest_company(req.name, req.vertical)
+                        print(f"🧬 Embedding {summary['totals']['chunks_kept']} chunks...")
+                        embed_missing_chunks(req.name)
+                        remove_near_duplicates(company=req.name)
+                        print(f"✅ RAG ingest: {summary['totals']['chunks_kept']} chunks "
+                              f"({summary['totals']['credits']} credits)")
+                    except Exception as e:
+                        print(f"⚠️  RAG ingest failed (bullet refresh unaffected): {e}")
+
                     print(f"━━━━━━━━━━━━━━━━━━━━")
                     print(f"✅ Refresh complete: {total} new data points collected")
-                    
+
                     return total
                 except Exception as e:
                     print(f"❌ Refresh failed: {str(e)}")

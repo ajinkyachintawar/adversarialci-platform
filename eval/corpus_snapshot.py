@@ -18,18 +18,9 @@ from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db.atlas import connect, get_collection
-
-JUNK_PATTERNS = [
-    "cookie", "accept all", "sign up", "sign in", "log in", "subscribe",
-    "newsletter", "privacy policy", "terms of service", "all rights reserved",
-    "get started free", "start free", "contact sales", "learn more",
-]
+from ingest.chunker import JUNK_PATTERNS, norm
 
 URL_RE = re.compile(r"https?://\S+")
-
-
-def norm(text: str) -> str:
-    return re.sub(r"\s+", " ", text.lower()).strip()
 
 
 def looks_truncated(b: str) -> bool:

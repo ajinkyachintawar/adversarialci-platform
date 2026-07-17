@@ -1,0 +1,107 @@
+{
+  "label": "full_corpus",
+  "timestamp": "2026-07-17T15:05:22.583139",
+  "k": 5,
+  "queries": 16,
+  "hit_at_1": "16/16 (100%)",
+  "hit_at_5": "16/16 (100%)",
+  "mrr": 1.0,
+  "rows": [
+    {
+      "query": "what does the MongoDB Atlas free tier include",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.891
+    },
+    {
+      "query": "maximum RAM per node on a dedicated MongoDB Atlas cluster",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.871
+    },
+    {
+      "query": "how can I estimate my monthly MongoDB costs",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.876
+    },
+    {
+      "query": "how much cheaper is MongoDB Atlas Search than alternatives",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.881
+    },
+    {
+      "query": "how does MongoDB scale horizontally",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.874
+    },
+    {
+      "query": "how does MongoDB compare to MySQL",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.883
+    },
+    {
+      "query": "latest MongoDB company news and announcements",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.886
+    },
+    {
+      "query": "MongoDB semantic search performance at scale",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.871
+    },
+    {
+      "query": "which Pinecone plan is free for small applications",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.896
+    },
+    {
+      "query": "what uptime SLA does Pinecone offer on its top plan",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.872
+    },
+    {
+      "query": "can I run Pinecone in my own cloud account",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.879
+    },
+    {
+      "query": "does Pinecone offer trial credits",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.888
+    },
+    {
+      "query": "Pinecone compared to Weaviate strengths and weaknesses",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.907
+    },
+    {
+      "query": "how is the Pinecone database architected under the hood",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.896
+    },
+    {
+      "query": "Pinecone security compliance encryption and audit logging",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.872
+    },
+    {
+      "query": "Pinecone pay as you go billing after included usage",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.876
+    }
+  ]
+}
