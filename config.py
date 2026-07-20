@@ -4,6 +4,10 @@ load_dotenv()
 
 # API Keys
 GROQ_API_KEY    = os.getenv("GROQ_API_KEY")
+# comma-separated fallback keys (different Groq accounts = separate TPM/day quotas)
+GROQ_API_KEYS = [k.strip() for k in
+                 os.getenv("GROQ_API_KEYS", GROQ_API_KEY or "").split(",")
+                 if k.strip()]
 TAVILY_API_KEY  = os.getenv("TAVILY_API_KEY")
 FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY")
 REDDIT_CLIENT_ID     = os.getenv("REDDIT_CLIENT_ID")
