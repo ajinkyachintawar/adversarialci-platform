@@ -1,0 +1,80 @@
+{
+  "mode": "buyer",
+  "summary": "winner=Pinecone confidence=43%",
+  "consistency": {
+    "passed": false,
+    "failures": [
+      "winner 'Pinecone' does not win the most per_dimension entries (that's 'Weaviate', {'Weaviate': 3, 'Pinecone': 3, 'MongoDB': 1})"
+    ]
+  },
+  "evidence_ids_cited": 7,
+  "head_llm_calls": 7,
+  "wall_seconds": 593.0,
+  "verdict": {
+    "mode": "buyer",
+    "winner": "Pinecone",
+    "confidence": 43,
+    "per_dimension": [
+      {
+        "dimension": "cost",
+        "winner": "Weaviate",
+        "reason": "Weaviate has an always-free option",
+        "evidence_ids": [
+          "cda880a615c84b2333f3e8162972d94d"
+        ]
+      },
+      {
+        "dimension": "performance",
+        "winner": "Pinecone",
+        "reason": "Pinecone's Dedicated Read Nodes architecture produces high query throughput and low latency",
+        "evidence_ids": [
+          "7cc7c3fd4a64fcd0bfc6fe34fd4db067"
+        ]
+      },
+      {
+        "dimension": "scalability",
+        "winner": "Pinecone",
+        "reason": "Pinecone scales to higher absolute query throughput with less operational overhead",
+        "evidence_ids": [
+          "891e0ee629ecf2c1c4e53ee8209440d6"
+        ]
+      },
+      {
+        "dimension": "simplicity",
+        "winner": "Pinecone",
+        "reason": "Pinecone was engineered for teams that treat the database as a service",
+        "evidence_ids": [
+          "102ecedfec915f945f12741512c0f7b5"
+        ]
+      },
+      {
+        "dimension": "lock_in_risk",
+        "winner": "MongoDB",
+        "reason": "MongoDB's 'schema-less' nature is a competitive edge, allowing developers to add new features instantly",
+        "evidence_ids": [
+          "8e339fe00e767f3afe5ecb0aa056678e"
+        ]
+      },
+      {
+        "dimension": "vector_capability",
+        "winner": "Weaviate",
+        "reason": "Weaviate combines dense vector search with BM25 keyword search in a single query",
+        "evidence_ids": [
+          "45e4d1c2cda4cf1c246f09a34487e388"
+        ]
+      },
+      {
+        "dimension": "ecosystem",
+        "winner": "Weaviate",
+        "reason": "Weaviate handles complex applications that combine text search, image retrieval, metadata filtering, and generative feedback loops natively",
+        "evidence_ids": [
+          "06896db5953adee0d0231cf1b7a6d19e"
+        ]
+      }
+    ],
+    "summary": "Pinecone is the overall winner due to its high performance, scalability, and simplicity, but Weaviate has an edge in vector capability and ecosystem",
+    "caveats": [
+      "Cost is a significant factor, and Weaviate's always-free option is attractive"
+    ]
+  }
+}

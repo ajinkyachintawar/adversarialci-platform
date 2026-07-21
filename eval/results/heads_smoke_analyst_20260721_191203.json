@@ -1,0 +1,202 @@
+{
+  "mode": "analyst",
+  "summary": "matrix covers 3 companies",
+  "consistency": {
+    "passed": true,
+    "failures": []
+  },
+  "evidence_ids_cited": 53,
+  "head_llm_calls": 1,
+  "wall_seconds": 511.7,
+  "verdict": {
+    "mode": "analyst",
+    "matrix": {
+      "MongoDB": {
+        "cost": {
+          "score": 7,
+          "reason": "MongoDB Atlas offers a free-forever tier and includes 512 MB of storage, but the cost can fluctuate due to various factors.",
+          "evidence_ids": [
+            "157942084dea97abb91322d46332b547",
+            "80891bfcf637ca6f0edce3a932190647"
+          ]
+        },
+        "performance": {
+          "score": 6,
+          "reason": "MongoDB performance degrades sharply when the working set exceeds available RAM, but MongoDB 8.0 delivers faster reads and bulk inserts.",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf",
+            "8e339fe00e767f3afe5ecb0aa056678e"
+          ]
+        },
+        "scalability": {
+          "score": 9,
+          "reason": "MongoDB supports horizontal scaling through sharding and automatic adjustments of compute and storage resources.",
+          "evidence_ids": [
+            "8f4ebbdf3c024450bae452fd78790180"
+          ]
+        },
+        "simplicity": {
+          "score": 8,
+          "reason": "MongoDB has a simple setup for development workloads and a free M0 tier for evaluation, but requires focus on specific sections for beginners.",
+          "evidence_ids": [
+            "93b082394ca2e14c64ce68152a2980a6",
+            "3d5cadf20e512ec939be7dc6af1759d1",
+            "8e0e6a898e8d81b240dfbfa2819852a2"
+          ]
+        },
+        "lock_in_risk": {
+          "score": 8,
+          "reason": "MongoDB's horizontal sharding and native sharding allow for cost-effective scaling and data sovereignty, reducing lock-in risk.",
+          "evidence_ids": [
+            "207e6e0ed7c50f2d0362ffce8ba2874c",
+            "8e339fe00e767f3afe5ecb0aa056678e",
+            "64d9ccc14be3e629713579381cca2a1b"
+          ]
+        },
+        "vector_capability": {
+          "score": 8,
+          "reason": "MongoDB supports vector search and automated embedding, making semantic search a first-class capability.",
+          "evidence_ids": [
+            "b181439f2096f45b5e62546017767fd2",
+            "bb86c5f2a6c16dc9a97d479943b73cc0",
+            "4138060bfc292af700bf0cfe6b381d99",
+            "1828c11f8d6a3cdfb4091575b8f43b08"
+          ]
+        },
+        "ecosystem": {
+          "score": 9,
+          "reason": "MongoDB has a GUI client, Python drivers, and a Performance Advisor, making it a robust ecosystem.",
+          "evidence_ids": [
+            "64c6c20e515c4fdc96cbe60ca8c34939",
+            "2feb67c7293f273fe27c4b4ab84774dd",
+            "bb86c5f2a6c16dc9a97d479943b73cc0"
+          ]
+        }
+      },
+      "Pinecone": {
+        "cost": {
+          "score": 8,
+          "reason": "Pinecone offers a free plan with 2GB storage and has a read unit billing model, but the Standard and Enterprise plans have minimum usage requirements.",
+          "evidence_ids": [
+            "9ac13216f0b444d58f8381c250526938",
+            "1aea0611393b89f98887555f1acd324d",
+            "458c373268ed58f3d242e255a152cd8e"
+          ]
+        },
+        "performance": {
+          "score": 9,
+          "reason": "Pinecone's Dedicated Read Nodes architecture produces high query throughput and low-latency performance.",
+          "evidence_ids": [
+            "7cc7c3fd4a64fcd0bfc6fe34fd4db067",
+            "a17d0be7aded7b653705753c34aacd93"
+          ]
+        },
+        "scalability": {
+          "score": 9,
+          "reason": "Pinecone scales to higher absolute query throughput with less operational overhead and handles scaling without operator intervention.",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6",
+            "a17d0be7aded7b653705753c34aacd93",
+            "f02033c3a286b97f1993a6ba1a9750d6",
+            "d948b4d49e2dee9398161918b5f0554a"
+          ]
+        },
+        "simplicity": {
+          "score": 8,
+          "reason": "Pinecone is engineered for teams that treat the database as a service and has a serverless architecture, but migrating out of Pinecone can be an engineering crisis.",
+          "evidence_ids": [
+            "46127b863d082ac7a7bd22acba587e5b",
+            "102ecedfec915f945f12741512c0f7b5",
+            "87e628d85c5e1cd5d3ec58a45a79a94e",
+            "01fd3ebb0f2b7ce78410ceb4b9b2d9c0"
+          ]
+        },
+        "lock_in_risk": {
+          "score": 6,
+          "reason": "Pinecone's per-scan billing model can compound rapidly, and moving vectors out of Pinecone generates cloud provider egress fees.",
+          "evidence_ids": [
+            "784dc6096e88d44252c147ae26f4d777",
+            "181048b63af3ebdf6cb5359f99355071"
+          ]
+        },
+        "vector_capability": {
+          "score": 7,
+          "reason": "Pinecone supports reranking models and has a managed SaaS architecture, but only supports up to 5 indexes per project.",
+          "evidence_ids": [
+            "16f39b283318d466c73fe3f919c3859b"
+          ]
+        },
+        "ecosystem": {
+          "score": 8,
+          "reason": "Pinecone has a managed SaaS architecture, a free plan, and a pricing plan for solo developers and small teams.",
+          "evidence_ids": [
+            "10c52436264788dc5855cbb985a87c22",
+            "9ac13216f0b444d58f8381c250526938",
+            "dd1bd50f26cace0ce48cd3ee4affe54c"
+          ]
+        }
+      },
+      "Weaviate": {
+        "cost": {
+          "score": 8,
+          "reason": "Weaviate is always free, has a prepaid contract with predictable spend, and pricing is based on the number of vector dimensions stored.",
+          "evidence_ids": [
+            "cda880a615c84b2333f3e8162972d94d",
+            "1f825d08dcf70d19e73f94d041c6e6f7",
+            "2495dff8f1b48ca59e47736977ed4da5"
+          ]
+        },
+        "performance": {
+          "score": 8,
+          "reason": "Weaviate scales through cluster expansion on Kubernetes and provides finer-grained resource control for multi-tenant architectures.",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6",
+            "71dc3e3c7904c62abb56383c9b9464bb"
+          ]
+        },
+        "scalability": {
+          "score": 9,
+          "reason": "Weaviate's native multi-tenancy enables tenant-level lifecycle management and automatic offloading of inactive tenants to cold storage.",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ]
+        },
+        "simplicity": {
+          "score": 7,
+          "reason": "Weaviate's setup is unremarkable for developers familiar with infrastructure, but requires understanding of its HNSW implementation for production workloads.",
+          "evidence_ids": [
+            "96ee92df6dbffd1c901728eeeb202011",
+            "ee093bf4e9bf70e10ee8d675bca21186",
+            "06896db5953adee0d0231cf1b7a6d19e"
+          ]
+        },
+        "lock_in_risk": {
+          "score": 6,
+          "reason": "Vendor lock-in is a risk with Weaviate.",
+          "evidence_ids": [
+            "c4137faa4c841e05dec848840c287f3a",
+            "96ee92df6dbffd1c901728eeeb202011"
+          ]
+        },
+        "vector_capability": {
+          "score": 9,
+          "reason": "Weaviate combines dense vector search with BM25 keyword search and has a vectorizer module for automatic embedding generation.",
+          "evidence_ids": [
+            "45e4d1c2cda4cf1c246f09a34487e388",
+            "860e92a0b6854855f59bfc82b538dc96"
+          ]
+        },
+        "ecosystem": {
+          "score": 9,
+          "reason": "Weaviate handles complex applications that combine text search, image retrieval, and generative feedback loops natively and has a module ecosystem with built-in integrations.",
+          "evidence_ids": [
+            "06896db5953adee0d0231cf1b7a6d19e",
+            "d151e64c565214a1b48f1d22244fc12a",
+            "ea3852836f522c63980de69f0b7647db"
+          ]
+        }
+      }
+    },
+    "summary": "Each vendor has its strengths and weaknesses across the different dimensions. MongoDB excels in scalability and ecosystem, while Pinecone shines in performance and scalability. Weaviate stands out in vector capability and ecosystem."
+  }
+}

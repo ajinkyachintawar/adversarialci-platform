@@ -66,7 +66,10 @@ def court_session(state: WarRoomState) -> WarRoomState:
     - Verdict output format
     - Confidence calculation
     """
-    
+    if os.getenv("AGENTS_V2") == "1":
+        from heads.runner import run_v2
+        return run_v2(state)
+
     # Get mode and vertical
     mode = state.get("plaintiff", {}).get("mode", "buyer")
     vertical = state.get("vertical", "database")

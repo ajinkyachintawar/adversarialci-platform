@@ -196,6 +196,11 @@ def extract_claims(company: str, vertical: str, k: int = 6) -> dict:
                     raise ValueError("no response")
                 dim_claims, invalid = _parse_claims(raw, dim, id_map)
                 claims_invalid += invalid
+                # enforce the prompt's own cap — the model sometimes ignores
+                # "1-4 claims"; keep the strongest 4 (stable sort keeps the
+                # model's ordering among ties)
+                dim_claims.sort(key=lambda c: c.strength, reverse=True)
+                dim_claims = dim_claims[:4]
             except (json.JSONDecodeError, ValueError):
                 dim_claims = []
                 if is_retry:
