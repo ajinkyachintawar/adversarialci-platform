@@ -1,0 +1,101 @@
+{
+  "mode": "seller",
+  "summary": "my_company=Pinecone win_probability=70%",
+  "consistency": {
+    "passed": true,
+    "failures": []
+  },
+  "evidence_ids_cited": 15,
+  "head_llm_calls": 4,
+  "wall_seconds": 540.8,
+  "verdict": {
+    "mode": "seller",
+    "my_company": "Pinecone",
+    "win_probability": 70,
+    "advantages": [
+      {
+        "text": "Pinecone offers a free plan with 2GB storage, 2M write units/month, and 1M read units/month, making it a cost-effective option for small-scale projects.",
+        "evidence_ids": [
+          "9ac13216f0b444d58f8381c250526938"
+        ]
+      },
+      {
+        "text": "Pinecone's Dedicated Read Nodes architecture provides high-performance and low-latency query execution, making it suitable for large-scale projects.",
+        "evidence_ids": [
+          "7cc7c3fd4a64fcd0bfc6fe34fd4db067",
+          "a17d0be7aded7b653705753c34aacd93"
+        ]
+      },
+      {
+        "text": "Pinecone's serverless architecture handles scaling without operator intervention, reducing the administrative burden on the customer.",
+        "evidence_ids": [
+          "a17d0be7aded7b653705753c34aacd93",
+          "01fd3ebb0f2b7ce78410ceb4b9b2d9c0"
+        ]
+      }
+    ],
+    "vulnerabilities": [
+      {
+        "text": "Pinecone's per-scan billing model can lead to high costs for large-scale projects with high query throughput.",
+        "evidence_ids": [
+          "181048b63af3ebdf6cb5359f99355071"
+        ]
+      },
+      {
+        "text": "Moving data out of Pinecone can generate cloud provider egress fees, making it a potential lock-in risk.",
+        "evidence_ids": [
+          "784dc6096e88d44252c147ae26f4d777"
+        ]
+      }
+    ],
+    "objections": [
+      {
+        "objection": "MongoDB Atlas offers a free-forever tier.",
+        "response": "Pinecone offers a free plan with 2GB storage, 2M write units/month, and 1M read units/month, and its Enterprise plan provides additional features and support.",
+        "evidence_ids": [
+          "9ac13216f0b444d58f8381c250526938",
+          "458c373268ed58f3d242e255a152cd8e"
+        ]
+      },
+      {
+        "objection": "Pinecone Standard bills $0.33/GB storage and $16 per million read units where read units are counted per vector scanned during query execution, not per query.",
+        "response": "Pinecone's read unit billing is charged per vector scanned during query execution, not per query submitted, which can be more cost-effective for certain use cases.",
+        "evidence_ids": [
+          "1aea0611393b89f98887555f1acd324d",
+          "181048b63af3ebdf6cb5359f99355071"
+        ]
+      },
+      {
+        "objection": "At 100 million vectors with high query throughput, Pinecone's per-scan billing model compounds rapidly.",
+        "response": "Pinecone's Dedicated Read Nodes architecture provides high-performance and low-latency query execution, which can help mitigate the costs associated with high query throughput.",
+        "evidence_ids": [
+          "7cc7c3fd4a64fcd0bfc6fe34fd4db067",
+          "a17d0be7aded7b653705753c34aacd93"
+        ]
+      }
+    ],
+    "landmines": [
+      {
+        "text": "Pinecone's cost structure can be complex and difficult to predict, especially for large-scale projects.",
+        "evidence_ids": [
+          "181048b63af3ebdf6cb5359f99355071"
+        ]
+      },
+      {
+        "text": "Pinecone's lock-in risk can be high due to the potential costs associated with moving data out of the platform.",
+        "evidence_ids": [
+          "784dc6096e88d44252c147ae26f4d777"
+        ]
+      }
+    ],
+    "talk_tracks": [
+      "Pinecone's free plan and Enterprise plan provide a range of options for customers to choose from.",
+      "Pinecone's Dedicated Read Nodes architecture provides high-performance and low-latency query execution.",
+      "Pinecone's serverless architecture handles scaling without operator intervention."
+    ],
+    "do_not_say": [
+      "Pinecone's per-scan billing model is always the most cost-effective option.",
+      "Pinecone's lock-in risk is not a concern for customers."
+    ]
+  }
+}
