@@ -425,13 +425,14 @@ async def run_court_background(session_id: str, req: EvalReq):
         
         final_state = await asyncio.to_thread(run_graph)
         
-        # Find the latest report file written by the pipeline
-        import glob
-        report_files = sorted(glob.glob("outputs/reports/*.md"), key=os.path.getmtime, reverse=True)
-        report_id = None
-        if report_files:
-            # Use the filename (without extension) as the report ID
-            report_id = os.path.basename(report_files[0]).replace(".md", "")
+        # V2 pipeline returns its report_id in state and writes no .md file;
+        # globbing outputs/reports here would grab a stale old-pipeline file.
+        report_id = final_state.get("report_id")
+        if not report_id:
+            import glob
+            report_files = sorted(glob.glob("outputs/reports/*.md"), key=os.path.getmtime, reverse=True)
+            if report_files:
+                report_id = os.path.basename(report_files[0]).replace(".md", "")
         
         if report_id:
             await queue.put(f"__REPORT_READY__:{report_id}")
@@ -501,8 +502,18 @@ async def api_get_report(report_id: str):
             if session:
                 # Prefer report_content (full report), fallback to deliberation
                 content = session.get("report_content") or session.get("deliberation", "")
-                if content:
-                    return {"id": report_id, "content": content}
+                verdict_json = session.get("verdict_json")
+                if content or verdict_json:
+                    out = {"id": report_id, "content": content}
+                    if verdict_json is not None:
+                        out["verdict_json"] = verdict_json
+                        out["consistency"] = session.get("consistency")
+                        out["mode"] = session.get("mode")
+                        # battlecard framing needs the profile + matchup
+                        out["plaintiff"] = session.get("plaintiff")
+                        out["companies"] = session.get("companies")
+                        out["vertical"] = session.get("vertical")
+                    return out
         except Exception as e:
             print(f"MongoDB report fetch failed: {e}")
 
@@ -514,6 +525,26 @@ async def api_get_report(report_id: str):
             return {"id": report_id, "content": content}
 
         raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
+
+    return await asyncio.to_thread(_work)
+
+
+@app.get("/api/chunks/{content_hash}")
+async def api_get_chunk(content_hash: str):
+    """Fetch one rag_chunks doc for citation-chip popovers."""
+    def _work():
+        from db.atlas import get_collection
+
+        col = get_collection("rag_chunks")
+        chunk = col.find_one({"content_hash": content_hash})
+        if not chunk:
+            raise HTTPException(status_code=404, detail="Chunk not found")
+        return {
+            "text": chunk.get("text", ""),
+            "source_url": chunk.get("source_url", ""),
+            "source_type": chunk.get("source_type", ""),
+            "company": chunk.get("company", ""),
+        }
 
     return await asyncio.to_thread(_work)
 
