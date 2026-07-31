@@ -20,6 +20,7 @@ Run:  .venv/bin/python -m heads.runner   (requires Atlas + Groq — see eval/hea
 import sys
 import os
 import json
+import time
 from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,6 +28,8 @@ from heads import buyer as buyer_mod
 from heads import seller as seller_mod
 from heads import analyst as analyst_mod
 from heads import consistency
+from heads import evidence as evidence_mod
+from heads import llm as llm_mod
 from heads.llm import call_llm
 from heads.schemas import BuyerVerdict, SellerVerdict, AnalystVerdict, parse_verdict_json
 
@@ -70,6 +73,8 @@ def run_v2(state: dict) -> dict:
     print(f"  Vertical  : {vertical}")
     print(f"  Companies : {', '.join(companies)}")
 
+    _head_t0 = time.time()
+    calls_before = llm_mod.call_count
     if mode == "buyer":
         verdict, claims_by_company = buyer_mod._run_with_evidence(state)
     elif mode == "seller":
@@ -78,6 +83,19 @@ def run_v2(state: dict) -> dict:
         verdict, claims_by_company = analyst_mod._run_with_evidence(state)
     else:
         raise ValueError(f"unknown mode: {mode}")
+
+    # The head does claims-gathering then debate+judge; evidence.gather
+    # records its own slice so the two are separable.
+    head_seconds = round(time.time() - _head_t0, 1)
+    stage_seconds = {
+        **(state.get("stage_seconds") or {}),
+        "claims": evidence_mod.last_gather_seconds,
+        "debate_and_judge": round(head_seconds - evidence_mod.last_gather_seconds, 1),
+    }
+    print(f"  ⏱  claims {stage_seconds['claims']}s"
+          f"{' (cached)' if evidence_mod.last_gather_cached else ''}"
+          f" | debate+judge {stage_seconds['debate_and_judge']}s"
+          f" | {llm_mod.call_count - calls_before} LLM calls")
 
     result = consistency.check(verdict, claims_by_company, vertical)
     print(f"  🔎 Consistency: {'✅ passed' if result['passed'] else '❌ failed'}"
@@ -123,6 +141,8 @@ def run_v2(state: dict) -> dict:
         "consistency": result,
         "inconsistent": inconsistent,
         "claims_metrics": {c: len(claims) for c, claims in claims_by_company.items()},
+        "stage_seconds": stage_seconds,
+        "claims_cached": evidence_mod.last_gather_cached,
         "created_at": datetime.utcnow(),
     }
     inserted = col.insert_one(doc)
@@ -146,6 +166,7 @@ def run_v2(state: dict) -> dict:
         "verdict": {"overall_winner": winner, "confidence": confidence_display,
                     "verdict_json": verdict.model_dump(), "consistency": result},
         "report_id": report_id,
+        "stage_seconds": stage_seconds,
         "stage": "complete",
     }
 

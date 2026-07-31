@@ -9,6 +9,7 @@ Run:  .venv/bin/python -m heads.evidence MongoDB Pinecone database
 
 import sys
 import os
+import time
 from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +29,7 @@ def _corpus_fingerprint(company: str) -> str:
     return f"{count}:{ts}"
 
 
-def _gather_one(company: str, vertical: str) -> tuple[list, dict]:
+def _gather_one(company: str, vertical: str) -> tuple[list, dict, bool]:
     """Extract + gate one company, reusing the Atlas claims cache when the
     underlying chunk corpus hasn't changed. Claims are a pure function of the
     corpus, so a fingerprint match means the cached gated claims are current."""
@@ -39,7 +40,7 @@ def _gather_one(company: str, vertical: str) -> tuple[list, dict]:
     hit = cache.find_one({"company": company, "vertical": vertical, "fingerprint": fp})
     if hit:
         print(f"  🏢 {company}: {len(hit['claims'])} gated claims (cached)")
-        return hit["claims"], hit["metrics"]
+        return hit["claims"], hit["metrics"], True
 
     extracted = extract_claims(company, vertical)
     extracted.pop("_rows", None)
@@ -56,18 +57,31 @@ def _gather_one(company: str, vertical: str) -> tuple[list, dict]:
          "cached_at": datetime.utcnow()},
         upsert=True,
     )
-    return gated["claims"], metrics
+    return gated["claims"], metrics, False
+
+
+last_gather_seconds = 0.0  # wall time of the most recent gather() — read by
+                           # heads/runner.py for the session's stage timings
+                           # (same module-global pattern as llm.py::call_count)
+last_gather_cached = False  # True when every company came from claims_cache
 
 
 def gather(companies: list[str], vertical: str) -> dict:
     """Returns {"claims_by_company": {company: [gated claims]}, "metrics": {...}}."""
+    global last_gather_seconds, last_gather_cached
+    t0 = time.time()
     claims_by_company = {}
     metrics_by_company = {}
 
+    cached = []
     for company in companies:
-        claims, metrics = _gather_one(company, vertical)
+        claims, metrics, was_cached = _gather_one(company, vertical)
         claims_by_company[company] = claims
         metrics_by_company[company] = metrics
+        cached.append(was_cached)
+
+    last_gather_seconds = round(time.time() - t0, 1)
+    last_gather_cached = all(cached)
 
     total_claims = sum(len(c) for c in claims_by_company.values())
     return {

@@ -37,6 +37,7 @@ class WarRoomState(TypedDict):
     errors: list[str]               # Error tracking
     stage: str                      # Current pipeline stage
     report_id: Optional[str]        # v2: report id the runner persisted (redirect target)
+    stage_seconds: dict             # {stage_name: wall seconds} — where the time goes
 
 
 def create_initial_state(vertical: str = "database", mode: str = "buyer") -> WarRoomState:
@@ -77,6 +78,7 @@ def create_initial_state(vertical: str = "database", mode: str = "buyer") -> War
         "errors": [],
         "stage": "init",
         "report_id": None,
+        "stage_seconds": {},
     }
 
 
