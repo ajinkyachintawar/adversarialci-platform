@@ -38,6 +38,16 @@ from vendor_registry import (
 # ─── Routing Logic ──────────────────────────────────────────
 
 def needs_scraping(state: WarRoomState) -> str:
+    # Agents V2 builds its evidence from rag_chunks (ingest/), never from the
+    # research_data bullets this scrape produces — so on that path the whole
+    # phase is minutes of Tavily/HN/blog work nothing downstream reads.
+    # Sourcing mode exists to scrape, so it always does.
+    import os
+    if os.getenv("AGENTS_V2") == "1" and state.get("mode") != "sourcing":
+        print("  ⏭️  AGENTS_V2: skipping scrape — v2 reads rag_chunks, not "
+              "research_data (refresh vendors via /api/vendors/refresh)")
+        return "verify"
+
     new = state.get("new_companies", [])
     stale = state.get("stale_companies", [])
     if new or stale:
