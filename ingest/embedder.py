@@ -17,6 +17,18 @@ from config import GEMINI_API_KEYS
 _key_idx = 0  # rotates to the next key on quota exhaustion (per-project quotas)
 
 
+def _require_key() -> None:
+    """Neither GEMINI_API_KEYS nor GEMINI_API_KEY set -> config.py filters the
+    pool down to [], and indexing it below raises a bare IndexError halfway
+    through an ingest. Say what's actually wrong instead."""
+    if not GEMINI_API_KEYS:
+        raise RuntimeError(
+            "No Gemini key configured — set GEMINI_API_KEY (or a "
+            "comma-separated GEMINI_API_KEYS rotation pool). Embedding, and "
+            "therefore the whole RAG evidence layer, cannot run without one."
+        )
+
+
 def _rotate_key() -> bool:
     """Switch to the next API key. Returns False when all keys are spent."""
     global _key_idx
