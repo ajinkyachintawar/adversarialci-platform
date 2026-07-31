@@ -52,7 +52,11 @@ ALL GATED CLAIMS:
 {rendered}
 
 Score every vendor on every dimension you have evidence for (1-10, higher is
-better). Cite claim_ids using only the labels shown above.
+better). Cite claim_ids using only the labels shown above. Each `reason` and
+the `summary` must be a complete sentence: if it restates a claim, restate it
+in full, keeping the comparison target and any numbers — never stop
+mid-comparison ("X is cheaper" when the claim said "X is cheaper than Y").
+Put claim ids ONLY in claim_ids fields — never mention them in prose.
 Return ONLY JSON, no markdown fences:
 {{"mode": "analyst",
   "matrix": {{"{companies[0]}": {{"cost": {{"score": 7, "reason": "...",

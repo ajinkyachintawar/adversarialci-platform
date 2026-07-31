@@ -1,0 +1,417 @@
+{
+  "timestamp": "2026-07-20T19:38:25.056125",
+  "pairs": [
+    "MongoDB/database"
+  ],
+  "companies": [
+    {
+      "company": "MongoDB",
+      "vertical": "database",
+      "extraction_metrics": {
+        "dimensions_total": 7,
+        "dimensions_empty": 0,
+        "malformed_dimensions": 2,
+        "claims_invalid": 0,
+        "claims_extracted": 30,
+        "groq_calls": 9,
+        "seconds": 258.3
+      },
+      "gate_metrics": {
+        "claims_total": 30,
+        "claims_dropped_uncited": 0,
+        "survival_rate": 1.0
+      },
+      "dimensions_total": 7,
+      "dimensions_covered": 5,
+      "dimension_coverage": 0.714,
+      "missing_dimensions": [
+        "lock_in_risk",
+        "scalability"
+      ],
+      "stance_split": {
+        "strength": 25,
+        "weakness": 5
+      },
+      "avg_strength": 4.47,
+      "claims": [
+        {
+          "dimension": "cost",
+          "claim": "MongoDB Atlas offers a free-forever tier, the M0.",
+          "stance": "strength",
+          "evidence_ids": [
+            "5aefcdb54e32599d8661271ed889d7f4"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Atlas\u2019s free tier includes 512 MB of storage, 32MB of sort memory, and up to 100 operations per second.",
+          "stance": "strength",
+          "evidence_ids": [
+            "5aefcdb54e32599d8661271ed889d7f4"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The free tier is a great starting point to learn about MongoDB and explore its capabilities in a fully managed cloud environment.",
+          "stance": "strength",
+          "evidence_ids": [
+            "5aefcdb54e32599d8661271ed889d7f4"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Choosing the right MongoDB Atlas cluster tier for your application involves considering the application's workload, data size, and performance needs.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1ef5119de69cbb1d3a2d5a80d4a666e0"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Additional factors that can influence cost over time include: fluctuations in usage, configuration adjustments, auto-scaling behavior, new features, and cloud provider price changes.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "80891bfcf637ca6f0edce3a932190647"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Atlas cluster configuration costs include: cluster tier and type, cloud provider and region, data storage, data transfer (networking), backup services, and add-on tools and services.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "80891bfcf637ca6f0edce3a932190647"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S20 cluster tier is $0.12/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S30 cluster tier is $0.24/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S40 cluster tier is $0.48/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S50 cluster tier is $0.99/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S60 cluster tier is $1.77/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S70 cluster tier is $2.50/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The base price for the S80 cluster tier is $3.26/hr.",
+          "stance": "strength",
+          "evidence_ids": [
+            "0a373af6d53b0630e7ee5eecae333731"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "MongoDB performance depends heavily on the working set \u2013 the actively read and written portion of your data \u2013 fitting in RAM.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Using `$where` or server-side JavaScript execution bypasses indexes completely, runs in a single-threaded engine, and is a security risk.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Indexes are not free. Each index consumes RAM from the WiredTiger cache and adds overhead to every write operation.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "WiredTiger engine optimizations in MongoDB 8.0 bring measurable write throughput improvements.",
+          "stance": "strength",
+          "evidence_ids": [
+            "3fcd30f811efa48697fb84aaad0e9e0f"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "MongoDB 8.0 runs comfortably on 2 CPU cores and 4 GB of RAM for development workloads.",
+          "stance": "strength",
+          "evidence_ids": [
+            "8e0e6a898e8d81b240dfbfa2819852a2"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Beginners should focus on Sections 1 through 6 \u2013 installation, CRUD, and basic aggregation \u2013 before moving to advanced topics.",
+          "stance": "strength",
+          "evidence_ids": [
+            "93b082394ca2e14c64ce68152a2980a6"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "The free M0 tier makes it trivial to start on Atlas and evaluate before committing.",
+          "stance": "strength",
+          "evidence_ids": [
+            "8e0e6a898e8d81b240dfbfa2819852a2"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "A fresh MongoDB installation runs with minimal security and default performance settings that are appropriate for getting started but require adjustment before you expose the database to any network traffic.",
+          "stance": "strength",
+          "evidence_ids": [
+            "64c6c20e515c4fdc96cbe60ca8c34939"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "The official APT repository ensures you receive signed packages and automatic security updates through your existing package manager workflow.",
+          "stance": "strength",
+          "evidence_ids": [
+            "bb86c5f2a6c16dc9a97d479943b73cc0"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "MongoDB 8.0 supports the core vector search capability \u2013 creating vector indexes and running `$vectorSearch` aggregation queries.",
+          "stance": "strength",
+          "evidence_ids": [
+            "f0b921cc63e8f86100a165bfe17ab449"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Atlas Vector Search adds managed index building at scale, automatic scaling for large vector workloads, the Automated Embedding feature in public preview (which generates and maintains embeddings without application-level code), and the Atlas UI for index management and monitoring.",
+          "stance": "strength",
+          "evidence_ids": [
+            "bb86c5f2a6c16dc9a97d479943b73cc0"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Vector search \u2013 the ability to find semantically similar documents using embedding vectors \u2013 was previously available only in MongoDB Atlas.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1828c11f8d6a3cdfb4091575b8f43b08"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "The `numCandidates` parameter controls the accuracy-performance tradeoff in vector search. Setting it to 10 times the desired `limit` gives good recall for most use cases.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1828c11f8d6a3cdfb4091575b8f43b08"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB supports vector search indexes in Community Edition",
+          "stance": "strength",
+          "evidence_ids": [
+            "2feb67c7293f273fe27c4b4ab84774dd"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB Atlas provides a built-in Performance Advisor that analyzes query patterns and recommends indexes",
+          "stance": "strength",
+          "evidence_ids": [
+            "bb86c5f2a6c16dc9a97d479943b73cc0"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB supports semantic search and generative AI over any type of data",
+          "stance": "strength",
+          "evidence_ids": [
+            "1ef5119de69cbb1d3a2d5a80d4a666e0"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB Atlas supports stream processing of high-volume, high-velocity streams of complex event data",
+          "stance": "strength",
+          "evidence_ids": [
+            "1ef5119de69cbb1d3a2d5a80d4a666e0"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "claims_total": 30,
+    "claims_survived": 30,
+    "overall_survival_rate": 1.0,
+    "dimensions_total": 7,
+    "dimensions_covered": 5,
+    "overall_dimension_coverage": 0.714,
+    "total_groq_calls": 9,
+    "wall_seconds": 258.3
+  },
+  "acceptance": {
+    "survival_bar": 0.9,
+    "coverage_bar": 1.0,
+    "survival_pass": true,
+    "coverage_pass": false,
+    "overall_pass": false
+  }
+}

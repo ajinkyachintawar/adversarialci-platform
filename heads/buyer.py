@@ -231,7 +231,12 @@ DEBATE TRANSCRIPT:
 
 Return a BuyerVerdict JSON for this profile. For EVERY dimension listed
 above, pick a winner among {', '.join(companies)}. Cite claim_ids using only
-the labels shown above (e.g. ["C7"]) — never invent one. Return ONLY JSON,
+the labels shown above (e.g. ["C7"]) — never invent one. Each `reason` and
+the `summary` must be a complete sentence: if it restates a claim, restate it
+in full, keeping the comparison target and any numbers — never stop
+mid-comparison ("X is cheaper" when the claim said "X is cheaper than Y").
+Put claim ids ONLY in claim_ids fields — never mention them in prose.
+Return ONLY JSON,
 no markdown fences:
 {{"mode": "buyer", "winner": "...", "confidence": 0,
   "per_dimension": [{{"dimension": "cost", "winner": "...", "reason": "...",
