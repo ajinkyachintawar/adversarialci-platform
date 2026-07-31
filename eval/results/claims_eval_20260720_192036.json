@@ -1,0 +1,1215 @@
+{
+  "timestamp": "2026-07-20T19:20:36.104757",
+  "pairs": [
+    "MongoDB/database",
+    "Pinecone/database",
+    "Weaviate/database"
+  ],
+  "companies": [
+    {
+      "company": "MongoDB",
+      "vertical": "database",
+      "extraction_metrics": {
+        "dimensions_total": 7,
+        "dimensions_empty": 0,
+        "malformed_dimensions": 1,
+        "claims_invalid": 0,
+        "claims_extracted": 28,
+        "groq_calls": 9,
+        "seconds": 330.3
+      },
+      "gate_metrics": {
+        "claims_total": 28,
+        "claims_dropped_uncited": 9,
+        "survival_rate": 0.679
+      },
+      "dimensions_total": 7,
+      "dimensions_covered": 4,
+      "dimension_coverage": 0.571,
+      "missing_dimensions": [
+        "cost",
+        "scalability",
+        "vector_capability"
+      ],
+      "stance_split": {
+        "strength": 15,
+        "weakness": 4
+      },
+      "avg_strength": 4.11,
+      "claims": [
+        {
+          "dimension": "performance",
+          "claim": "MongoDB performance depends heavily on the working set \u2013 the actively read and written portion of your data \u2013 fitting in RAM.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Using `$where` or server-side JavaScript execution can sharply degrade performance.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Creating too many indexes can noticeably slow down write throughput.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1daa5aa485fecf4f70695a6064b9b0cf"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "WiredTiger engine optimizations in MongoDB 8.0 bring measurable write throughput improvements.",
+          "stance": "strength",
+          "evidence_ids": [
+            "3fcd30f811efa48697fb84aaad0e9e0f"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "MongoDB 8.0 runs comfortably on 2 CPU cores and 4 GB of RAM for development workloads.",
+          "stance": "strength",
+          "evidence_ids": [
+            "8e0e6a898e8d81b240dfbfa2819852a2"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Beginners should focus on Sections 1 through 6 \u2013 installation, CRUD, and basic aggregation \u2013 before moving to advanced topics.",
+          "stance": "strength",
+          "evidence_ids": [
+            "93b082394ca2e14c64ce68152a2980a6"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "The free M0 tier makes it trivial to start on Atlas and evaluate before committing.",
+          "stance": "strength",
+          "evidence_ids": [
+            "3d5cadf20e512ec939be7dc6af1759d1"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Docker is increasingly the preferred approach for development environments because it keeps MongoDB isolated from the host system and makes it trivial to run multiple versions side by side.",
+          "stance": "strength",
+          "evidence_ids": [
+            "3d5cadf20e512ec939be7dc6af1759d1"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "For most teams, Atlas is the right default.",
+          "stance": "strength",
+          "evidence_ids": [
+            "3d5cadf20e512ec939be7dc6af1759d1"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "The acquisition of Voyage AI in February 2025 was a watershed moment for MongoDB\u2019s AI strategy.",
+          "stance": "strength",
+          "evidence_ids": [
+            "054ab2bd7eff796116ac9f2118a1097b"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "MongoDB's horizontal sharding allows you to spread write loads across multiple smaller (and cheaper) instances.",
+          "stance": "strength",
+          "evidence_ids": [
+            "f3df55309a0729add0df8592a4a549ff",
+            "64d9ccc14be3e629713579381cca2a1b"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "MongoDB's acquisition of Voyage AI in February 2025 brought world-class embedding models and retrieval-augmented generation (RAG) expertise into the MongoDB ecosystem.",
+          "stance": "strength",
+          "evidence_ids": [
+            "b181439f2096f45b5e62546017767fd2"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "MongoDB's Automated Embedding in Vector Search, now in public preview, lets developers store, index, and query semantic embeddings without ever leaving the MongoDB driver.",
+          "stance": "strength",
+          "evidence_ids": [
+            "b181439f2096f45b5e62546017767fd2"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "MongoDB stores data in BSON format, which includes field names in every single document, often leading to a higher storage footprint compared to MySQL's compact, row-based storage.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "45b29d7a9162405532f1ae19b7cd2939"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://zignuts.com/blog/mongodb-vs-mysql"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "MongoDB's Zstandard compression and Online Archiving mitigate the higher storage footprint by automatically moving 'cold' data to cheaper S3-like storage.",
+          "stance": "strength",
+          "evidence_ids": [
+            "45b29d7a9162405532f1ae19b7cd2939"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://zignuts.com/blog/mongodb-vs-mysql"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB supports vector search indexes in Community Edition",
+          "stance": "strength",
+          "evidence_ids": [
+            "2feb67c7293f273fe27c4b4ab84774dd"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB Atlas provides a built-in Performance Advisor",
+          "stance": "strength",
+          "evidence_ids": [
+            "bb86c5f2a6c16dc9a97d479943b73cc0"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB supports semantic search and generative AI over any type of data",
+          "stance": "strength",
+          "evidence_ids": [
+            "1ef5119de69cbb1d3a2d5a80d4a666e0"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "MongoDB Atlas supports online archive for cost optimization",
+          "stance": "strength",
+          "evidence_ids": [
+            "1ef5119de69cbb1d3a2d5a80d4a666e0"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://www.mongodb.com/pricing"
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Pinecone",
+      "vertical": "database",
+      "extraction_metrics": {
+        "dimensions_total": 7,
+        "dimensions_empty": 0,
+        "malformed_dimensions": 0,
+        "claims_invalid": 0,
+        "claims_extracted": 33,
+        "groq_calls": 7,
+        "seconds": 202.7
+      },
+      "gate_metrics": {
+        "claims_total": 33,
+        "claims_dropped_uncited": 2,
+        "survival_rate": 0.939
+      },
+      "dimensions_total": 7,
+      "dimensions_covered": 7,
+      "dimension_coverage": 1.0,
+      "missing_dimensions": [],
+      "stance_split": {
+        "strength": 25,
+        "weakness": 6
+      },
+      "avg_strength": 4.23,
+      "claims": [
+        {
+          "dimension": "cost",
+          "claim": "Pinecone's read unit billing is charged per vector scanned during query execution, not per query submitted.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1aea0611393b89f98887555f1acd324d"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The Standard plan costs $50/month minimum, with $0.33/GB/month storage, $4/million write units, and $16/million read units billed per vector scanned.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1aea0611393b89f98887555f1acd324d"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "The Enterprise plan costs $500/month minimum, with $6/million write units and $24/million read units.",
+          "stance": "strength",
+          "evidence_ids": [
+            "1aea0611393b89f98887555f1acd324d"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Pinecone's Dedicated Read Nodes (DRN) layer released in public preview December 2025 adds provisioned read capacity for workloads requiring predictable low-latency performance at sustained throughput.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Verified benchmarks from the official DRN release: 135 million vectors at 600 QPS with P50 45ms and P99 96ms. Load-tested to 2,200 QPS with P50 60ms and P99 99ms.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "A published customer benchmark on 1.4 billion vectors achieved 5,700 QPS at P50 26ms and P99 60ms.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Pinecone scales to higher absolute query throughput with less operational overhead.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Pinecone's serverless architecture handles scaling without operator intervention. Write capacity, read capacity, and storage each scale independently.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93",
+            "f02033c3a286b97f1993a6ba1a9750d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Compute scales automatically with query load. Storage scales independently with vector count.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Pinecone separates write and read operations into different paths, with each scaling independently based on demand.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d948b4d49e2dee9398161918b5f0554a"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://docs.pinecone.io/guides/get-started/database-architecture"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Pinecone scales to higher absolute query throughput with less operational overhead.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Pinecone's serverless architecture handles scaling without operator intervention.",
+          "stance": "strength",
+          "evidence_ids": [
+            "46127b863d082ac7a7bd22acba587e5b"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Pinecone's serverless architecture absorbs variable query load without pod provisioning decisions.",
+          "stance": "strength",
+          "evidence_ids": [
+            "87e628d85c5e1cd5d3ec58a45a79a94e"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Pinecone's serverless billing model compounds rapidly at 100 million vectors with high query throughput.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "181048b63af3ebdf6cb5359f99355071"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Pinecone's serverless architecture is architecturally superior to any provisioned-capacity model.",
+          "stance": "strength",
+          "evidence_ids": [
+            "102ecedfec915f945f12741512c0f7b5"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "Moving 100M vectors from Pinecone to Weaviate generates cloud provider egress fees.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "784dc6096e88d44252c147ae26f4d777"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "Pinecone Standard bills $0.33/GB storage and $16 per million read units where read units are counted per vector scanned during query execution, not per query.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "181048b63af3ebdf6cb5359f99355071"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "At 100 million vectors with high query throughput, Pinecone's per-scan billing model compounds rapidly.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "181048b63af3ebdf6cb5359f99355071"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Pinecone supports embedding models, including llama-text-embed-v2, multilingual-e5-large, and pinecone-sparse-english-v0.",
+          "stance": "strength",
+          "evidence_ids": [
+            "11dff53bdd4d2e3500ecaab727a0ec73"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Pinecone supports reranking models, including bge-reranker-v2-m3, pinecone-rerank-v0, and cohere-rerank-v3.5.",
+          "stance": "strength",
+          "evidence_ids": [
+            "11dff53bdd4d2e3500ecaab727a0ec73"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Pinecone supports up to 5 indexes per project.",
+          "stance": "strength",
+          "evidence_ids": [
+            "16f39b283318d466c73fe3f919c3859b"
+          ],
+          "strength": 2,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a managed SaaS architecture.",
+          "stance": "strength",
+          "evidence_ids": [
+            "10c52436264788dc5855cbb985a87c22"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a Marketplace with over 90 application templates and multi-domain routing, both in public preview.",
+          "stance": "strength",
+          "evidence_ids": [
+            "7450efc5474f4fb54b20dc75993ad9cb"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/05/27/vector-database-news-may-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a pricing plan called 'Builder' for solo developers and small teams, with a flat rate of $20/month.",
+          "stance": "strength",
+          "evidence_ids": [
+            "9ac13216f0b444d58f8381c250526938"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a limitation on metadata filters using $in or $nin operators, with a hard ceiling of 10,000 values.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "7450efc5474f4fb54b20dc75993ad9cb"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/05/27/vector-database-news-may-2026"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a new service called 'Pinecone Inference' that provides access to embedding and reranking models.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d4329bb1537501a2d5fcafdb4f10225a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a service called 'Pinecone Assistant' that allows building production-grade chat and agent-based applications quickly.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d4329bb1537501a2d5fcafdb4f10225a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a pricing model with a $50 monthly minimum, and anything over $50 is billed pay-as-you-go.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d4329bb1537501a2d5fcafdb4f10225a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a support system with various tiers of assistance, from community support to dedicated engineering resources.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d4329bb1537501a2d5fcafdb4f10225a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.pinecone.io/pricing/"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a native BM25 + dense vector hybrid search in a single API call.",
+          "stance": "strength",
+          "evidence_ids": [
+            "dd1bd50f26cace0ce48cd3ee4affe54c"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Pinecone has a limitation on the number of values in metadata filters using $in or $nin operators, which can cause silent production failures if not audited.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "7450efc5474f4fb54b20dc75993ad9cb"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/05/27/vector-database-news-may-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Weaviate",
+      "vertical": "database",
+      "extraction_metrics": {
+        "dimensions_total": 7,
+        "dimensions_empty": 0,
+        "malformed_dimensions": 0,
+        "claims_invalid": 0,
+        "claims_extracted": 41,
+        "groq_calls": 7,
+        "seconds": 854.5
+      },
+      "gate_metrics": {
+        "claims_total": 41,
+        "claims_dropped_uncited": 0,
+        "survival_rate": 1.0
+      },
+      "dimensions_total": 7,
+      "dimensions_covered": 7,
+      "dimension_coverage": 1.0,
+      "missing_dimensions": [],
+      "stance_split": {
+        "strength": 31,
+        "weakness": 10
+      },
+      "avg_strength": 4.15,
+      "claims": [
+        {
+          "dimension": "cost",
+          "claim": "Always free",
+          "stance": "strength",
+          "evidence_ids": [
+            "1f825d08dcf70d19e73f94d041c6e6f7",
+            "2495dff8f1b48ca59e47736977ed4da5"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate",
+            "https://weaviate.io/pricing"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Free Sandbox: Shared cluster, full hybrid search toolkit, community support. No SLA. Prototyping only.",
+          "stance": "strength",
+          "evidence_ids": [
+            "2495dff8f1b48ca59e47736977ed4da5"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Pricing at scale is an architectural decision.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1aea0611393b89f98887555f1acd324d"
+          ],
+          "strength": 2,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Pinecone's read unit billing is a critical detail that most cost comparisons omit: read units are charged per vector scanned during query execution not per query submitted.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "1aea0611393b89f98887555f1acd324d"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Weaviate's pricing applies a per-dimension-per-month rate at the applicable tier.",
+          "stance": "strength",
+          "evidence_ids": [
+            "2495dff8f1b48ca59e47736977ed4da5"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Dimension-based billing.",
+          "stance": "strength",
+          "evidence_ids": [
+            "2495dff8f1b48ca59e47736977ed4da5"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Weaviate Cloud uses usage-based pricing across three dimensions: vector dimensions stored, data storage, and backups.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d151e64c565214a1b48f1d22244fc12a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "cost",
+          "claim": "Annual commitments offer discounts.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d151e64c565214a1b48f1d22244fc12a"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate's Go-based server handled concurrency gracefully.",
+          "stance": "strength",
+          "evidence_ids": [
+            "71dc3e3c7904c62abb56383c9b9464bb"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate's memory management (with support for vector compression via Product Quantization) becomes a meaningful advantage at 1M+ vectors on a single node.",
+          "stance": "strength",
+          "evidence_ids": [
+            "71dc3e3c7904c62abb56383c9b9464bb"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate's distributed architecture starts to help as collection size grows, narrowing the gap with Chroma.",
+          "stance": "strength",
+          "evidence_ids": [
+            "71dc3e3c7904c62abb56383c9b9464bb"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate's native multi-tenancy enables tenant-level lifecycle management: active tenants in hot storage (RAM-backed), inactive tenants offloaded to warm or cold storage (AWS S3), reactivated automatically on query arrival.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate provides finer-grained resource control for multi-tenant architectures at scale.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate's tiered storage architecture changes the economics of large-scale multi-tenant deployments materially.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate runs BM25 and dense vector retrieval inside one engine.",
+          "stance": "strength",
+          "evidence_ids": [
+            "a17d0be7aded7b653705753c34aacd93"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate provides provisioned read capacity reserved nodes per index with no shared-queue contention for sustained high-throughput workloads.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "performance",
+          "claim": "Weaviate scales through cluster expansion on Kubernetes, distributing shards across nodes.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Weaviate scales through cluster expansion on Kubernetes. Horizontal scaling distributes shards across nodes.",
+          "stance": "strength",
+          "evidence_ids": [
+            "2495dff8f1b48ca59e47736977ed4da5",
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Weaviate's native multi-tenancy enables tenant-level lifecycle management: active tenants in hot storage (RAM-backed), inactive tenants offloaded to warm or cold storage (AWS S3), reactivated automatically on query arrival.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Weaviate provides finer-grained resource control for multi-tenant architectures at scale.",
+          "stance": "strength",
+          "evidence_ids": [
+            "891e0ee629ecf2c1c4e53ee8209440d6"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate"
+          ]
+        },
+        {
+          "dimension": "scalability",
+          "claim": "Weaviate's Kubernetes Helm chart now includes built-in horizontal pod autoscaling configurations for the query and data nodes separately.",
+          "stance": "strength",
+          "evidence_ids": [
+            "99f678afc9fa26162231c2975ff76547"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Weaviate's setup is unremarkable for developers who are already comfortable with infrastructure (Docker Compose, Kubernetes, Helm charts).",
+          "stance": "strength",
+          "evidence_ids": [
+            "ee093bf4e9bf70e10ee8d675bca21186"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Chroma's zero-config model is a genuine productivity multiplier for data scientists and ML engineers who live in Jupyter notebooks.",
+          "stance": "strength",
+          "evidence_ids": [
+            "ee093bf4e9bf70e10ee8d675bca21186"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Weaviate has more moving parts than Pinecone. The module system, GraphQL API, and configuration options give you power at the cost of simplicity.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "96ee92df6dbffd1c901728eeeb202011"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "simplicity",
+          "claim": "Self-hosting Weaviate can be an adventure. The resource requirements are non-trivial, and tuning it for production workloads requires understanding its HNSW implementation at a level most teams aren\u2019t prepared for.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "96ee92df6dbffd1c901728eeeb202011"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "Vendor lock-in: proprietary API, no self-hosting option",
+          "stance": "weakness",
+          "evidence_ids": [
+            "c4137faa4c841e05dec848840c287f3a"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://u-cloud24.com/blog/vector-databases-guide"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "Cost at scale: serverless pricing is economical for < 10M vectors; pod-based becomes expensive at billions",
+          "stance": "weakness",
+          "evidence_ids": [
+            "c4137faa4c841e05dec848840c287f3a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://u-cloud24.com/blog/vector-databases-guide"
+          ]
+        },
+        {
+          "dimension": "lock_in_risk",
+          "claim": "No native hybrid search: requires application-level BM25 fusion for keyword + vector queries",
+          "stance": "weakness",
+          "evidence_ids": [
+            "c4137faa4c841e05dec848840c287f3a"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://u-cloud24.com/blog/vector-databases-guide"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Weaviate combines dense vector search with BM25 keyword search in a single query.",
+          "stance": "strength",
+          "evidence_ids": [
+            "45e4d1c2cda4cf1c246f09a34487e388"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "You can plug in vectorization modules that automatically convert text, images, or other data into vectors at ingestion time.",
+          "stance": "strength",
+          "evidence_ids": [
+            "298fdcdef516888c47b7b43184a7d2f3"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Weaviate's vectorizer modules can automatically generate embeddings from text, images, and other data using services like OpenAI, Cohere, or HuggingFace.",
+          "stance": "strength",
+          "evidence_ids": [
+            "860e92a0b6854855f59bfc82b538dc96"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "vector_capability",
+          "claim": "Hybrid search catches what pure vector search misses.",
+          "stance": "strength",
+          "evidence_ids": [
+            "45e4d1c2cda4cf1c246f09a34487e388"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate handles complex applications that need more than vanilla similarity search.",
+          "stance": "strength",
+          "evidence_ids": [
+            "06896db5953adee0d0231cf1b7a6d19e"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's GraphQL API has matured into something genuinely powerful for complex queries.",
+          "stance": "strength",
+          "evidence_ids": [
+            "06896db5953adee0d0231cf1b7a6d19e"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate can handle vectorization for you, eliminating the need for an embedding step in your code.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d151e64c565214a1b48f1d22244fc12a"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's module system includes rankers, generators, and readers, which are pluggable and can be enabled as needed.",
+          "stance": "strength",
+          "evidence_ids": [
+            "d151e64c565214a1b48f1d22244fc12a"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate Cloud uses usage-based pricing across three dimensions: vector dimensions stored, data storage, and backups.",
+          "stance": "strength",
+          "evidence_ids": [
+            "554dc44478074d2093500cf015adb37c"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's hybrid search allows for blending keyword and semantic relevance in a single query.",
+          "stance": "strength",
+          "evidence_ids": [
+            "554dc44478074d2093500cf015adb37c"
+          ],
+          "strength": 5,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's self-hosting option is free, but requires understanding its HNSW implementation at a level most teams aren\u2019t prepared for.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "06896db5953adee0d0231cf1b7a6d19e"
+          ],
+          "strength": 3,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's resource requirements are non-trivial, and tuning it for production workloads requires significant expertise.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "06896db5953adee0d0231cf1b7a6d19e"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606"
+          ]
+        },
+        {
+          "dimension": "ecosystem",
+          "claim": "Weaviate's GraphQL API has a learning curve that can be unfamiliar to many engineers.",
+          "stance": "weakness",
+          "evidence_ids": [
+            "d151e64c565214a1b48f1d22244fc12a"
+          ],
+          "strength": 4,
+          "source_urls": [
+            "https://pecollective.com/tools/weaviate"
+          ]
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "claims_total": 102,
+    "claims_survived": 91,
+    "overall_survival_rate": 0.892,
+    "dimensions_total": 21,
+    "dimensions_covered": 18,
+    "overall_dimension_coverage": 0.857,
+    "total_groq_calls": 23,
+    "wall_seconds": 1387.6
+  },
+  "acceptance": {
+    "survival_bar": 0.9,
+    "coverage_bar": 1.0,
+    "survival_pass": false,
+    "coverage_pass": false,
+    "overall_pass": false
+  }
+}

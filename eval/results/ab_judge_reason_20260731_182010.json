@@ -1,0 +1,52 @@
+{
+  "captured_at": "2026-07-31T18:20:10.000000+00:00",
+  "experiment": "ab_judge_reason_guidance",
+  "before_file": "eval/results/ab_judge_reason_before_20260731_171732.json",
+  "variants": {
+    "v1_no_reason_guidance": {
+      "mean_reason_length": 63.29,
+      "note": "baseline judge prompt, no 'complete sentence' guidance"
+    },
+    "v1_no_reason_guidance_control": {
+      "mean_reason_length": 63.29,
+      "note": "same-prompt re-run produced byte-identical reason strings, confirming the v1->v2 delta is prompt-attributable, not sampling noise"
+    },
+    "v2_complete_sentence_guidance": {
+      "mean_reason_length_raw": 157.1,
+      "mean_reason_length_after_label_strip": 133.1,
+      "note": "judge prompt updated to require complete-sentence reason/summary text"
+    }
+  },
+  "per_dimension_reason_length": {
+    "cost":               {"before": 23, "after_clean": 23},
+    "performance":         {"before": 73, "after_clean": 166},
+    "scalability":         {"before": 73, "after_clean": 222},
+    "simplicity":          {"before": 70, "after_clean": 181},
+    "lock_in_risk":        {"before": 59, "after_clean": 168},
+    "vector_capability":   {"before": 62, "after_clean": 80},
+    "ecosystem":           {"before": 83, "after_clean": 92}
+  },
+  "winner_confidence_stability": {
+    "winner": "Weaviate",
+    "confidence_pct": 57,
+    "dimensions_won": "4-of-7",
+    "stable_across_runs": 3,
+    "note": "winner/confidence/dimension-win-count identical across v1, v1-control, and v2 runs — no consistency regression"
+  },
+  "label_noise_in_v2_raw_output": {
+    "chars": 168,
+    "pct_of_output_text": 15,
+    "examples": [
+      "Weaviate is always free, as stated in claim C55",
+      "Weaviate combines dense vector search with BM25 keyword search in a single query, as stated in claim C75",
+      "Weaviate is the overall winner due to its always-free pricing, as stated in claim C55, and its ability to handle complex applications, as stated in claim C79",
+      "Pinecone's performance is superior, as stated in claim C32"
+    ],
+    "note": "motivated the deterministic label strip in heads/citations.py::strip_claim_refs"
+  },
+  "decision": "ship v2 prompt (complete-sentence reason/summary guidance) + deterministic label strip (heads/citations.py::strip_claim_refs, applied at the same resolve_claim_ids call site for all three heads)",
+  "limitations": [
+    "the cost dimension improved +0 chars (23->23) because its source claim ('Weaviate is always free') is itself short and factually wrong — a judge-prompt wording change cannot fix claim quality; that belongs to the extractor/gate, not the judge heads",
+    "mean reason length is a proxy for completeness, not a correctness metric — the label strip removes prose noise but does not itself verify the underlying claim"
+  ]
+}

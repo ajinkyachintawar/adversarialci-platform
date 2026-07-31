@@ -187,7 +187,12 @@ RED-TEAM TRANSCRIPT:
 Return a SellerVerdict JSON. advantages/vulnerabilities/objections/landmines
 must each cite claim_ids using only the labels shown above (e.g. ["C3"]) —
 never invent one. win_probability (0-100) should reflect claim strengths and
-how well objections were answered.
+how well objections were answered. Each `text`, `objection`, and `response`
+must be a complete sentence: if it restates a claim, restate it in full,
+keeping the comparison target and any numbers — never stop mid-comparison.
+talk_tracks and do_not_say are spoken lines: keep them short, but each must
+be a complete, specific line — not a truncated fragment.
+Put claim ids ONLY in claim_ids fields — never mention them in prose.
 Return ONLY JSON, no markdown fences:
 {{"mode": "seller", "my_company": "{my_company}", "win_probability": 50,
   "advantages": [{{"text": "...", "claim_ids": ["C1"]}}],

@@ -1,0 +1,88 @@
+{
+  "captured_at": "2026-07-31T16:17:32.814922+00:00",
+  "variant": "v1_no_reason_guidance",
+  "report_id": "buyer_report_20260731_161109",
+  "mode": "buyer",
+  "companies": [
+    "MongoDB",
+    "Pinecone",
+    "Weaviate"
+  ],
+  "verdict_json": {
+    "mode": "buyer",
+    "winner": "Weaviate",
+    "confidence": 57,
+    "per_dimension": [
+      {
+        "dimension": "cost",
+        "winner": "Weaviate",
+        "reason": "Weaviate is always free",
+        "evidence_ids": [
+          "cda880a615c84b2333f3e8162972d94d"
+        ]
+      },
+      {
+        "dimension": "performance",
+        "winner": "Pinecone",
+        "reason": "Pinecone's Dedicated Read Nodes architecture produces verified benchmarks",
+        "evidence_ids": [
+          "7cc7c3fd4a64fcd0bfc6fe34fd4db067"
+        ]
+      },
+      {
+        "dimension": "scalability",
+        "winner": "Weaviate",
+        "reason": "Weaviate's native multi-tenancy enables tenant-level lifecycle management",
+        "evidence_ids": [
+          "891e0ee629ecf2c1c4e53ee8209440d6"
+        ]
+      },
+      {
+        "dimension": "simplicity",
+        "winner": "Pinecone",
+        "reason": "Pinecone was engineered for teams that treat the database as a service",
+        "evidence_ids": [
+          "102ecedfec915f945f12741512c0f7b5"
+        ]
+      },
+      {
+        "dimension": "lock_in_risk",
+        "winner": "MongoDB",
+        "reason": "MongoDB's 'scale-out' approach is often more cost-effective",
+        "evidence_ids": [
+          "207e6e0ed7c50f2d0362ffce8ba2874c"
+        ]
+      },
+      {
+        "dimension": "vector_capability",
+        "winner": "Weaviate",
+        "reason": "Weaviate combines dense vector search with BM25 keyword search",
+        "evidence_ids": [
+          "45e4d1c2cda4cf1c246f09a34487e388"
+        ]
+      },
+      {
+        "dimension": "ecosystem",
+        "winner": "Weaviate",
+        "reason": "Weaviate handles complex applications that need more than vanilla similarity search",
+        "evidence_ids": [
+          "06896db5953adee0d0231cf1b7a6d19e"
+        ]
+      }
+    ],
+    "summary": "Weaviate is the overall winner due to its strong vector capability and scalability",
+    "caveats": [
+      "Pinecone's performance is superior, but its cost model may not be suitable for all use cases"
+    ]
+  },
+  "reason_lengths": {
+    "cost": 23,
+    "performance": 73,
+    "scalability": 73,
+    "simplicity": 70,
+    "lock_in_risk": 59,
+    "vector_capability": 62,
+    "ecosystem": 83
+  },
+  "mean_reason_length": 63.285714285714285
+}
