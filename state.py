@@ -36,6 +36,7 @@ class WarRoomState(TypedDict):
     # ─── Meta ───
     errors: list[str]               # Error tracking
     stage: str                      # Current pipeline stage
+    report_id: Optional[str]        # v2: report id the runner persisted (redirect target)
 
 
 def create_initial_state(vertical: str = "database", mode: str = "buyer") -> WarRoomState:
@@ -74,7 +75,8 @@ def create_initial_state(vertical: str = "database", mode: str = "buyer") -> War
         
         # Meta
         "errors": [],
-        "stage": "init"
+        "stage": "init",
+        "report_id": None,
     }
 
 

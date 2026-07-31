@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Copy, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useReport } from '../hooks/useApi';
+import { authFetch } from '../lib/api';
 import {
     parseReport,
     extractWinner,
@@ -107,11 +108,23 @@ export default function ReportView() {
             </div>
         );
     }
-    if (!content) {
+    if (!content && !data?.verdict_json) {
         return (
             <div style={{ padding: '36px 44px', color: 'var(--text-3)', fontSize: 14 }}>
                 Report not found.
             </div>
+        );
+    }
+
+    if (data?.verdict_json) {
+        return (
+            <VerdictJsonReport
+                verdict={data.verdict_json}
+                consistency={data.consistency}
+                profile={data.plaintiff}
+                companies={data.companies}
+                navigate={navigate}
+            />
         );
     }
 
@@ -1275,3 +1288,533 @@ const mdComponents = {
         }}>{p.children}</td>
     ),
 };
+
+/* ─── verdict_json rendering (Phase 2 heads output) ─────────── */
+
+interface DimensionVerdictJson { dimension: string; winner: string; reason: string; evidence_ids: string[] }
+interface BuyerVerdictJson {
+    mode: 'buyer'; winner: string; confidence: number;
+    per_dimension: DimensionVerdictJson[]; summary: string; caveats: string[];
+}
+interface CitedItemJson { text: string; evidence_ids: string[] }
+interface ObjectionJson { objection: string; response: string; evidence_ids: string[] }
+interface SellerVerdictJson {
+    mode: 'seller'; my_company: string; win_probability: number;
+    advantages: CitedItemJson[]; vulnerabilities: CitedItemJson[]; objections: ObjectionJson[];
+    landmines: CitedItemJson[]; talk_tracks: string[]; do_not_say: string[];
+}
+interface DimensionScoreJson { score: number; reason: string; evidence_ids: string[] }
+interface AnalystVerdictJson {
+    mode: 'analyst'; matrix: Record<string, Record<string, DimensionScoreJson>>; summary: string;
+}
+type VerdictJson = BuyerVerdictJson | SellerVerdictJson | AnalystVerdictJson;
+
+interface ChunkData { text: string; source_url: string; source_type: string; company: string }
+// ponytail: module-level cache, one process lifetime — fine for a report page, add TTL/eviction if this grows unbounded
+const chunkCache = new Map<string, ChunkData | null>();
+
+function useChunk(hash: string) {
+    const cached = chunkCache.get(hash);
+    const [state, setState] = useState<{ status: 'idle' | 'loading' | 'ready' | 'error'; data?: ChunkData }>(
+        cached === undefined ? { status: 'idle' } : cached ? { status: 'ready', data: cached } : { status: 'error' }
+    );
+    const load = () => {
+        if (state.status !== 'idle') return;
+        setState({ status: 'loading' });
+        authFetch(`/api/chunks/${hash}`)
+            .then(async r => {
+                if (!r.ok) { chunkCache.set(hash, null); setState({ status: 'error' }); return; }
+                const chunk = await r.json();
+                chunkCache.set(hash, chunk);
+                setState({ status: 'ready', data: chunk });
+            })
+            .catch(() => { chunkCache.set(hash, null); setState({ status: 'error' }); });
+    };
+    return { ...state, load };
+}
+
+function CitationChip({ hash, index }: { hash: string; index: number }) {
+    const { status, data, load } = useChunk(hash);
+    const [open, setOpen] = useState(false);
+    return (
+        <span
+            style={{ position: 'relative', display: 'inline-block' }}
+            onMouseEnter={() => { load(); setOpen(true); }}
+            onMouseLeave={() => setOpen(false)}
+        >
+            <span
+                onClick={() => { load(); setOpen(o => !o); }}
+                style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: 17, height: 17, borderRadius: '50%', fontSize: 9.5, fontWeight: 700,
+                    background: 'var(--accent-12)', color: 'var(--accent)', cursor: 'pointer',
+                    fontFamily: 'var(--font-mono)', marginLeft: 3, verticalAlign: 'middle',
+                }}
+            >{index}</span>
+            {open && (
+                <div style={{
+                    position: 'absolute', bottom: '135%', left: 0, zIndex: 20,
+                    width: 260, background: 'var(--surface-2)', border: '1px solid var(--line-2)',
+                    borderRadius: 10, padding: 12, fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                }}>
+                    {status === 'loading' && <span style={{ color: 'var(--text-3)' }}>Loading…</span>}
+                    {status === 'error' && <span style={{ color: 'var(--text-3)' }}>Source unavailable</span>}
+                    {status === 'ready' && data && (
+                        <>
+                            <a href={data.source_url} target="_blank" rel="noreferrer" style={{
+                                color: 'var(--accent)', fontWeight: 700, fontSize: 11.5, wordBreak: 'break-all',
+                            }}>{data.source_url}</a>
+                            <div style={{ color: 'var(--text-2)', marginTop: 6, lineHeight: 1.5 }}>
+                                {data.text.slice(0, 220)}{data.text.length > 220 ? '…' : ''}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+        </span>
+    );
+}
+
+function CitationChips({ evidenceIds }: { evidenceIds: string[] }) {
+    if (!evidenceIds?.length) return null;
+    return (
+        <span style={{ display: 'inline-flex', gap: 1 }}>
+            {evidenceIds.map((h, i) => <CitationChip key={h + i} hash={h} index={i + 1} />)}
+        </span>
+    );
+}
+
+function ConsistencyBanner({ failures }: { failures: string[] }) {
+    return (
+        <div style={{
+            background: 'var(--warn-15)', border: '1px solid var(--warn-30)',
+            borderRadius: 12, padding: '14px 18px', marginBottom: 20,
+        }}>
+            <div style={{
+                fontSize: 13, fontWeight: 700, color: 'var(--warn)',
+                marginBottom: failures?.length ? 6 : 0,
+            }}>⚠ Consistency check flagged this report</div>
+            {failures?.length > 0 && (
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: 'var(--text-2)', lineHeight: 1.6 }}>
+                    {failures.map((f, i) => <li key={i}>{f}</li>)}
+                </ul>
+            )}
+        </div>
+    );
+}
+
+type Profile = Record<string, string>;
+
+const PROSPECT_FIELDS: { key: string; label: string }[] = [
+    { key: 'company_name', label: 'Company' },
+    { key: 'team_size', label: 'Team' },
+    { key: 'budget', label: 'Budget' },
+    { key: 'use_case', label: 'Use case' },
+    { key: 'scale', label: 'Scale' },
+    { key: 'cloud', label: 'Cloud' },
+    { key: 'priority', label: 'Priority' },
+];
+
+// Mirrors heads/schemas.py::names_match — tolerant company-name matching
+// (case/whitespace-insensitive, either-contains-the-other). Backend confidence
+// and consistency checks are computed with that function, so the UI must use
+// the same rule or numbers shown together can contradict each other. Keep in sync.
+function namesMatch(a: string, b: string): boolean {
+    const na = (a ?? '').trim().toLowerCase();
+    const nb = (b ?? '').trim().toLowerCase();
+    if (!na || !nb) return na === nb;
+    return na === nb || na.includes(nb) || nb.includes(na);
+}
+
+function reportTitle(verdict: VerdictJson, companies?: string[]): string {
+    const all = companies || [];
+    if (verdict.mode === 'seller') {
+        const rivals = all.filter(c => !namesMatch(c, verdict.my_company));
+        return rivals.length ? `Battlecard — ${verdict.my_company} vs ${rivals.join(', ')}`
+                             : `Battlecard — ${verdict.my_company}`;
+    }
+    if (verdict.mode === 'buyer') return all.length ? `Buyer report — ${all.join(' vs ')}` : 'Buyer report';
+    return all.length ? `Analyst comparison — ${all.join(', ')}` : 'Analyst comparison';
+}
+
+function sellerPosition(wp: number): { label: string; note: string; color: string } {
+    if (wp >= 70) return { label: 'Strong position', color: 'var(--success)',
+        note: 'You lead — protect it. Anchor on your cited advantages and pre-empt the objections below.' };
+    if (wp >= 50) return { label: 'Competitive', color: 'var(--accent)',
+        note: 'Winnable but contested. Lead with differentiation and neutralize the landmines early.' };
+    return { label: 'Underdog', color: 'var(--warn)',
+        note: 'Behind on paper. Reframe the evaluation around your cited strengths, away from the priority you lose.' };
+}
+
+function TargetProspect({ profile }: { profile?: Profile }) {
+    if (!profile) return null;
+    const fields = PROSPECT_FIELDS.filter(f => (profile[f.key] || '').trim());
+    if (!fields.length) return null;
+    return (
+        <div style={{
+            background: 'var(--surface-1)', border: '1px solid var(--line)', borderRadius: 14,
+            padding: '16px 20px', marginBottom: 24,
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 14,
+        }}>
+            {fields.map(f => (
+                <div key={f.key}>
+                    <div style={{
+                        fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
+                        color: 'var(--text-3)', marginBottom: 3,
+                    }}>{f.label}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.4 }}>{profile[f.key]}</div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function DealSummary({ rows }: { rows: [string, string][] }) {
+    return (
+        <>
+            <h2 style={sectionHeadingStyle}>Summary</h2>
+            <div style={{
+                background: 'var(--surface-1)', border: '1px solid var(--line)',
+                borderRadius: 14, padding: '10px 20px', marginBottom: 40,
+            }}>
+                {rows.map(([k, val], i) => (
+                    <div key={k} style={{
+                        display: 'flex', justifyContent: 'space-between', gap: 16, padding: '10px 0', fontSize: 13,
+                        borderBottom: i === rows.length - 1 ? 'none' : '1px solid var(--surface-3)',
+                    }}>
+                        <span style={{ color: 'var(--text-3)' }}>{k}</span>
+                        <span style={{ color: 'var(--text-2)', fontWeight: 600, textAlign: 'right' }}>{val}</span>
+                    </div>
+                ))}
+            </div>
+        </>
+    );
+}
+
+function VerdictJsonReport({
+    verdict, consistency, profile, companies, navigate,
+}: {
+    verdict: VerdictJson;
+    consistency?: { passed: boolean; failures: string[] };
+    profile?: Profile;
+    companies?: string[];
+    navigate: (path: string) => void;
+}) {
+    const [copied, setCopied] = useState(false);
+    const jsonText = JSON.stringify(verdict, null, 2);
+    const handleCopy = () => {
+        navigator.clipboard.writeText(jsonText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+    const handleDownload = () => {
+        const blob = new Blob([jsonText], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${verdict.mode}_verdict.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    return (
+        <div style={{ padding: '36px 44px', maxWidth: 980 }} className="animate-fade-in">
+            <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6,
+            }}>
+                <span onClick={() => navigate('/history')} style={{ fontSize: 13, color: 'var(--text-3)', cursor: 'pointer' }}>
+                    ← Back to history
+                </span>
+                <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-3)' }}>{verdict.mode}</span>
+            </div>
+
+            <div style={{
+                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                gap: 12, margin: '14px 0 24px',
+            }}>
+                <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>
+                    {reportTitle(verdict, companies)}
+                </h1>
+                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                    <button onClick={handleCopy} style={{
+                        display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+                        background: 'var(--surface-3)', border: '1px solid var(--line-2)', borderRadius: 8,
+                        color: 'var(--text)', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    }}><Copy size={13} /> {copied ? 'Copied!' : 'Copy'}</button>
+                    <button onClick={handleDownload} style={{
+                        display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+                        background: 'var(--accent)', border: 'none', borderRadius: 8, color: 'var(--bg)',
+                        fontFamily: 'inherit', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    }}><Download size={13} /> Download</button>
+                </div>
+            </div>
+
+            {consistency && consistency.passed === false && (
+                <ConsistencyBanner failures={consistency.failures || []} />
+            )}
+
+            <TargetProspect profile={profile} />
+
+            {verdict.mode === 'buyer' && <BuyerVerdictBody v={verdict} companies={companies} />}
+            {verdict.mode === 'seller' && <SellerVerdictBody v={verdict} companies={companies} />}
+            {verdict.mode === 'analyst' && <AnalystVerdictBody v={verdict} />}
+        </div>
+    );
+}
+
+function BuyerVerdictBody({ v, companies }: { v: BuyerVerdictJson; companies?: string[] }) {
+    const dimsWon = v.per_dimension.filter(d => namesMatch(d.winner, v.winner)).length;
+    return (
+        <>
+            <WinnerCard winner={v.winner} confidence={v.confidence} summary={v.summary} />
+
+            <h2 style={sectionHeadingStyle}>Dimension breakdown</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+                {v.per_dimension.map(d => (
+                    <div key={d.dimension} style={{
+                        background: 'var(--surface-1)', border: '1px solid var(--line)',
+                        borderRadius: 12, padding: '14px 16px',
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+                            <span style={{
+                                fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+                                color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.04em',
+                            }}>{d.dimension}</span>
+                            <span style={{
+                                fontSize: 11, padding: '2px 8px', borderRadius: 100,
+                                background: 'var(--success-15)', color: 'var(--success)', fontWeight: 700,
+                            }}>Winner: {d.winner}</span>
+                        </div>
+                        <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)' }}>
+                            {d.reason}<CitationChips evidenceIds={d.evidence_ids} />
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {v.caveats.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Caveats</h2>
+                    <div style={{
+                        background: 'var(--surface-1)', border: '1px solid var(--line)',
+                        borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+                    }}>
+                        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: 'var(--text-2)', lineHeight: 1.7 }}>
+                            {v.caveats.map((c, i) => <li key={i}>{c}</li>)}
+                        </ul>
+                    </div>
+                </>
+            )}
+
+            <DealSummary rows={[
+                ['Recommended winner', v.winner],
+                ['Confidence', `${v.confidence}%`],
+                ['Dimensions won', `${dimsWon}/${v.per_dimension.length}`],
+                ...(companies?.length ? [['Compared', companies.join(', ')] as [string, string]] : []),
+            ]} />
+        </>
+    );
+}
+
+function SellerVerdictBody({ v, companies }: { v: SellerVerdictJson; companies?: string[] }) {
+    const pos = sellerPosition(v.win_probability);
+    const rivals = (companies || []).filter(c => !namesMatch(c, v.my_company));
+    return (
+        <>
+            <div style={{
+                background: 'linear-gradient(135deg, var(--accent-12), var(--surface-1))',
+                border: '1px solid var(--accent-30)', borderRadius: 18, padding: 28, marginBottom: 24,
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
+                    <div style={{ flex: 1 }}>
+                        <div style={{
+                            fontSize: 12, color: 'var(--accent)', fontWeight: 700,
+                            textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4,
+                        }}>Can you win?</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.01em' }}>{v.my_company}</div>
+                    </div>
+                    <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 30, fontWeight: 700, color: pos.color }}>
+                            {v.win_probability}%
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)' }}>win probability</div>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 16 }}>
+                    <span style={{
+                        fontSize: 12, fontWeight: 800, color: 'var(--bg)', background: pos.color,
+                        padding: '3px 10px', borderRadius: 100, flexShrink: 0,
+                    }}>{pos.label.toUpperCase()}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.5 }}>{pos.note}</span>
+                </div>
+            </div>
+
+            {(v.advantages.length > 0 || v.vulnerabilities.length > 0) && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Advantages &amp; vulnerabilities</h2>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: v.advantages.length > 0 && v.vulnerabilities.length > 0 ? 'repeat(2, 1fr)' : '1fr',
+                        gap: 14, marginBottom: 28, alignItems: 'start',
+                    }}>
+                        {v.advantages.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {v.advantages.map((a, i) => (
+                                    <div key={i} style={{
+                                        background: 'var(--surface-1)', border: '1px solid var(--success-30)',
+                                        borderRadius: 12, padding: '14px 16px', fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)',
+                                    }}>{a.text}<CitationChips evidenceIds={a.evidence_ids} /></div>
+                                ))}
+                            </div>
+                        )}
+                        {v.vulnerabilities.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {v.vulnerabilities.map((vu, i) => (
+                                    <div key={i} style={{
+                                        background: 'var(--surface-1)', border: '1px solid var(--warn-30)',
+                                        borderRadius: 12, padding: '14px 16px', fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)',
+                                    }}>{vu.text}<CitationChips evidenceIds={vu.evidence_ids} /></div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
+            {v.talk_tracks.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Talk track</h2>
+                    <div style={{
+                        background: 'var(--surface-1)', border: '1px solid var(--line)',
+                        borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+                    }}>
+                        {v.talk_tracks.map((t, i) => (
+                            <div key={i} style={{
+                                display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 0',
+                                borderBottom: i === v.talk_tracks.length - 1 ? 'none' : '1px solid var(--surface-3)',
+                            }}>
+                                <span style={{
+                                    width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+                                    background: 'var(--accent-12)', color: 'var(--accent)',
+                                    fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>{i + 1}</span>
+                                <span style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>{t}</span>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {v.landmines.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Landmines to plant</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+                        {v.landmines.map((l, i) => (
+                            <div key={i} style={{
+                                background: 'var(--surface-1)', border: '1px solid var(--warn-30)',
+                                borderRadius: 12, padding: '14px 16px', fontSize: 13, lineHeight: 1.6, color: 'var(--text-2)',
+                            }}>{l.text}<CitationChips evidenceIds={l.evidence_ids} /></div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {v.objections.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Objection handling</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+                        {v.objections.map((o, i) => (
+                            <div key={i} style={{
+                                background: 'var(--surface-1)', border: '1px solid var(--line)',
+                                borderRadius: 12, padding: '14px 16px',
+                            }}>
+                                <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>{o.objection}</div>
+                                <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 6 }}>
+                                    → {o.response}<CitationChips evidenceIds={o.evidence_ids} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {v.do_not_say.length > 0 && (
+                <>
+                    <h2 style={sectionHeadingStyle}>Do not say</h2>
+                    <div style={{
+                        background: 'var(--surface-1)', border: '1px solid var(--danger-30)',
+                        borderRadius: 14, padding: '18px 20px', marginBottom: 28,
+                    }}>
+                        <ul style={{ margin: 0, paddingLeft: 20, color: 'var(--text-2)', fontSize: 13, lineHeight: 1.8 }}>
+                            {v.do_not_say.map((it, i) => <li key={i}>{it}</li>)}
+                        </ul>
+                    </div>
+                </>
+            )}
+
+            <DealSummary rows={[
+                ['You are', pos.label],
+                ['Win probability', `${v.win_probability}%`],
+                ['Selling', v.my_company],
+                ...(rivals.length ? [['Main competitor', rivals[0]] as [string, string]] : []),
+            ]} />
+        </>
+    );
+}
+
+function AnalystVerdictBody({ v }: { v: AnalystVerdictJson }) {
+    const companies = Object.keys(v.matrix);
+    const dimensions = Array.from(new Set(companies.flatMap(c => Object.keys(v.matrix[c] || {}))));
+    return (
+        <>
+            {v.summary && (
+                <div style={{
+                    background: 'var(--surface-1)', border: '1px solid var(--line)',
+                    borderRadius: 18, padding: 24, marginBottom: 24, fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6,
+                }}>{v.summary}</div>
+            )}
+
+            <h2 style={sectionHeadingStyle}>Comparison matrix</h2>
+            <div style={{
+                background: 'var(--surface-1)', border: '1px solid var(--line)',
+                borderRadius: 14, padding: '18px 20px', marginBottom: 28, overflowX: 'auto',
+            }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                        <tr>
+                            <th style={matrixThStyle}>Dimension</th>
+                            {companies.map(c => <th key={c} style={matrixThStyle}>{c}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {dimensions.map(dim => (
+                            <tr key={dim}>
+                                <td style={{ ...matrixTdStyle, color: 'var(--text-2)' }}>{dim}</td>
+                                {companies.map(c => {
+                                    const cell = v.matrix[c]?.[dim];
+                                    return (
+                                        <td key={c} style={matrixTdStyle}>
+                                            {cell ? (
+                                                <div>
+                                                    <span style={{
+                                                        fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
+                                                        color: 'var(--accent)',
+                                                    }}>{cell.score}/10</span>
+                                                    <CitationChips evidenceIds={cell.evidence_ids} />
+                                                    {cell.reason && (
+                                                        <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 3 }}>{cell.reason}</div>
+                                                    )}
+                                                </div>
+                                            ) : <span style={{ color: 'var(--text-4)' }}>—</span>}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </>
+    );
+}

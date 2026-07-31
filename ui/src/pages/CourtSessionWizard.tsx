@@ -436,6 +436,7 @@ function Step1({
                 }}>
                     {vendors.map(v => {
                         const checked = selectedIds.includes(v.name);
+                        const isYou = mode === 'seller' && v.name === selectedIds[0];
                         const docTotal = v.atlas?.research_count ?? 0;
                         const fresh = v.atlas?.status ?? 'new';
                         return (
@@ -459,9 +460,21 @@ function Step1({
                                 }}>{checked ? '✓' : ''}</div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{
-                                        fontSize: 14, fontWeight: 700,
-                                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                                    }}>{v.name}</div>
+                                        display: 'flex', alignItems: 'center', gap: 8,
+                                        overflow: 'hidden',
+                                    }}>
+                                        <span style={{
+                                            fontSize: 14, fontWeight: 700,
+                                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                        }}>{v.name}</span>
+                                        {isYou && (
+                                            <span style={{
+                                                fontSize: 10, fontWeight: 800, letterSpacing: '0.05em',
+                                                color: 'var(--bg)', background: 'var(--accent)',
+                                                padding: '2px 7px', borderRadius: 100, flexShrink: 0,
+                                            }}>YOU</span>
+                                        )}
+                                    </div>
                                     <div style={{ fontSize: 11, color: 'var(--text-3)' }}>
                                         {docTotal} docs · {fresh}
                                     </div>

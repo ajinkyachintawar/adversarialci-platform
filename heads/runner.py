@@ -106,7 +106,9 @@ def run_v2(state: dict) -> dict:
     from db.atlas import connect, get_collection
     connect()
     col = get_collection("court_sessions")
+    report_id = f"{mode}_report_{datetime.utcnow():%Y%m%d_%H%M%S}"
     doc = {
+        "report_id": report_id,
         "mode": mode,
         "vertical": vertical,
         "plaintiff": plaintiff,
@@ -143,6 +145,7 @@ def run_v2(state: dict) -> dict:
         **state,
         "verdict": {"overall_winner": winner, "confidence": confidence_display,
                     "verdict_json": verdict.model_dump(), "consistency": result},
+        "report_id": report_id,
         "stage": "complete",
     }
 
