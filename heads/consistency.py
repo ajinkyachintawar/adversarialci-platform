@@ -13,7 +13,12 @@ was built from:
   (round(100 * dims_won_by_winner / len(per_dimension)));
   no duplicate dimensions in per_dimension;
 - seller: 0 <= win_probability <= 100; every objection has a non-empty
-  response;
+  response; when an objection has BOTH objection_evidence_ids and
+  response_evidence_ids populated, their claims' dimensions must overlap
+  (catches a cost objection answered with a performance stat — skipped when
+  either list is empty, since old sessions/re-asks legitimately lack them);
+  identical (normalized) text must not be reused verbatim across different
+  sections (advantages/vulnerabilities/objections.response/landmines);
 - analyst: matrix covers every company x every vertical dimension;
   score > 0 implies non-empty evidence_ids.
 
@@ -108,14 +113,86 @@ def _check_buyer(verdict: dict) -> list[str]:
     return failures
 
 
-def _check_seller(verdict: dict) -> list[str]:
+def _evidence_id_to_dimensions(claims_by_company: dict) -> dict[str, set]:
+    """evidence_id -> set of dimensions of every claim that cites it (a
+    chunk can back claims of more than one dimension, so this is a set,
+    not a single value)."""
+    mapping: dict[str, set] = {}
+    for claims in claims_by_company.values():
+        for c in claims:
+            dim = c.get("dimension")
+            if not dim:
+                continue
+            for eid in c.get("evidence_ids", []):
+                mapping.setdefault(eid, set()).add(dim)
+    return mapping
+
+
+def _normalize_text(text: str) -> str:
+    return " ".join((text or "").strip().lower().split())
+
+
+def _check_seller(verdict: dict, claims_by_company: dict) -> list[str]:
     failures = []
     wp = verdict.get("win_probability")
     if not isinstance(wp, int) or not (0 <= wp <= 100):
         failures.append(f"win_probability {wp} not an int in [0, 100]")
+
+    eid_to_dims = _evidence_id_to_dimensions(claims_by_company)
+
+    def dims_for(evidence_ids: list) -> set:
+        dims = set()
+        for eid in evidence_ids or []:
+            dims |= eid_to_dims.get(eid, set())
+        return dims
+
     for i, o in enumerate(verdict.get("objections", [])):
         if not o.get("response", "").strip():
             failures.append(f"objection[{i}] '{o.get('objection')}' has no response")
+
+        # (a) dimension coherence — skip when either list is empty: old
+        # sessions and re-asks legitimately lack the split fields, and a
+        # check that fires on missing data is noise, not signal.
+        obj_ids = o.get("objection_evidence_ids") or []
+        resp_ids = o.get("response_evidence_ids") or []
+        if obj_ids and resp_ids:
+            obj_dims = dims_for(obj_ids)
+            resp_dims = dims_for(resp_ids)
+            if obj_dims and resp_dims and obj_dims.isdisjoint(resp_dims):
+                failures.append(
+                    f"objection[{i}] '{o.get('objection')}' is about "
+                    f"{sorted(obj_dims)} but response '{o.get('response')}' "
+                    f"cites {sorted(resp_dims)} — response answers a "
+                    f"different dimension than the objection raised")
+
+    # (b) cross-section duplicate text: the same normalized sentence reused
+    # verbatim across different sections (advantages/vulnerabilities/
+    # objections[].response/landmines) is very likely a copy-paste, not a
+    # coincidence — near-duplicates are out of scope, only exact matches
+    # (post strip/lowercase/whitespace-collapse) are flagged.
+    sections: list[tuple[str, str]] = []
+    for item in verdict.get("advantages", []):
+        sections.append(("advantages", item.get("text", "")))
+    for item in verdict.get("vulnerabilities", []):
+        sections.append(("vulnerabilities", item.get("text", "")))
+    for o in verdict.get("objections", []):
+        sections.append(("objections.response", o.get("response", "")))
+    for item in verdict.get("landmines", []):
+        sections.append(("landmines", item.get("text", "")))
+
+    seen_text: dict[str, str] = {}  # normalized text -> first section it appeared in
+    for section, text in sections:
+        norm = _normalize_text(text)
+        if not norm:
+            continue
+        prior_section = seen_text.get(norm)
+        if prior_section and prior_section != section:
+            failures.append(
+                f"duplicate text reused across sections '{prior_section}' "
+                f"and '{section}': {text!r}")
+        else:
+            seen_text.setdefault(norm, section)
+
     return failures
 
 
@@ -158,7 +235,7 @@ def check(verdict, claims_by_company: dict, vertical: str | None = None) -> dict
     if mode == "buyer":
         failures += _check_buyer(v)
     elif mode == "seller":
-        failures += _check_seller(v)
+        failures += _check_seller(v, claims_by_company)
     elif mode == "analyst":
         failures += _check_analyst(v, claims_by_company, vertical)
     else:
@@ -217,6 +294,97 @@ def _self_check():
     assert not result["passed"]
     assert any("win_probability" in f for f in result["failures"])
     assert any("no response" in f for f in result["failures"])
+
+    # --- dimension coherence + duplicate-text checks (Phase 2 Task A) ---
+    # claims tagged with real "dimension" values (as claims/gate.py assigns);
+    # h_cost_riva/h_cost_mine are cost claims, h_perf_mine is a performance
+    # claim — mirrors the two real mismatches from the brief.
+    seller_claims = {
+        "Weaviate": [{"dimension": "cost", "evidence_ids": ["h_cost_riva"]}],
+        "MongoDB": [{"dimension": "cost", "evidence_ids": ["h_cost_riva2"]}],
+        "Pinecone": [
+            {"dimension": "cost", "evidence_ids": ["h_cost_mine"]},
+            {"dimension": "performance", "evidence_ids": ["h_perf_mine"]},
+        ],
+    }
+
+    # coherent: cost objection answered with a cost claim -> passes
+    coherent = {
+        "mode": "seller", "my_company": "Pinecone", "win_probability": 60,
+        "objections": [{
+            "objection": "Weaviate starts at $45/mo, cheaper than our Standard plan.",
+            "response": "Our Starter tier undercuts that at $29/mo.",
+            "objection_evidence_ids": ["h_cost_riva"],
+            "response_evidence_ids": ["h_cost_mine"],
+            "evidence_ids": ["h_cost_riva", "h_cost_mine"],
+        }],
+    }
+    result = check(coherent, seller_claims)
+    assert result["passed"], result["failures"]
+
+    # real mismatch #1: MongoDB free-tier cost objection answered with a
+    # Pinecone performance stat (disjoint dimensions -> fails)
+    mismatch1 = {
+        "mode": "seller", "my_company": "Pinecone", "win_probability": 60,
+        "objections": [{
+            "objection": "MongoDB Atlas offers a free-forever tier with 512 MB of storage.",
+            "response": "Pinecone's Dedicated Read Nodes deliver 1.4 billion vectors at 5,700 QPS.",
+            "objection_evidence_ids": ["h_cost_riva2"],
+            "response_evidence_ids": ["h_perf_mine"],
+            "evidence_ids": ["h_cost_riva2", "h_perf_mine"],
+        }],
+    }
+    result = check(mismatch1, seller_claims)
+    assert not result["passed"]
+    assert any("different dimension" in f for f in result["failures"])
+
+    # real mismatch #2 (same shape, different objection/response text) —
+    # Weaviate pricing objection answered with the same performance claim
+    mismatch2 = {
+        "mode": "seller", "my_company": "Pinecone", "win_probability": 60,
+        "objections": [{
+            "objection": "Weaviate starts at $45/mo, cheaper than Pinecone's Standard plan.",
+            "response": "Pinecone's Dedicated Read Nodes deliver 1.4 billion vectors at 5,700 QPS.",
+            "objection_evidence_ids": ["h_cost_riva"],
+            "response_evidence_ids": ["h_perf_mine"],
+            "evidence_ids": ["h_cost_riva", "h_perf_mine"],
+        }],
+    }
+    result = check(mismatch2, seller_claims)
+    assert not result["passed"]
+    assert any("different dimension" in f for f in result["failures"])
+
+    # empty split lists (legacy/old-session shape) -> coherence check
+    # skipped entirely, no false positive from missing data
+    legacy_shape = {
+        "mode": "seller", "my_company": "Pinecone", "win_probability": 60,
+        "objections": [{
+            "objection": "MongoDB free tier.", "response": "Our stats beat it.",
+            "evidence_ids": ["h_cost_riva2", "h_perf_mine"],
+        }],
+    }
+    result = check(legacy_shape, seller_claims)
+    assert result["passed"], result["failures"]
+
+    # duplicate text across sections — advantage restates the objection's
+    # response verbatim (same run's actual bug: advantage[0].text ==
+    # objections[0].response)
+    dup_verdict = {
+        "mode": "seller", "my_company": "Pinecone", "win_probability": 60,
+        "advantages": [{"text": "Our Starter tier undercuts that at $29/mo.", "evidence_ids": ["h_cost_mine"]}],
+        "vulnerabilities": [],
+        "objections": [{
+            "objection": "Weaviate starts at $45/mo, cheaper than our Standard plan.",
+            "response": "Our Starter tier undercuts that at $29/mo.",  # identical to advantage[0].text
+            "objection_evidence_ids": ["h_cost_riva"],
+            "response_evidence_ids": ["h_cost_mine"],
+            "evidence_ids": ["h_cost_riva", "h_cost_mine"],
+        }],
+        "landmines": [],
+    }
+    result = check(dup_verdict, seller_claims)
+    assert not result["passed"]
+    assert any("duplicate text" in f for f in result["failures"])
 
     # analyst — passing
     analyst_ok = {

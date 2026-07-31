@@ -91,7 +91,13 @@ def resolve_claim_ids(obj: dict, label_to_claim: dict) -> dict:
     """Walk a parsed (pre-validation) verdict dict in place: every
     "claim_ids" list becomes an "evidence_ids" list, resolved to the union of
     the cited claims' real evidence_ids (deduped, order-stable). Unknown
-    labels are dropped."""
+    labels are dropped.
+
+    Objection dicts (seller only) instead carry "objection_claim_ids" and
+    "response_claim_ids" — each resolves to its own evidence_ids field
+    (objection_evidence_ids / response_evidence_ids), and evidence_ids is
+    also populated as the order-stable deduped union of both, so the
+    existing single-field consumers (UI, old Atlas docs) keep working."""
 
     def resolve(claim_ids):
         seen, ids = set(), []
@@ -107,7 +113,18 @@ def resolve_claim_ids(obj: dict, label_to_claim: dict) -> dict:
 
     def walk(node):
         if isinstance(node, dict):
-            if "claim_ids" in node:
+            if "objection_claim_ids" in node or "response_claim_ids" in node:
+                obj_ids = resolve(node.pop("objection_claim_ids", None))
+                resp_ids = resolve(node.pop("response_claim_ids", None))
+                node["objection_evidence_ids"] = obj_ids
+                node["response_evidence_ids"] = resp_ids
+                seen, union = set(), []
+                for eid in obj_ids + resp_ids:
+                    if eid not in seen:
+                        seen.add(eid)
+                        union.append(eid)
+                node["evidence_ids"] = union
+            elif "claim_ids" in node:
                 node["evidence_ids"] = resolve(node.pop("claim_ids"))
             for k, v in node.items():
                 if isinstance(v, str):
@@ -154,6 +171,19 @@ def _self_check():
     obj2 = {"x": {"claim_ids": ["nope"]}}
     resolve_claim_ids(obj2, label_to_claim)
     assert obj2["x"]["evidence_ids"] == []
+
+    # objection split citations: objection_claim_ids / response_claim_ids
+    # resolve separately, evidence_ids becomes the deduped union
+    obj_split = {"objections": [
+        {"objection": "too pricey", "response": "we have a discount",
+         "objection_claim_ids": ["C1"], "response_claim_ids": ["C2", "C1"]},
+    ]}
+    resolve_claim_ids(obj_split, label_to_claim)
+    o = obj_split["objections"][0]
+    assert o["objection_evidence_ids"] == ["h1", "h2"]  # C1 -> h1,h2
+    assert o["response_evidence_ids"] == ["h3", "h1", "h2"]  # C2 then C1, deduped
+    assert o["evidence_ids"] == ["h1", "h2", "h3"]  # union, order-stable, deduped
+    assert "claim_ids" not in o and "objection_claim_ids" not in o and "response_claim_ids" not in o
 
     # free-text fields get stripped alongside claim_ids resolution, in the
     # same walk (dict string values and list-of-string values both)
