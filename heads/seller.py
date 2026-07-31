@@ -186,18 +186,24 @@ RED-TEAM TRANSCRIPT:
 
 Return a SellerVerdict JSON. advantages/vulnerabilities/objections/landmines
 must each cite claim_ids using only the labels shown above (e.g. ["C3"]) —
-never invent one. win_probability (0-100) should reflect claim strengths and
-how well objections were answered. Each `text`, `objection`, and `response`
-must be a complete sentence: if it restates a claim, restate it in full,
-keeping the comparison target and any numbers — never stop mid-comparison.
+never invent one. For objections, cite the objection and response SEPARATELY:
+objection_claim_ids for the claim(s) backing the objection itself,
+response_claim_ids for the claim(s) backing the rebuttal — the response must
+answer the SAME dimension the objection raised. win_probability (0-100)
+should reflect claim strengths and how well objections were answered. Each
+`text`, `objection`, and `response` must be a complete sentence: if it
+restates a claim, restate it in full, keeping the comparison target and any
+numbers — never stop mid-comparison.
 talk_tracks and do_not_say are spoken lines: keep them short, but each must
 be a complete, specific line — not a truncated fragment.
-Put claim ids ONLY in claim_ids fields — never mention them in prose.
+Put claim ids ONLY in claim_ids/objection_claim_ids/response_claim_ids fields
+— never mention them in prose.
 Return ONLY JSON, no markdown fences:
 {{"mode": "seller", "my_company": "{my_company}", "win_probability": 50,
   "advantages": [{{"text": "...", "claim_ids": ["C1"]}}],
   "vulnerabilities": [{{"text": "...", "claim_ids": ["C1"]}}],
-  "objections": [{{"objection": "...", "response": "...", "claim_ids": ["C1"]}}],
+  "objections": [{{"objection": "...", "response": "...",
+                   "objection_claim_ids": ["C1"], "response_claim_ids": ["C2"]}}],
   "landmines": [{{"text": "...", "claim_ids": ["C1"]}}],
   "talk_tracks": ["..."], "do_not_say": ["..."]}}"""
         messages = [{"role": "system", "content": system},

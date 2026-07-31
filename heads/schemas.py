@@ -48,6 +48,17 @@ class BuyerVerdict(BaseModel):
 class Objection(BaseModel):
     objection: str
     response: str
+    # split citations (Phase 2 Task A): which claims back the objection vs
+    # the rebuttal — needed to detect a response that answers a different
+    # dimension than the objection raised (heads/consistency.py). Both
+    # default empty so old Atlas documents (single evidence_ids only) and
+    # old-format LLM output still validate.
+    objection_evidence_ids: list[str] = []
+    response_evidence_ids: list[str] = []
+    # KEPT for backward compat — the UI renders this, old sessions only have
+    # this field. Populated as the order-stable dedup union of the two new
+    # fields (see heads/citations.py::resolve_claim_ids). Still requires at
+    # least one id — an objection with zero citations of ANY kind is invalid.
     evidence_ids: list[str] = Field(min_length=1)
 
 
@@ -206,6 +217,28 @@ def _self_check():
     assert names_match("Mongo", "MongoDB")  # tolerant substring match
     assert names_match("MongoDB", "Mongo")  # symmetric
     assert not names_match("MongoDB", "Pinecone")
+
+    # Objection: legacy doc with ONLY evidence_ids still validates (old Atlas
+    # sessions), and the new split fields default to empty
+    legacy_obj = Objection(objection="too pricey", response="we have a discount",
+                            evidence_ids=["h1"])
+    assert legacy_obj.objection_evidence_ids == []
+    assert legacy_obj.response_evidence_ids == []
+    assert legacy_obj.evidence_ids == ["h1"]
+
+    # new-style doc with both split fields populated
+    split_obj = Objection(objection="too pricey", response="we have a discount",
+                           objection_evidence_ids=["h1"], response_evidence_ids=["h2"],
+                           evidence_ids=["h1", "h2"])
+    assert split_obj.objection_evidence_ids == ["h1"]
+    assert split_obj.response_evidence_ids == ["h2"]
+
+    # still enforces at least one citation somewhere
+    try:
+        Objection(objection="x", response="y", evidence_ids=[])
+        assert False, "should have raised"
+    except ValidationError:
+        pass
 
     print("✅ heads.schemas self-check passed")
 
