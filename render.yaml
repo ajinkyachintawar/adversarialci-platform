@@ -9,6 +9,9 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      # Comma-separated rotation pool; falls back to GROQ_API_KEY when unset.
+      - key: GROQ_API_KEYS
+        sync: false
       - key: TAVILY_API_KEY
         sync: false
       - key: GITHUB_TOKEN
@@ -17,3 +20,26 @@ services:
         sync: false
       - key: ADMIN_KEY
         sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      # --- RAG evidence layer (ingest/) ---
+      - key: FIRECRAWL_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      # Comma-separated rotation pool — Gemini free tier is ~1K embeds/day/key.
+      - key: GEMINI_API_KEYS
+        sync: false
+      # --- Optional ---
+      - key: SENTRY_DSN
+        sync: false
+      - key: REDDIT_CLIENT_ID
+        sync: false
+      - key: REDDIT_CLIENT_SECRET
+        sync: false
+      # Agents V2 (claims -> heads -> verdict_json). Explicitly off in
+      # production: v2 sessions run 8-10min as an in-process background task
+      # with no checkpointing, so a deploy or restart kills them mid-flight.
+      # Turn on once Phase 3 (jobs + checkpointed worker) has landed.
+      - key: AGENTS_V2
+        value: "0"
