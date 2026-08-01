@@ -1,0 +1,485 @@
+{
+  "label": "provenance_audit",
+  "timestamp": "2026-08-01T11:51:46.758575+00:00",
+  "by_company": {
+    "HubSpot": {
+      "total_chunks": 34,
+      "by_source_type": {
+        "tavily_page": 27,
+        "pricing_scrape": 7
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "hubspot.com",
+      "first_party_chunks": 7,
+      "third_party_chunks": 27,
+      "provenance_pct": 20.6,
+      "third_party_urls": [
+        {
+          "source_url": "https://equinoxen.com/hubspot-crm-review-2026",
+          "chunks": 13
+        },
+        {
+          "source_url": "https://latestcrms.com/2026/05/06/hubspot-crm-review",
+          "chunks": 9
+        },
+        {
+          "source_url": "https://cxfoundation.com/news/hubspot-spring-spotlight-2026",
+          "chunks": 5
+        }
+      ]
+    },
+    "Microsoft Dynamics 365": {
+      "total_chunks": 45,
+      "by_source_type": {
+        "pricing_scrape": 3,
+        "tavily_page": 42
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "microsoft.com",
+      "first_party_chunks": 3,
+      "third_party_chunks": 42,
+      "provenance_pct": 6.7,
+      "third_party_urls": [
+        {
+          "source_url": "https://stoneridgesoftware.com/exciting-new-features-for-dynamics-365-solutions-in-the-2026-wave-1-release",
+          "chunks": 18
+        },
+        {
+          "source_url": "https://www.microteklearning.com/blog/microsoft-dynamics-365",
+          "chunks": 17
+        },
+        {
+          "source_url": "https://www.lits.services/top-features-and-capabilities-of-microsoft-dynamics-365-crm-in-2026",
+          "chunks": 7
+        }
+      ]
+    },
+    "ChromaDB": {
+      "total_chunks": 19,
+      "by_source_type": {
+        "tavily_page": 19
+      },
+      "distinct_urls": 3,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": null,
+      "first_party_chunks": null,
+      "third_party_chunks": null,
+      "provenance_pct": null,
+      "third_party_urls": []
+    },
+    "Qdrant": {
+      "total_chunks": 115,
+      "by_source_type": {
+        "tavily_page": 111,
+        "pricing_scrape": 4
+      },
+      "distinct_urls": 6,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "qdrant.tech",
+      "first_party_chunks": 4,
+      "third_party_chunks": 111,
+      "provenance_pct": 3.5,
+      "third_party_urls": [
+        {
+          "source_url": "https://cohorte.co/blog/a-developers-friendly-guide-to-qdrant-vector-database",
+          "chunks": 51
+        },
+        {
+          "source_url": "https://pub.towardsai.net/building-a-modern-rag-pipeline-in-2026-qwen3-embeddings-and-vector-database-in-qdrant-ebeca2bbe338",
+          "chunks": 32
+        },
+        {
+          "source_url": "https://karthikeyanrathinam.medium.com/top-10-vector-databases-in-2026-ultimate-comparison-benchmarks-use-cases-6b0e878256b5",
+          "chunks": 16
+        },
+        {
+          "source_url": "https://www.joinnextdev.com/a/qdrant/qdrant-in-2026-the-vector-db-built-to-win-production",
+          "chunks": 8
+        },
+        {
+          "source_url": "https://dbdb.io/db/qdrant",
+          "chunks": 4
+        }
+      ]
+    },
+    "Weaviate": {
+      "total_chunks": 123,
+      "by_source_type": {
+        "tavily_page": 12,
+        "seed_page": 106,
+        "pricing_scrape": 5
+      },
+      "distinct_urls": 12,
+      "age_days": {
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      "vendor_domain": "weaviate.io",
+      "first_party_chunks": 123,
+      "third_party_chunks": 0,
+      "provenance_pct": 100.0,
+      "third_party_urls": []
+    },
+    "AWS": {
+      "total_chunks": 44,
+      "by_source_type": {
+        "tavily_page": 38,
+        "pricing_scrape": 6
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "amazon.com",
+      "first_party_chunks": 6,
+      "third_party_chunks": 38,
+      "provenance_pct": 13.6,
+      "third_party_urls": [
+        {
+          "source_url": "https://www.wbscodingschool.com/blog/what-is-aws-cloud-computing",
+          "chunks": 17
+        },
+        {
+          "source_url": "https://k21academy.com/aws-cloud/architecture",
+          "chunks": 16
+        },
+        {
+          "source_url": "https://aws.plainenglish.io/the-future-of-cloud-architecture-on-aws-in-2026-ebac79bf00b0",
+          "chunks": 5
+        }
+      ]
+    },
+    "Google Cloud": {
+      "total_chunks": 120,
+      "by_source_type": {
+        "tavily_page": 117,
+        "pricing_scrape": 3
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "google.com",
+      "first_party_chunks": 49,
+      "third_party_chunks": 71,
+      "provenance_pct": 40.8,
+      "third_party_urls": [
+        {
+          "source_url": "https://www.asappstudio.com/cloud-architecture-in-2026",
+          "chunks": 44
+        },
+        {
+          "source_url": "https://medium.com/google-cloud/cloud-architecture-principles-that-actually-matter-the-design-mistakes-costing-enterprises-be14219c5c9f",
+          "chunks": 27
+        }
+      ]
+    },
+    "Vald": {
+      "total_chunks": 9,
+      "by_source_type": {
+        "tavily_page": 7,
+        "pricing_scrape": 2
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "vdaas.org",
+      "first_party_chunks": 7,
+      "third_party_chunks": 2,
+      "provenance_pct": 77.8,
+      "third_party_urls": [
+        {
+          "source_url": "https://support.vald.com/hc/en-au/articles/58807536361881-VALD-Hub-Release-Notes-16-June-2026",
+          "chunks": 2
+        }
+      ]
+    },
+    "Zoho CRM": {
+      "total_chunks": 38,
+      "by_source_type": {
+        "tavily_page": 24,
+        "pricing_scrape": 14
+      },
+      "distinct_urls": 3,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "zoho.com",
+      "first_party_chunks": 23,
+      "third_party_chunks": 15,
+      "provenance_pct": 60.5,
+      "third_party_urls": [
+        {
+          "source_url": "https://www.viragoventures.com/blog/june-2026-zoho-crm-updates-what-actually-matters",
+          "chunks": 15
+        }
+      ]
+    },
+    "Oracle Cloud": {
+      "total_chunks": 37,
+      "by_source_type": {
+        "tavily_page": 29,
+        "pricing_scrape": 8
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "oracle.com",
+      "first_party_chunks": 8,
+      "third_party_chunks": 29,
+      "provenance_pct": 21.6,
+      "third_party_urls": [
+        {
+          "source_url": "https://techjacksolutions.com/cloud-tools/oracle-cloud/what-is-oracle-cloud-infrastructure",
+          "chunks": 16
+        },
+        {
+          "source_url": "https://sesamedisk.com/oracle-cloud-infrastructure-2026-review",
+          "chunks": 8
+        },
+        {
+          "source_url": "https://finance.yahoo.com/news/oracle-solidifies-ai-infrastructure-positioning-161500050.html",
+          "chunks": 5
+        }
+      ]
+    },
+    "Salesforce": {
+      "total_chunks": 156,
+      "by_source_type": {
+        "tavily_page": 141,
+        "pricing_scrape": 15
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "salesforce.com",
+      "first_party_chunks": 15,
+      "third_party_chunks": 141,
+      "provenance_pct": 9.6,
+      "third_party_urls": [
+        {
+          "source_url": "https://ttms.com/salesforce-crm-review-features-benefits-and-pricing",
+          "chunks": 108
+        },
+        {
+          "source_url": "https://crm.org/news/salesforce-review",
+          "chunks": 17
+        },
+        {
+          "source_url": "https://tech.co/crm-software/salesforce-review",
+          "chunks": 16
+        }
+      ]
+    },
+    "DigitalOcean": {
+      "total_chunks": 37,
+      "by_source_type": {
+        "tavily_page": 27,
+        "pricing_scrape": 10
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "digitalocean.com",
+      "first_party_chunks": 29,
+      "third_party_chunks": 8,
+      "provenance_pct": 78.4,
+      "third_party_urls": [
+        {
+          "source_url": "https://www.forbes.com/sites/janakirammsv/2026/04/29/digitalocean-unveils-ai-native-cloud-platform-at-deploy-2026-conference",
+          "chunks": 8
+        }
+      ]
+    },
+    "Apache Cassandra": {
+      "total_chunks": 61,
+      "by_source_type": {
+        "tavily_page": 54,
+        "pricing_scrape": 7
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "apache.org",
+      "first_party_chunks": 7,
+      "third_party_chunks": 54,
+      "provenance_pct": 11.5,
+      "third_party_urls": [
+        {
+          "source_url": "https://axonops.com/blog/cassandra-in-2025-a-year-in-review",
+          "chunks": 23
+        },
+        {
+          "source_url": "https://www.instaclustr.com/education/apache-cassandra/apache-cassandra-database",
+          "chunks": 19
+        },
+        {
+          "source_url": "https://www.knowi.com/blog/apache-cassandra-database-complete-2025-guide-architecture-use-cases",
+          "chunks": 12
+        }
+      ]
+    },
+    "Amazon DocumentDB": {
+      "total_chunks": 35,
+      "by_source_type": {
+        "tavily_page": 16,
+        "pricing_scrape": 19
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "amazon.com",
+      "first_party_chunks": 22,
+      "third_party_chunks": 13,
+      "provenance_pct": 62.9,
+      "third_party_urls": [
+        {
+          "source_url": "https://medium.com/@tubagunata/amazon-documentdb-510f6c2ef7cf",
+          "chunks": 9
+        },
+        {
+          "source_url": "https://www.peerspot.com/products/amazon-documentdb-pros-and-cons",
+          "chunks": 4
+        }
+      ]
+    },
+    "Milvus": {
+      "total_chunks": 47,
+      "by_source_type": {
+        "pricing_scrape": 9,
+        "tavily_page": 38
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "zilliz.com",
+      "first_party_chunks": 9,
+      "third_party_chunks": 38,
+      "provenance_pct": 19.1,
+      "third_party_urls": [
+        {
+          "source_url": "https://milvus.io/blog/deep-dive-1-milvus-architecture-overview.md",
+          "chunks": 15
+        },
+        {
+          "source_url": "https://milvus.io/docs/overview.md",
+          "chunks": 14
+        },
+        {
+          "source_url": "https://milvus.io/docs/architecture_overview.md",
+          "chunks": 9
+        }
+      ]
+    },
+    "Pinecone": {
+      "total_chunks": 15,
+      "by_source_type": {
+        "pricing_scrape": 9,
+        "tavily_page": 6
+      },
+      "distinct_urls": 2,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "pinecone.io",
+      "first_party_chunks": 15,
+      "third_party_chunks": 0,
+      "provenance_pct": 100.0,
+      "third_party_urls": []
+    },
+    "Microsoft Azure": {
+      "total_chunks": 53,
+      "by_source_type": {
+        "tavily_page": 28,
+        "pricing_scrape": 25
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "microsoft.com",
+      "first_party_chunks": 40,
+      "third_party_chunks": 13,
+      "provenance_pct": 75.5,
+      "third_party_urls": [
+        {
+          "source_url": "https://uvation.com/articles/latest-advances-in-microsoft-azure-infrastructure-for-enterprise",
+          "chunks": 13
+        }
+      ]
+    },
+    "MongoDB": {
+      "total_chunks": 16,
+      "by_source_type": {
+        "tavily_page": 3,
+        "pricing_scrape": 13
+      },
+      "distinct_urls": 2,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      },
+      "vendor_domain": "mongodb.com",
+      "first_party_chunks": 16,
+      "third_party_chunks": 0,
+      "provenance_pct": 100.0,
+      "third_party_urls": []
+    }
+  },
+  "totals": {
+    "companies": 18,
+    "chunks": 1004,
+    "provenance_pct": 38.9
+  }
+}
