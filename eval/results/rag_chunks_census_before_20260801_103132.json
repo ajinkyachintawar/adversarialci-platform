@@ -1,0 +1,243 @@
+{
+  "label": "before",
+  "timestamp": "2026-08-01T10:31:32.292642+00:00",
+  "by_company": {
+    "Google Cloud": {
+      "total_chunks": 120,
+      "by_source_type": {
+        "tavily_page": 117,
+        "pricing_scrape": 3
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Microsoft Dynamics 365": {
+      "total_chunks": 45,
+      "by_source_type": {
+        "pricing_scrape": 3,
+        "tavily_page": 42
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Salesforce": {
+      "total_chunks": 156,
+      "by_source_type": {
+        "pricing_scrape": 15,
+        "tavily_page": 141
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Pinecone": {
+      "total_chunks": 88,
+      "by_source_type": {
+        "pricing_scrape": 9,
+        "tavily_page": 79
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Apache Cassandra": {
+      "total_chunks": 61,
+      "by_source_type": {
+        "pricing_scrape": 7,
+        "tavily_page": 54
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "AWS": {
+      "total_chunks": 44,
+      "by_source_type": {
+        "tavily_page": 38,
+        "pricing_scrape": 6
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Qdrant": {
+      "total_chunks": 115,
+      "by_source_type": {
+        "pricing_scrape": 4,
+        "tavily_page": 111
+      },
+      "distinct_urls": 6,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Oracle Cloud": {
+      "total_chunks": 37,
+      "by_source_type": {
+        "pricing_scrape": 8,
+        "tavily_page": 29
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "DigitalOcean": {
+      "total_chunks": 37,
+      "by_source_type": {
+        "tavily_page": 27,
+        "pricing_scrape": 10
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Amazon DocumentDB": {
+      "total_chunks": 35,
+      "by_source_type": {
+        "pricing_scrape": 19,
+        "tavily_page": 16
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "ChromaDB": {
+      "total_chunks": 19,
+      "by_source_type": {
+        "tavily_page": 19
+      },
+      "distinct_urls": 3,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Vald": {
+      "total_chunks": 9,
+      "by_source_type": {
+        "tavily_page": 7,
+        "pricing_scrape": 2
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "HubSpot": {
+      "total_chunks": 34,
+      "by_source_type": {
+        "pricing_scrape": 7,
+        "tavily_page": 27
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Zoho CRM": {
+      "total_chunks": 38,
+      "by_source_type": {
+        "tavily_page": 24,
+        "pricing_scrape": 14
+      },
+      "distinct_urls": 3,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Milvus": {
+      "total_chunks": 47,
+      "by_source_type": {
+        "pricing_scrape": 9,
+        "tavily_page": 38
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Weaviate": {
+      "total_chunks": 108,
+      "by_source_type": {
+        "tavily_page": 103,
+        "pricing_scrape": 5
+      },
+      "distinct_urls": 6,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "Microsoft Azure": {
+      "total_chunks": 53,
+      "by_source_type": {
+        "tavily_page": 28,
+        "pricing_scrape": 25
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    },
+    "MongoDB": {
+      "total_chunks": 76,
+      "by_source_type": {
+        "tavily_page": 63,
+        "pricing_scrape": 13
+      },
+      "distinct_urls": 4,
+      "age_days": {
+        "min": 14,
+        "median": 14,
+        "max": 14
+      }
+    }
+  },
+  "totals": {
+    "companies": 18,
+    "chunks": 1122
+  }
+}

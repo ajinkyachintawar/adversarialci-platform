@@ -1,0 +1,155 @@
+{
+  "label": "v2_baseline",
+  "timestamp": "2026-08-01T12:23:23.753273",
+  "k": 5,
+  "queries": 24,
+  "hit_at_1": "17/24 (71%)",
+  "hit_at_5": "24/24 (100%)",
+  "mrr": 0.821,
+  "rows": [
+    {
+      "query": "What's the cheapest paid MongoDB Atlas tier and how much does it run per hour?",
+      "company": "MongoDB",
+      "rank": 2,
+      "top_score": 0.886
+    },
+    {
+      "query": "How much do I need to budget monthly for the smallest production-ready MongoDB cluster?",
+      "company": "MongoDB",
+      "rank": 2,
+      "top_score": 0.884
+    },
+    {
+      "query": "What encryption protocol locks down connections to the MongoDB database by default?",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.867
+    },
+    {
+      "query": "How many simultaneous connections am I capped at on MongoDB's totally free tier?",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.877
+    },
+    {
+      "query": "What uptime number can I promise a customer running on a paid production MongoDB cluster?",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.861
+    },
+    {
+      "query": "How many geographic zones can I split a worldwide MongoDB cluster into?",
+      "company": "MongoDB",
+      "rank": 1,
+      "top_score": 0.892
+    },
+    {
+      "query": "Is there a data-size ceiling where MongoDB's automatic migration verification turns off?",
+      "company": "MongoDB",
+      "rank": 3,
+      "top_score": 0.86
+    },
+    {
+      "query": "Can one MongoDB cluster stretch across two different cloud vendors at the same time?",
+      "company": "MongoDB",
+      "rank": 3,
+      "top_score": 0.87
+    },
+    {
+      "query": "What's the cheapest paid Pinecone plan and what's the flat monthly fee?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.883
+    },
+    {
+      "query": "What's the minimum monthly bill on Pinecone's enterprise contract?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.888
+    },
+    {
+      "query": "How does Pinecone protect data once it's sitting in storage?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.891
+    },
+    {
+      "query": "Is there a size cap on how big a single Pinecone search response can be?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.873
+    },
+    {
+      "query": "What uptime number does Pinecone commit to on its top-tier plan?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.871
+    },
+    {
+      "query": "How does Pinecone actually store vectors behind the scenes?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.907
+    },
+    {
+      "query": "Does switching from Pinecone's old pod-based setup to serverless cost extra?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.89
+    },
+    {
+      "query": "Can I run Pinecone fully inside my own cloud account with no vendor SSH access?",
+      "company": "Pinecone",
+      "rank": 1,
+      "top_score": 0.88
+    },
+    {
+      "query": "What do you get on Weaviate's completely free plan?",
+      "company": "Weaviate",
+      "rank": 5,
+      "top_score": 0.907
+    },
+    {
+      "query": "What's the cheapest monthly price once you leave Weaviate's free tier?",
+      "company": "Weaviate",
+      "rank": 1,
+      "top_score": 0.888
+    },
+    {
+      "query": "Does Weaviate support single sign-on through my company's identity provider?",
+      "company": "Weaviate",
+      "rank": 1,
+      "top_score": 0.903
+    },
+    {
+      "query": "How many tenants am I allowed on Weaviate's no-cost plan?",
+      "company": "Weaviate",
+      "rank": 3,
+      "top_score": 0.877
+    },
+    {
+      "query": "What uptime does Weaviate's entry-level paid plan promise?",
+      "company": "Weaviate",
+      "rank": 1,
+      "top_score": 0.898
+    },
+    {
+      "query": "What indexing algorithm gives Weaviate fast approximate search at scale?",
+      "company": "Weaviate",
+      "rank": 1,
+      "top_score": 0.911
+    },
+    {
+      "query": "If my app outgrows Weaviate's free tier, do I have to rebuild anything to go paid?",
+      "company": "Weaviate",
+      "rank": 1,
+      "top_score": 0.888
+    },
+    {
+      "query": "Which regions can my dedicated Weaviate deployment actually live in?",
+      "company": "Weaviate",
+      "rank": 2,
+      "top_score": 0.862
+    }
+  ]
+}

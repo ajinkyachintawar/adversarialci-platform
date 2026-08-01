@@ -9,3 +9,4 @@ dist/
 .DS_Store
 outputs/reports/
 *.log
+*.json.gz

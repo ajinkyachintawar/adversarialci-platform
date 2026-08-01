@@ -1,0 +1,45 @@
+{
+  "dry_run": true,
+  "vertical": "database",
+  "companies": {
+    "Weaviate": {
+      "vendor_domain": "weaviate.io",
+      "before_total_chunks": 108,
+      "after_total_chunks": 5,
+      "chunks_flagged": 103,
+      "by_source_url": {
+        "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate": 43,
+        "https://pecollective.com/tools/weaviate": 9,
+        "https://medium.com/the-software-journal/the-top-5-vector-databases-in-2026-6ef733407606": 22,
+        "https://u-cloud24.com/blog/vector-databases-guide": 9,
+        "https://www.kunalganglani.com/blog/weaviate-vs-chroma-vector-db": 20
+      },
+      "deleted_chunks": 0,
+      "deleted_documents": 0
+    },
+    "Pinecone": {
+      "vendor_domain": "pinecone.io",
+      "before_total_chunks": 88,
+      "after_total_chunks": 15,
+      "chunks_flagged": 73,
+      "by_source_url": {
+        "https://ranksquire.com/2026/03/02/pinecone-vs-weaviate": 43,
+        "https://ranksquire.com/2026/05/27/vector-database-news-may-2026": 30
+      },
+      "deleted_chunks": 0,
+      "deleted_documents": 0
+    },
+    "MongoDB": {
+      "vendor_domain": "mongodb.com",
+      "before_total_chunks": 76,
+      "after_total_chunks": 16,
+      "chunks_flagged": 60,
+      "by_source_url": {
+        "https://zignuts.com/blog/mongodb-vs-mysql": 18,
+        "https://tech-insider.org/mongodb-tutorial-complete-nosql-guide-2026": 42
+      },
+      "deleted_chunks": 0,
+      "deleted_documents": 0
+    }
+  }
+}

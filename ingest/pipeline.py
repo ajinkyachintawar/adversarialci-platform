@@ -7,15 +7,21 @@ bullet pipeline in sources/*.py.
 
 Sources, in order:
   a) pricing page (vendor_registry pricing_url)
-  b) Tavily URL-follow: run vertical query templates, collect result URLs
-     (deduped, capped at max_tavily_urls TOTAL to bound Firecrawl spend),
-     firecrawl-scrape each.
+  b) seed pages: curated URLs from ingest/seed_urls.json (vendor-owned only,
+     SKIP_DOMAINS filtered), firecrawl-scrape each.
+  c) Tavily URL-follow: run vertical query templates, collect result URLs
+     (deduped, capped at max_tavily_urls TOTAL to bound Firecrawl spend,
+     excluding pricing + seed pages already scraped), firecrawl-scrape each.
 
 CLI:  .venv/bin/python -m ingest.pipeline <Company> [vertical] [--dry-run]
+      (seed URLs loaded from ingest/seed_urls.json if present)
 """
 
+import json
 import sys
 from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
 
 from tavily import TavilyClient
 from config import TAVILY_API_KEY
@@ -26,6 +32,26 @@ from ingest.chunker import chunk_stats
 from ingest.store import save_document, record_metrics, flush_dry_run
 
 SKIP_DOMAINS = ("youtube.com", "reddit.com")
+
+
+def registrable_domain(url: str) -> str:
+    """Last two labels of the hostname, e.g. 'https://docs.pinecone.io/x' -> 'pinecone.io'.
+    # ponytail: wrong for multi-part TLDs (.co.uk etc) — upgrade to tldextract
+    # if a vendor with such a domain is ever onboarded.
+    """
+    host = urlparse(url).netloc.lower().split(":")[0]
+    parts = host.split(".")
+    return ".".join(parts[-2:]) if len(parts) >= 2 else host
+
+
+def _vendor_domain(company: str, vertical: str) -> str | None:
+    vendor_data = get_vendor_urls(company, vertical)
+    pricing_url = vendor_data.get("pricing_url") if vendor_data else None
+    if not pricing_url:
+        print(f"  ⚠️  No pricing_url for {company} — skipping vendor-domain filter "
+              f"(falling back to SKIP_DOMAINS only)")
+        return None
+    return registrable_domain(pricing_url)
 
 
 def _scrape_and_store(company: str, vertical: str, url: str, source_type: str, dry_run: bool) -> dict:
@@ -68,7 +94,8 @@ def _scrape_and_store(company: str, vertical: str, url: str, source_type: str, d
             "seconds": scraped["seconds"]}
 
 
-def _collect_tavily_urls(company: str, vertical: str, exclude: set, max_urls: int) -> list[str]:
+def _collect_tavily_urls(company: str, vertical: str, exclude: set, max_urls: int,
+                          vendor_domain: str | None) -> list[str]:
     templates = get_tavily_templates(vertical)
     if not templates:
         print(f"  ⚠️  No tavily query templates for vertical '{vertical}'")
@@ -92,6 +119,8 @@ def _collect_tavily_urls(company: str, vertical: str, exclude: set, max_urls: in
                 continue
             if any(d in url.lower() for d in SKIP_DOMAINS):
                 continue
+            if vendor_domain and registrable_domain(url) != vendor_domain:
+                continue
             seen.add(url)
             candidates.append(url)
 
@@ -99,10 +128,11 @@ def _collect_tavily_urls(company: str, vertical: str, exclude: set, max_urls: in
 
 
 def ingest_company(company: str, vertical: str = "database", dry_run: bool = False,
-                    max_tavily_urls: int = 3) -> dict:
+                    max_tavily_urls: int = 5, seed_urls: list[str] | None = None) -> dict:
     print(f"🚀 [Ingest] {company} ({vertical}) — dry_run={dry_run}")
     results = []
     scraped_urls = set()
+    vendor_domain = _vendor_domain(company, vertical)
 
     # a) pricing page
     vendor_data = get_vendor_urls(company, vertical)
@@ -114,9 +144,21 @@ def ingest_company(company: str, vertical: str = "database", dry_run: bool = Fal
     else:
         print(f"  ⚠️  No pricing URL configured for {company}, skipping pricing scrape")
 
-    # b) tavily url-follow
+    # b) seed pages (curated, vendor-owned only)
+    for url in (seed_urls or []):
+        if any(d in url.lower() for d in SKIP_DOMAINS):
+            print(f"  ⚠️  [Seed] skipping URL {url} (SKIP_DOMAINS)")
+            continue
+        if vendor_domain and registrable_domain(url) != vendor_domain:
+            print(f"  ⚠️  [Seed] skipping URL {url} (not on vendor domain {vendor_domain})")
+            continue
+        print(f"  🌱 [Seed] scraping {url}")
+        results.append(_scrape_and_store(company, vertical, url, "seed_page", dry_run))
+        scraped_urls.add(url)
+
+    # c) tavily url-follow
     print(f"  🌐 [Tavily] collecting candidate URLs (cap={max_tavily_urls})")
-    tavily_urls = _collect_tavily_urls(company, vertical, scraped_urls, max_tavily_urls)
+    tavily_urls = _collect_tavily_urls(company, vertical, scraped_urls, max_tavily_urls, vendor_domain)
     for url in tavily_urls:
         print(f"  🌐 [Tavily] scraping {url}")
         results.append(_scrape_and_store(company, vertical, url, "tavily_page", dry_run))
@@ -189,7 +231,13 @@ if __name__ == "__main__":
     vertical = args[1] if len(args) > 1 else "database"
 
     if not company:
-        print("Usage: .venv/bin/python -m ingest.pipeline <Company> [vertical] [--dry-run|--rebuild]")
+        print("Usage: .venv/bin/python -m ingest.pipeline <Company> [vertical] [--dry-run|--rebuild]"
+              " (seed URLs from ingest/seed_urls.json if present)")
         sys.exit(1)
 
-    ingest_company(company, vertical, dry_run=dry_run)
+    seed_urls_path = Path(__file__).parent / "seed_urls.json"
+    seed_urls = []
+    if seed_urls_path.exists():
+        seed_urls = json.loads(seed_urls_path.read_text()).get(company, [])
+
+    ingest_company(company, vertical, dry_run=dry_run, seed_urls=seed_urls)

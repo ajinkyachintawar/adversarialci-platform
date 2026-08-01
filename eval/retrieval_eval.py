@@ -30,7 +30,10 @@ def is_match(chunk: dict, entry: dict) -> bool:
 
 
 def run(label: str = "golden") -> dict:
-    with open(os.path.join(os.path.dirname(__file__), "golden_retrieval.json")) as f:
+    # ponytail: env override so a v2 golden set can be scored without touching
+    # the default input file or scoring logic. Unset -> unchanged behavior.
+    golden_file = os.environ.get("GOLDEN_RETRIEVAL_FILE", "golden_retrieval.json")
+    with open(os.path.join(os.path.dirname(__file__), golden_file)) as f:
         golden = json.load(f)["queries"]
 
     rows = []
