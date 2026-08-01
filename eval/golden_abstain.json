@@ -1,0 +1,25 @@
+{
+  "comment": "Golden abstain set (negatives). Each query asks something the corpus genuinely CANNOT answer, because vendors do not publish that category of information on their own domain -- not because a query happened to score low in a prior run. Authored blind from a principled list of categories (unreleased roadmap, business metrics, named-customer pricing, internal security/incident detail, competitor benchmarks the vendor did not run, support-ticket internals, and cross-vendor questions asked of the wrong company's corpus) BEFORE ever calling retrieve() on them. Do not add, remove, or reword entries based on where they score -- a high-scoring negative is a genuine finding to report, not a reason to delete it. Companies restricted to Pinecone/Weaviate/MongoDB, the only three Phase 1 touches.",
+  "queries": [
+    {"query": "What new features is MongoDB planning to ship next quarter?", "company": "MongoDB"},
+    {"query": "What is MongoDB's current customer churn rate?", "company": "MongoDB"},
+    {"query": "How many paying customers does MongoDB have right now?", "company": "MongoDB"},
+    {"query": "What discount did MongoDB give its largest enterprise customer last renewal?", "company": "MongoDB"},
+    {"query": "What were the unredacted findings of MongoDB's most recent penetration test?", "company": "MongoDB"},
+    {"query": "How does MongoDB Atlas perform head-to-head against DynamoDB in a benchmark MongoDB itself ran?", "company": "MongoDB"},
+    {"query": "How many support tickets does MongoDB's on-call team handle per day?", "company": "MongoDB"},
+    {"query": "What is Pinecone's internal architecture roadmap for the next release?", "company": "Pinecone"},
+    {"query": "What is Pinecone's total annual revenue?", "company": "Pinecone"},
+    {"query": "How many employees does Pinecone currently have?", "company": "Pinecone"},
+    {"query": "What contract price did Pinecone offer its biggest named enterprise account?", "company": "Pinecone"},
+    {"query": "What did Pinecone's last internal security incident report disclose?", "company": "Pinecone"},
+    {"query": "What benchmark numbers does Pinecone publish comparing itself against Weaviate?", "company": "Pinecone"},
+    {"query": "What is Pinecone's average support-ticket escalation time?", "company": "Pinecone"},
+    {"query": "What unreleased features are on Weaviate's product roadmap for next year?", "company": "Weaviate"},
+    {"query": "What is Weaviate's current customer count and headcount?", "company": "Weaviate"},
+    {"query": "What discount level does Weaviate offer its largest named customer?", "company": "Weaviate"},
+    {"query": "What did Weaviate's most recent unredacted pen-test report find?", "company": "Weaviate"},
+    {"query": "What is Pinecone's HNSW indexing implementation and how does it differ from Weaviate's?", "company": "Weaviate"},
+    {"query": "What is MongoDB's serverless slab storage architecture?", "company": "Weaviate"}
+  ]
+}

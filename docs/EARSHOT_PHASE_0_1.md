@@ -513,3 +513,64 @@ Slack (A2), any UI, CRM integration, change alerts, the other 15 companies, soci
 review sources (`agent-reach`, Reddit, G2, X), multi-tenancy beyond the existing
 per-company filter, and MCP exposure. `answer()` is already the right shape to become
 an MCP tool later — the only requirement now is not to design anything that blocks it.
+
+---
+
+## Phase 1 — STATUS (2026-08-01)
+
+Built: `earshot/answer.py` (three gates), `earshot/calibrate_floor.py`,
+`eval/golden_abstain.json` (20 negatives), `eval/abstention_eval.py`,
+`first_seen_at` + `RetrievalUnavailable` in `ingest/retrieval.py`.
+Not built yet: **Task 1.6** (`POST /api/ask` + `ask_log`).
+
+### The floor cannot be the guarantee
+Positives 0.860–0.911, negatives 0.789–0.893, **AUC 0.875** — real signal, but
+overlapping tails. No threshold separates them: at 0.85 zero false-abstains but
+13/20 negatives pass; at 0.90 zero negatives pass but 20/24 positives die.
+`SCORE_FLOOR = 0.85` is therefore a cheap PRE-FILTER, not the guarantee.
+
+### Three gates, each catching what the previous cannot
+1. `SCORE_FLOOR` — free, zero LLM calls, catches the obvious.
+2. **relevance** — model returns `evidence_answers_question` in the SAME call.
+3. **verbatim** — quote must exist in a real chunk; all dropped → `"none"`.
+
+Gate 2 exists because **verbatim verification checks a quote is REAL, not that
+it ANSWERS THE QUESTION.** Measured: on 20 unanswerable questions the verbatim
+gate fired **0 times** — "Pinecone's HNSW implementation" was answered from
+*Weaviate's* corpus with 3 perfectly-verified citations.
+
+### Query enrichment — rep questions have no entity
+"are they cheaper than us" scored **0.823** (false abstain) while the corpus
+answers Weaviate pricing at 0.903. The company name was only a metadata filter,
+never part of the embedded text. Prefixing it lifts real rep phrasings by
+**+0.045–0.063**. The v2 golden set missed this because every query names the
+vendor — *the eval was systematically easier than reality.*
+
+### The verbatim gate was dropping real evidence
+Both dropped citations on the canonical query were genuine: the corpus contains
+`"Starts at$45/mo"` (no space — Firecrawl artifact) and the model quoted chunk 6
+while labelling it E5. Gate now matches whitespace-insensitively and searches
+every chunk, re-attributing to the true source. A quote found in no chunk is
+still dropped.
+
+### THE THIRD SILENT FAILURE — and the worst
+`retrieve()` returned `[]` when `embed_query` failed, so **Gemini quota
+exhaustion was reported to the rep as "no evidence found."** Same shape as the
+SEO corpus and the Firecrawl 429s: a failure returning a falsy value
+indistinguishable from a valid empty result. This one was about to ship as a
+feature — abstention IS the product's trust claim, so a confident wrong
+abstention is as damaging as a confident wrong answer. Now raises
+`RetrievalUnavailable`; `answer()` returns `confidence: "error"`, never `"none"`.
+
+### Eval numbers are DISCARDED — both runs contaminated
+30%/79% then 90%/46%, but 11 of 13 "false abstentions" in run 2 were 81-second
+embedder timeouts (the `[5,15,45]` backoff exhausting), not judgement. Latency
+9.25s → 32.55s for the same reason. **The abstention rate is currently
+unmeasured.** Re-run `eval/abstention_eval.py` after Gemini quota resets.
+
+### Open
+- Clean abstention measurement (blocked on quota).
+- Task 1.6: `POST /api/ask` + `ask_log`.
+- Pricing questions fail quote verification (mangled scrape typography) — the
+  most common rep question; points at the chunker, not `answer()`.
+- Latency near the 10s target before Slack's 3s ack constraint (A2) arrives.

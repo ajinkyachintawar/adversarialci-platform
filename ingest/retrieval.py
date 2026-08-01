@@ -17,6 +17,18 @@ from ingest.embedder import embed_query, DIMS
 INDEX_NAME = "rag_chunks_vector"
 
 
+class RetrievalUnavailable(RuntimeError):
+    """The embedder could not answer — quota, rate limit, or outage.
+
+    Distinct from "the corpus has no matching chunks", which is an empty list.
+    Measured 2026-08-01: collapsing the two made a Gemini quota failure look
+    identical to an empty corpus, so earshot.answer told users "no evidence
+    found" while the embedder was merely rate limited. Abstention is this
+    product's core trust claim; a confident wrong abstention is as damaging as
+    a confident wrong answer. Callers must handle this separately.
+    """
+
+
 def setup_index():
     """Create the Atlas vector index on rag_chunks (idempotent-ish: skips if present)."""
     from db.atlas import connect, get_collection
@@ -57,8 +69,10 @@ def retrieve(query: str, company: str, k: int = 5,
 
     qvec = embed_query(query)
     if qvec is None:
-        print("  ⚠️  [Retrieve] query embedding failed")
-        return []
+        raise RetrievalUnavailable(
+            f"query embedding failed for company={company!r} — embedder "
+            "unavailable (likely quota/rate limit). This is NOT an empty corpus."
+        )
 
     vs_filter = {"company": company}
     if source_type:
@@ -75,7 +89,7 @@ def retrieve(query: str, company: str, k: int = 5,
         }},
         {"$project": {
             "_id": 0, "text": 1, "source_url": 1, "source_type": 1,
-            "content_hash": 1,
+            "content_hash": 1, "first_seen_at": 1,
             "score": {"$meta": "vectorSearchScore"},
         }},
     ]
