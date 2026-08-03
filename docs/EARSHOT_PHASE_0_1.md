@@ -562,7 +562,25 @@ feature — abstention IS the product's trust claim, so a confident wrong
 abstention is as damaging as a confident wrong answer. Now raises
 `RetrievalUnavailable`; `answer()` returns `confidence: "error"`, never `"none"`.
 
-### Eval numbers are DISCARDED — both runs contaminated
+### CLEAN RESULT (2026-08-03, after quota reset) — the relevance gate works
+```
+abstention rate  18/20 (90%)   was 30% before the relevance gate
+answer rate      20/24 (83%)   was 79% — did NOT trade off
+abstained at floor 6 (free) | at relevance/citation gate 12
+latency  p50 12.8s  p95 16.8s  max 20.5s
+```
+Verified uncontaminated: 0 runs >60s, 0 floor-abstained positives, 0 errors.
+Abstention tripled while the answer rate slightly IMPROVED — the gate is not
+over-cautious. An LLM judging its own evidence is reliable enough at this scale;
+re-test as the corpus grows. Artifact: `eval/results/abstention_eval_clean_*.json`.
+
+**New top issue: latency.** p50 12.8s is over the 10s target and max 20.5s already
+exceeds the 20s timeout Task 1.6 is specced with. Stacked causes: `call_llm`'s 2s
+sleep, Groq 429 key rotations, 70B latency, embedding round-trip. The 4 remaining
+false abstentions are all at the gate and 3 of 4 are pricing/plan questions —
+the known scrape-typography gap.
+
+### Earlier eval numbers were DISCARDED — both runs contaminated
 30%/79% then 90%/46%, but 11 of 13 "false abstentions" in run 2 were 81-second
 embedder timeouts (the `[5,15,45]` backoff exhausting), not judgement. Latency
 9.25s → 32.55s for the same reason. **The abstention rate is currently
