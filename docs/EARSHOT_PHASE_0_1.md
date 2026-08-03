@@ -733,3 +733,53 @@ run on a wrong "the API is fine, it must be hung" conclusion.
   distribution.
 - A2 (Slack) needs async ack — see the latency section above.
 - Paid Groq key is the single biggest latency lever available.
+
+---
+
+## The rate limit is TPD, and the eval cannot fit in it (2026-08-03)
+
+Read Groq's own headers instead of guessing. Per-model, per-key limits:
+
+| model | TPM | req/day | earshot task |
+|---|---|---|---|
+| `llama-3.3-70b-versatile` | **12,000** | 1,000 | OK, 5.0s |
+| `openai/gpt-oss-120b` | 8,000 | 1,000 | OK, **1.7s** |
+| `openai/gpt-oss-20b` | 8,000 | 1,000 | OK, **0.9s** |
+| `qwen/qwen3.6-27b` | 8,000 | 1,000 | **PARSE FAIL** — not bare JSON |
+| `llama-3.1-8b-instant` | 6,000 | 14,400 | (untested for this task) |
+
+**Switching off the 70B would be wrong:** it has the LARGEST budget here, not
+the smallest. The intuition that "70B burns more tokens" does not apply — token
+cost is the prompt, which is identical across models.
+
+**What is true: every model has its own bucket.** Rotating keys cannot help,
+since both keys share one per-model ceiling. Rotating MODELS multiplies it.
+`MODEL_FALLBACKS` in `heads/llm.py` now tries `gpt-oss-120b` then `gpt-oss-20b`
+before waiting. Verified live — the 70B was already 429'd and the chain
+rescued the call.
+
+**The fallback was silently useless on the main path.** `TOKEN_CAPS` counts
+input + `max_tokens`, so a two-company prompt estimated **8,086** against every
+fallback's **8,000** cap: the chain collapsed to the 70B alone for exactly the
+"us vs them" question reps ask most. `MAX_OUTPUT_TOKENS` 1024 → **768** (answers
+measure ~400 chars) brings it to 7,830 and restores the chain. **Raising
+`MAX_OUTPUT_TOKENS` re-breaks this** — the constant carries the warning.
+
+**THE BINDING CONSTRAINT IS TOKENS-PER-DAY, NOT PER-MINUTE.**
+```
+Rate limit reached ... on tokens per day (TPD):
+Limit 100000, Used 96962, Requested 4526
+```
+At ~4.5K tokens per call, the 70B allows **~22 calls per day**. The abstention
+eval needs **44**. *The full eval cannot complete on a free key in one day* —
+which is why every attempt today ended contaminated. Options: run it in two
+halves across two days, run it entirely on a fallback model, or upgrade the key.
+Not "wait for quota to reset" — that was never going to work.
+
+**Also fixed:** `call_llm` built a fresh `Groq()` per call and never closed it
+(90 sockets in one run). Now `@lru_cache`d per key — harmless in batch scripts,
+a real leak in the long-lived `POST /api/ask` process.
+
+**`confidence: "error"` proved itself in production here:** the exhausted call
+returned `error`, not `none`. Before today's fix this would have told the rep
+"no evidence found" while the truth was "we never asked."

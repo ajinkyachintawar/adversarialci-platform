@@ -40,7 +40,13 @@ from ingest.chunker import norm
 from heads.llm import call_llm, fits
 
 MODEL = "llama-3.3-70b-versatile"
-MAX_OUTPUT_TOKENS = 1024
+# 768, not 1024, and the 256 difference is load-bearing. TOKEN_CAPS counts
+# input + max_tokens, so a two-company prompt estimated 8,086 tokens against the
+# 8,000 cap of every fallback model — the fallback chain silently collapsed to
+# the 70B alone for exactly the "us vs them" question reps ask most. Measured
+# answers are ~400 chars (~160 tokens), so 768 is still >4x headroom.
+# Raising this without re-checking TOKEN_CAPS re-breaks the fallback path.
+MAX_OUTPUT_TOKENS = 768
 # llama-3.3-70b-versatile's TOKEN_CAPS is 12K (heads/llm.py); fits() is the
 # real gate before any call, this budget just keeps the initial prompt in
 # the right ballpark so the fit-shrink loop rarely has to iterate.
