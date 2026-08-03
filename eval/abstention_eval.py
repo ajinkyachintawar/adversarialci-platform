@@ -21,6 +21,7 @@ Out:  eval/results/abstention_eval_<label>_<timestamp>.json
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, UTC
 
@@ -30,12 +31,75 @@ import heads.llm as llm_mod
 from earshot.answer import answer, SCORE_FLOOR
 
 
+class QuotaBlocked(RuntimeError):
+    """Not enough provider budget to produce a trustworthy run — raised BEFORE
+    burning any, or the moment a run starts erroring."""
+
+
+def preflight(model: str) -> None:
+    """Refuse to start unless every key can serve a REAL-sized prompt.
+
+    Three runs were wasted on 2026-08-03 by starting blind: the 70B was at
+    ~98.7K of its 100,000 daily tokens on all three keys, and each attempt
+    ground through dozens of queries discovering that.
+
+    Groq exposes per-MINUTE token headers and per-DAY *request* counts, but no
+    per-day token header — the only way to learn TPD state is to be refused, so
+    this deliberately spends one real prompt per key to find out cheaply.
+
+    The probe must be a genuine prompt: 'x'*13000 tokenizes to ~2.4K because
+    repeated characters compress, so it passes where a real 5.2K prompt 429s.
+    """
+    import json as _json
+    from groq import Groq
+    from config import GROQ_API_KEYS
+    import earshot.answer as A
+    from ingest.retrieval import retrieve
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    q = _json.load(open(os.path.join(here, "golden_retrieval_v2.json")))["queries"][0]
+    chunks = retrieve(f"{q['company']} {q['query']}", q["company"], k=6)
+    messages, _ = A._fit_prompt(q["query"], q["company"], None, chunks, [])
+    est = llm_mod.estimate_tokens(messages, A.MAX_OUTPUT_TOKENS)
+
+    print(f"🔎 preflight: {model}, real prompt ≈{est:.0f} tokens, "
+          f"{len(GROQ_API_KEYS)} key(s)")
+    blocked = []
+    for i, k in enumerate(GROQ_API_KEYS):
+        try:
+            Groq(api_key=k).chat.completions.create(
+                model=model, messages=messages, max_tokens=1)
+            print(f"   key #{i+1}: OK")
+        except Exception as e:
+            s = str(e)
+            m = re.search(r"\((TPD|TPM)\): Limit (\d+), Used (\d+)", s)
+            t = re.search(r"try again in ([\dhms.]+)", s)
+            detail = (f"{m.group(1)} {m.group(3)}/{m.group(2)}" if m else s[:80])
+            print(f"   key #{i+1}: BLOCKED — {detail}"
+                  + (f", retry in {t.group(1)}" if t else ""))
+            blocked.append(i + 1)
+    if blocked:
+        raise QuotaBlocked(
+            f"keys {blocked} cannot serve a real prompt on {model}. "
+            "Not starting — a partial run is a contaminated run.")
+    print("   ✅ all keys can serve a real prompt\n")
+
+
 def _run(entries: list[dict], expect: str) -> list[dict]:
     rows = []
     for e in entries:
         before = llm_mod.call_count
         out = answer(e["query"], e["company"])
         calls = llm_mod.call_count - before
+        # ABORT ON FIRST INFRASTRUCTURE ERROR. Today's runs ground through
+        # dozens of queries after the provider gave out, burning the budget the
+        # retry would need. One error means the run is already contaminated, so
+        # every further query is waste.
+        if out["confidence"] == "error":
+            raise QuotaBlocked(
+                f"provider failed on {e['company']!r}: {e['query'][:60]!r} — "
+                f"{out.get('error', 'confidence=error')}. Aborting: the run is "
+                "already contaminated and continuing only burns quota.")
         correct = out["confidence"] == expect
         rows.append({
             "query": e["query"],
@@ -64,7 +128,10 @@ def main(label: str = "baseline") -> dict:
     pos = json.load(open(os.path.join(here, "golden_retrieval_v2.json")))["queries"]
     neg = json.load(open(os.path.join(here, "golden_abstain.json")))["queries"]
 
-    print(f"\n📊 Abstention eval (SCORE_FLOOR={SCORE_FLOOR})")
+    from earshot.answer import MODEL
+    print(f"\n📊 Abstention eval (SCORE_FLOOR={SCORE_FLOOR}, MODEL={MODEL})")
+    if not os.environ.get("SKIP_PREFLIGHT"):
+        preflight(MODEL)
     print(f"\n-- NEGATIVES ({len(neg)}) — should abstain --")
     neg_rows = _run(neg, "none")
     print(f"\n-- POSITIVES ({len(pos)}) — should answer --")
@@ -90,6 +157,8 @@ def main(label: str = "baseline") -> dict:
     result = {
         "label": label,
         "timestamp": datetime.now(UTC).isoformat(),
+        "model": os.environ.get("EARSHOT_MODEL", "llama-3.3-70b-versatile"),
+        "fallback_pinned": bool(os.environ.get("GROQ_NO_FALLBACK")),
         "contaminated": contaminated,
         "error_rows": len(errors),
         "score_floor": SCORE_FLOOR,
@@ -139,4 +208,10 @@ def main(label: str = "baseline") -> dict:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "baseline")
+    try:
+        main(sys.argv[1] if len(sys.argv) > 1 else "baseline")
+    except QuotaBlocked as e:
+        # exit 2, distinct from a crash: nothing is wrong with the code, the
+        # provider simply cannot support a trustworthy run right now
+        print(f"\n🛑 NOT RUN — {e}", file=sys.stderr)
+        sys.exit(2)
