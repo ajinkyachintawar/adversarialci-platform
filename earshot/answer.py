@@ -82,6 +82,34 @@ def _squash(s: str) -> str:
     return "".join(_fold(s).split())
 
 
+# Separator punctuation, but NEVER between two digits — "$56.94" must not
+# become "$5694" and match a different price. That guard is the entire safety
+# argument for _depunct(), so the lookarounds are load-bearing, not cosmetic.
+_SEP_PUNCT = re.compile(r"(?<!\d)[.,:;\-–—*_|]|[.,:;\-–—*_|](?!\d)")
+
+
+def _depunct(s: str) -> str:
+    """_squash() with separator punctuation removed. Second-chance matching only.
+
+    Pricing pages scrape as delimiter-less table rows — the corpus literally
+    holds "Dedicated $0.08/hour Starts at $56.94/month For production…" with no
+    punctuation between cells. A model quoting that row inserts the separators a
+    human would ("Dedicated: $0.08/hour. Starts at $56.94/month."), so the text
+    is content-identical yet fails a byte match.
+
+    Measured 2026-08-03 against the full corpus: 4 of the 5 quotes the gate was
+    dropping are exactly this, and the 5th (a stitched-together HNSW claim) is
+    still correctly rejected — assembly of non-contiguous fragments does not
+    match even after depunctuation, which is the property that keeps this safe.
+
+    Verified no ambiguity: across 109 distinct money strings in the corpus the
+    only collisions are a trailing sentence period ("$20" vs "$20."), i.e. the
+    same number. Removing punctuation cannot turn one claim into another, for
+    the same reason removing whitespace cannot.
+    """
+    return _SEP_PUNCT.sub("", _squash(s))
+
+
 def _captured_at(first_seen_at) -> str:
     if isinstance(first_seen_at, str):
         try:
@@ -238,6 +266,7 @@ def answer(question: str, competitor: str, my_company: str | None = None, k: int
     messages, id_map = _fit_prompt(question, competitor, my_company, chunks, my_chunks)
 
     parsed = None
+    raw = None
     for is_retry in (False, True):
         raw = call_llm(messages, model=MODEL, max_tokens=MAX_OUTPUT_TOKENS, temperature=0.1)
         try:
@@ -254,6 +283,21 @@ def answer(question: str, competitor: str, my_company: str | None = None, k: int
                 "Your previous output was invalid JSON for the schema. Return "
                 "only the JSON object, citing only the E-labels shown above."},
         ]
+
+    # THE SAME SILENT FAILURE AS RetrievalUnavailable, on the LLM side.
+    # call_llm returns None only for infrastructure reasons — every key 429'd,
+    # or a hard API error. It never means "the model considered the evidence and
+    # found nothing". Reporting that as "none" tells the rep the competitor's
+    # own pages don't answer the question, when in truth we never asked.
+    # Measured 2026-08-03: a rate-limited eval logged 23 exhausted calls, every
+    # one of which would have reached the user as a confident abstention.
+    # A parse failure (raw is not None) IS a model failure, not an outage, and
+    # stays "none" — we did ask, and got nothing usable back.
+    if parsed is None and raw is None:
+        return {"answer": "", "citations": [], "confidence": "error",
+                "error": "LLM unavailable (all keys rate-limited or API error) "
+                         "— this is NOT an absence of evidence.",
+                "seconds": round(time.time() - t0, 2)}
 
     if parsed is None:
         return {"answer": "", "citations": [], "confidence": "none",
@@ -299,6 +343,17 @@ def answer(question: str, competitor: str, my_company: str | None = None, k: int
                 if needle in _squash(cand["text"]):
                     source = cand
                     break
+        # Second chance, punctuation-insensitive: scraped pricing tables have no
+        # separators, so the model punctuates them into prose. See _depunct().
+        # Strictly a widening of the same substring test — a quote that is not
+        # contiguous in SOME chunk is still dropped.
+        if source is None:
+            dp_needle = _depunct(cite.quote)
+            if dp_needle:
+                for cand in id_map.values():
+                    if dp_needle in _depunct(cand["text"]):
+                        source = cand
+                        break
         if source is not None:
             verified.append({
                 "quote": cite.quote,
@@ -379,6 +434,57 @@ def _self_check():
     })
     r = answer("how much does it cost", "Weaviate")
     assert r["confidence"] == "none" and r["citations"] == []
+
+    # 6. punctuation inserted into a delimiter-less scraped table row is
+    # accepted — the real-world case (4 of 5 dropped quotes were exactly this)
+    table = {"text": "Dedicated $0.08/hour Starts at $56.94/month For production apps",
+             "source_url": "https://www.mongodb.com/pricing", "score": 0.9,
+             "first_seen_at": datetime(2026, 8, 1)}
+    retrieve = lambda q, c, k=6: [table]
+    call_llm = lambda *a, **kw: json.dumps({
+        "answer": "...",
+        "citations": [{"evidence_id": "E1",
+                       "quote": "Dedicated: $0.08/hour. Starts at $56.94/month."}],
+    })
+    r = answer("what does a dedicated cluster cost", "MongoDB")
+    assert r["confidence"] == "evidence" and len(r["citations"]) == 1, r
+
+    # 7. THE SAFETY PROPERTY: depunctuation must not let the model stitch
+    # non-contiguous fragments into a quote. This is what separates "tolerating
+    # the scrape's typography" from "letting the model invent a claim".
+    call_llm = lambda *a, **kw: json.dumps({
+        "answer": "...",
+        "citations": [{"evidence_id": "E1",
+                       "quote": "Dedicated: $0.08/hour. For development and testing."}],
+    })
+    r = answer("what does a dedicated cluster cost", "MongoDB")
+    assert r["confidence"] == "none" and r["citations"] == [], r
+
+    # 8. a decimal must not collapse into a different number: "$5.694" must NOT
+    # match a corpus reading "$56.94". The digit lookarounds in _SEP_PUNCT are
+    # the only thing preventing this, and this is a pricing product.
+    assert _depunct("$56.94") != _depunct("$5.694")
+    call_llm = lambda *a, **kw: json.dumps({
+        "answer": "...",
+        "citations": [{"evidence_id": "E1", "quote": "Starts at $5.694/month"}],
+    })
+    r = answer("what does a dedicated cluster cost", "MongoDB")
+    assert r["confidence"] == "none", r
+
+    # 9. LLM unavailable (all keys 429'd) must be "error", never "none" — the
+    # same distinction RetrievalUnavailable makes on the retrieval side. An
+    # outage reported as abstention is the one lie this product cannot tell.
+    retrieve = lambda q, c, k=6: [sample]
+    call_llm = lambda *a, **kw: None
+    r = answer("how much does it cost", "Weaviate")
+    assert r["confidence"] == "error" and r["confidence"] != "none", r
+    assert "error" in r
+
+    # 10. ...but a model that replies with unparseable junk IS a model failure,
+    # not an outage: we did ask and got something back, so "none" is honest.
+    call_llm = lambda *a, **kw: "not json at all"
+    r = answer("how much does it cost", "Weaviate")
+    assert r["confidence"] == "none", r
 
     print("✅ earshot.answer self-check passed (offline — no network, no LLM call)")
 

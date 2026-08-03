@@ -649,10 +649,85 @@ attempts a rep made, and dropping them would hide exactly the slow questions.
 A failed `ask_log` write never fails the request — the answer is the product,
 the log is for A4.
 
+---
+
+## The quote gate was rejecting real evidence (2026-08-03)
+
+Diagnosed before building, and the earlier diagnosis in this doc was **wrong**:
+it was never a chunker problem, and "3 of 4 are pricing" was also wrong.
+
+All 4 false abstentions exit at the **verbatim gate** with retrieval healthy
+(0.88–0.91) and the relevance gate passing — the model finds the right evidence
+and writes a real answer; only the byte-match fails:
+
+```
+model:  Dedicated: $0.08/hour. Starts at $56.94/month. For production…
+source: Dedicated  $0.08/hour  Starts at $56.94/month  For production…
+```
+
+Pricing tables scrape as **delimiter-less rows**, so the model inserts the
+punctuation a human would. Content identical, bytes different. The chunks were
+correct the whole time.
+
+Searching the full corpus split the dropped quotes cleanly: **4 of 5 are
+punctuation-only**, and the 5th (an HNSW claim) is **assembly** — fragments
+stitched from non-contiguous text, which does not match even after
+depunctuation. That asymmetry is what makes the fix safe: it widens tolerance
+for the scrape's typography without admitting invented claims.
+
+`_depunct()` is a second-chance match ignoring separator punctuation, **never
+between two digits** — `$56.94` must not become `$5694` and match `$5.694`.
+Verified across **109 distinct money strings** in the corpus: the only 4
+collisions are a trailing sentence period (`$20` vs `$20.`), the same number.
+Self-check pins all three properties (punctuation accepted, assembly rejected,
+decimals never collapsed).
+
+Result on the 4: **3 recover** with real citations; HNSW still correctly
+abstains.
+
+---
+
+## THE FOURTH SILENT FAILURE — same pattern, LLM side (2026-08-03)
+
+`RetrievalUnavailable` fixed this on the *retrieval* side and the identical
+reasoning was never applied to the *LLM* side. `call_llm` returns `None` when
+every Groq key is 429'd, `answer()` mapped that to `parsed is None` →
+**`confidence: "none"`**. A quota outage reached the rep as *"the competitor's
+own pages don't answer this."*
+
+Caught live: a rate-limited eval logged **23 "giving up this call"** in 17 of 44
+queries, every one of which would have been reported as a confident abstention.
+
+Now: `parsed is None and raw is None` → `confidence: "error"`. A *parse* failure
+(raw present but unusable) stays `"none"` — we did ask and got something back;
+that is a model failure, not an outage.
+
+**Fourth instance of one pattern: a falsy return value that conflates "failed"
+with "found nothing."** SEO corpus → Firecrawl 429s → Gemini quota → Groq keys.
+Assume it exists anywhere a function can fail and return empty.
+
+### Contamination guard
+`eval/abstention_eval.py` now reports **no rates at all** when any query returns
+`confidence: "error"`, flagging `contaminated: true` instead. Three runs have
+been invalidated this way; a number that must be remembered as untrustworthy
+will eventually be trusted.
+
+### Groq 8B and 70B have SEPARATE quota buckets
+A health check on `llama-3.1-8b-instant` returned in 0.2s while
+`llama-3.3-70b-versatile` — the model `answer()` actually uses — was 429ing on
+every key. **Always probe the model in the path.** This cost a killed 17-minute
+run on a wrong "the API is fine, it must be hung" conclusion.
+
 ### Open
-- Pricing questions fail quote verification (mangled scrape typography) — the
-  most common rep question; points at the chunker, not `answer()`. 3 of the 4
-  remaining false abstentions.
+- **Re-run `eval/abstention_eval.py` when 70B quota recovers.** The depunct fix
+  is verified on the 4 target queries but NOT across all 44 — specifically
+  unmeasured: whether depunctuation loosened the gate enough to let any of the
+  20 negatives through. Do not quote an abstention rate until this run is clean.
+- `call_llm` builds a new `Groq()` client per call and never closes it (90 open
+  connections in one eval run). Harmless in batch scripts, a leak in the
+  long-lived `POST /api/ask` server process.
+- Free-tier 70B latency swings 10x (1.7s → 25s/query) with no code change —
+  more evidence the latency ceiling is the plan, not the code.
 - Re-run `eval/abstention_eval.py` to confirm the pacing fix in aggregate; the
   ~2s saving is arithmetic + two spot checks (3.48s / 0.81s), not a re-measured
   distribution.
