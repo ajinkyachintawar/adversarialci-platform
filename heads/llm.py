@@ -32,7 +32,33 @@ _last_call_at = 0.0  # for PACE_S; see call_llm
 # never noticed but earshot.answer pays on every single question a rep asks.
 # Pacing on entry is identical for back-to-back loops and free when calls are
 # already seconds apart.
-PACE_S = 2.0
+PACE_S = 2.0  # floor; the real gap is computed per call, see _pace_for()
+
+
+def _pace_for(model: str, estimated: float) -> float:
+    """Seconds to leave between calls so a batch stays under the model's TPM.
+
+    A FLAT pace cannot be right: the sustainable rate depends on prompt size,
+    the model's per-minute cap, and how many keys share the load. At 5.2K tokens
+    against the 70B's 12K TPM, three keys sustain one call per ~8.7s — we were
+    firing every 1.6s, saturating TPM and then thrashing on 20s retries. That
+    cost two contaminated eval runs before the arithmetic got done.
+
+    Costs nothing on the server path: pacing is enforced on entry, and a rep's
+    questions arrive far more than 9s apart. This only bites batch loops, which
+    is exactly where it should.
+    """
+    cap = TOKEN_CAPS.get(model)
+    if not cap or not estimated:
+        return PACE_S
+    return max(PACE_S, 60.0 * estimated / (cap * max(len(GROQ_API_KEYS), 1)))
+
+# How many 20s waits to spend once every model and key is 429ing. Groq's TPM
+# window is 60s, so one wait (the original behaviour) could not outlast it — a
+# pinned-model eval lost its last 6 of 44 queries that way. Note the server path
+# is capped by ASK_TIMEOUT_S long before this budget is spent; it exists for the
+# batch/eval path, where finishing slowly beats a contaminated result.
+TPM_RETRIES = 3
 
 # Groq per-model TPM caps (input + max_tokens). chars/2.5 — measured on this
 # corpus's table-heavy text, not the optimistic /4. Values read from Groq's own
@@ -134,18 +160,25 @@ def call_llm(messages: list, model: str, max_tokens: int = 2048,
         raise OversizedPromptError(
             f"estimated {estimated:.0f} tokens > {cap} cap for {model}")
 
-    # requested model first, then any fallback whose cap still fits the prompt
-    chain = [model] + [m for m in MODEL_FALLBACKS.get(model, [])
-                       if TOKEN_CAPS.get(m, 0) >= estimated]
+    # requested model first, then any fallback whose cap still fits the prompt.
+    # GROQ_NO_FALLBACK pins the run to one model: a fallback firing mid-eval
+    # silently produces a MIXED-MODEL result, which cannot answer "is model X
+    # better than Y" — the exact question a benchmark run is asked. Production
+    # always wants the fallback; a controlled comparison never does.
+    chain = [model]
+    if not os.environ.get("GROQ_NO_FALLBACK"):
+        chain += [m for m in MODEL_FALLBACKS.get(model, [])
+                  if TOKEN_CAPS.get(m, 0) >= estimated]
 
     for m_idx, m in enumerate(chain):
         if m_idx:
             print(f"  🔄 Groq 429 — falling back to {m} (separate quota)")
         for attempt in range(len(GROQ_API_KEYS)):
             try:
+                pace = _pace_for(m, estimated)
                 gap = time.time() - _last_call_at
-                if gap < PACE_S:
-                    time.sleep(PACE_S - gap)
+                if gap < pace:
+                    time.sleep(pace - gap)
                 _last_call_at = time.time()
                 response = _client(GROQ_API_KEYS[_key_idx]).chat.completions.create(
                     model=m,
@@ -166,19 +199,27 @@ def call_llm(messages: list, model: str, max_tokens: int = 2048,
                 if len(GROQ_API_KEYS) > 1:
                     print(f"  🔑 429 on {m} — rotating to key #{_key_idx + 1}")
 
-    # every model on every key is rate limited: the ceiling is real, so wait out
-    # one TPM window on the primary rather than hammering
-    print("  ⏳ 429 on every model and key — waiting 20s for the TPM window")
-    time.sleep(20)
-    try:
-        response = _client(GROQ_API_KEYS[_key_idx]).chat.completions.create(
-            model=model, messages=messages,
-            temperature=temperature, max_tokens=max_tokens)
-        call_count += 1
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"  ⚠️  Groq: rate limited on every model and key, giving up ({e})")
-        return None
+    # Every model on every key is rate limited, so the ceiling is real: wait out
+    # the TPM window rather than hammering. Groq's TPM window is 60s, and ONE
+    # 20s wait was not enough — a pinned-model eval lost its last 6 of 44
+    # queries to exactly this. Three waits covers a full window.
+    for wait_n in range(TPM_RETRIES):
+        print(f"  ⏳ 429 everywhere — waiting 20s for the TPM window "
+              f"({wait_n + 1}/{TPM_RETRIES})")
+        time.sleep(20)
+        try:
+            response = _client(GROQ_API_KEYS[_key_idx]).chat.completions.create(
+                model=model, messages=messages,
+                temperature=temperature, max_tokens=max_tokens)
+            call_count += 1
+            return response.choices[0].message.content
+        except Exception as e:
+            if "429" not in str(e):
+                print(f"  ⚠️  Groq error: {e}")
+                return None
+            _key_idx = (_key_idx + 1) % len(GROQ_API_KEYS)
+    print("  ⚠️  Groq: rate limited on every model and key, giving up")
+    return None
 
 
 def _self_check():
@@ -237,12 +278,24 @@ def _self_check():
         # MODEL FALLBACK: the primary 429s on every key, so the call must land
         # on a fallback model (its own TPM bucket) rather than sleeping or
         # returning None. This is the entire point of MODEL_FALLBACKS.
+        # The env var is set explicitly both ways — reading ambient env made
+        # this test fail under GROQ_NO_FALLBACK, i.e. it tested the shell, not
+        # the code.
         Groq = _stub(fail_models=("llama-3.3-70b-versatile",))
         _client.cache_clear()
         _last_call_at = 0.0
+        os.environ.pop("GROQ_NO_FALLBACK", None)
         got = call_llm(small, model="llama-3.3-70b-versatile", max_tokens=100)
         assert got is not None, "must fall back, not give up"
         assert got.endswith(MODEL_FALLBACKS["llama-3.3-70b-versatile"][0]), got
+
+        # ...and GROQ_NO_FALLBACK pins the run to one model, so a benchmark
+        # cannot silently become a mixed-model average.
+        os.environ["GROQ_NO_FALLBACK"] = "1"
+        _last_call_at = 0.0
+        assert call_llm(small, model="llama-3.3-70b-versatile", max_tokens=100) is None, \
+            "GROQ_NO_FALLBACK must not silently fall back"
+        os.environ.pop("GROQ_NO_FALLBACK", None)
 
         # a fallback whose TOKEN_CAPS cannot fit the prompt is SKIPPED, never
         # truncated — the 70B's 12K prompt must not be sent to an 8K model
