@@ -870,3 +870,46 @@ A probe must use a real prompt, on the real model, or it proves nothing.
 - The contamination guard **fired correctly on its first real outing.** Without
   today's `confidence: "error"` fix, attempt 1 would have reported ~75% answer
   rate and "the 70B is worse" — a plausible number, drawn entirely from quota.
+
+---
+
+## How to run the 70B comparison in ONE clean pass
+
+Today's three wasted runs all had the same shape: **started blind, discovered
+the quota was gone 16-38 queries in.** Two guards now make that impossible.
+
+**1. Preflight.** The eval refuses to start unless every key can serve a REAL
+prompt on the target model. Verified in both directions — it blocks the
+exhausted 70B at zero cost, and passes on a model with budget:
+```
+🔎 preflight: llama-3.3-70b-versatile, real prompt ≈5191 tokens, 3 key(s)
+   key #1: BLOCKED — TPD 97999/100000, retry in 9m43.2s.
+🛑 NOT RUN — a partial run is a contaminated run.
+```
+The probe must be a genuine prompt: `'x'*13000` tokenizes to ~2.4K because
+repeated characters compress, so it passes where a real 5.2K prompt 429s.
+Groq has no per-day *token* header, so being refused is the only way to read
+TPD — the probe spends one real prompt per key to find out cheaply.
+
+**2. Abort on first error.** One `confidence: "error"` row means the run is
+already contaminated, so every further query is waste. It now raises
+immediately (exit code **2**, distinct from a crash) instead of grinding
+through 40 more and burning the budget the retry needs.
+
+**Artifacts now record `model` and `fallback_pinned`**, because comparing two
+result JSONs without knowing which model produced them is guesswork — the
+gpt-oss-120b run predates `GROQ_NO_FALLBACK` and cannot prove it stayed on one
+model.
+
+### The command, when the 70B's daily window has rolled over
+```bash
+cd ~/EarshotCI && GROQ_NO_FALLBACK=1 .venv/bin/python -u -m eval.abstention_eval llama70b_depunct
+```
+Needs ~170K tokens against 300K/day across three keys. Takes ~6.5 min at the
+TPM-derived pace. If preflight blocks, nothing is spent — wait and retry.
+
+**Then re-run the gpt-oss side pinned**, so both halves of the comparison are
+controlled:
+```bash
+EARSHOT_MODEL=openai/gpt-oss-120b GROQ_NO_FALLBACK=1 .venv/bin/python -u -m eval.abstention_eval gptoss120b_pinned
+```
