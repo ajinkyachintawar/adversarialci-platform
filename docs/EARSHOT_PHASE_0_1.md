@@ -783,3 +783,45 @@ a real leak in the long-lived `POST /api/ask` process.
 **`confidence: "error"` proved itself in production here:** the exhausted call
 returned `error`, not `none`. Before today's fix this would have told the rep
 "no evidence found" while the truth was "we never asked."
+
+---
+
+## CLEAN RESULT — abstention 95%, answer rate 100% (2026-08-03)
+
+`eval/results/abstention_eval_gptoss120b_*.json`, `contaminated: false`,
+`error_rows: 0` — the guard was armed and did not fire.
+
+| | baseline (70B, no depunct) | now (gpt-oss-120b + depunct) |
+|---|---|---|
+| abstention rate | 18/20 (90%) | **19/20 (95%)** |
+| answer rate | 20/24 (83%) | **24/24 (100%)** |
+| false abstentions | 4 | **0** |
+
+All four previously-failing queries now answer, and **no negative leaked**
+through the loosened gate — which was the real risk of `_depunct()` and the one
+thing the 4-query spot check could not see.
+
+**CONFOUND, stated plainly: two variables changed at once.** This run swapped
+BOTH the quote gate (`_depunct`) and the model (70B → gpt-oss-120b), so the
+split between them is not measured. What is known: on the 70B, depunct alone
+recovered 3 of the 4 targets, so it is doing real work — but the jump from 83%
+to 100% cannot be attributed to it. Isolating this needs a 70B + depunct run,
+blocked on that model's daily tokens. Do not quote "depunct fixed the answer
+rate" until that exists.
+
+**The one remaining false answer** — *"What did Pinecone's last internal
+security incident report disclose?"* — also failed in the baseline run. A
+persistent weakness, not a regression: the corpus has security *documentation*
+that reads as topically adjacent to an incident *report*, and the relevance gate
+accepts it. Fixing it means teaching the gate the difference between "publishes
+security practices" and "discloses a specific incident."
+
+**gpt-oss-120b is a credible primary**, not just a fallback: it beat the 70B on
+both metrics here and answers in ~1.7s vs ~5.0s uncontended. Promotion should
+wait for the isolating run above — otherwise we would be choosing a model on a
+confounded comparison, which is the same mistake as trusting a contaminated eval.
+
+**Latency in this run is not a product measurement:** p50 19.8s, but only 10/44
+runs came in under 8s and the rest include 429 waits. It measures free-tier
+contention, not the answer path. `EARSHOT_MODEL` pins the model for exactly this
+kind of comparison.
