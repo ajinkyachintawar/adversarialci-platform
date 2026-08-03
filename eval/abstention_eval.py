@@ -76,12 +76,27 @@ def main(label: str = "baseline") -> dict:
     at_gate = sum(r["abstained_at"] == "gate" for r in neg_rows)
     false_abstain = [r for r in pos_rows if not r["correct"]]
 
+    # CONTAMINATION GUARD. Three runs of this eval have now been invalidated by
+    # infrastructure failure masquerading as product behaviour (Gemini quota,
+    # then Groq key exhaustion — 23 exhausted calls in one run, each of which
+    # answer() would once have reported as a confident abstention). Both now
+    # surface as confidence "error", so the eval can detect its own
+    # contamination rather than waiting for a human to notice the timings look
+    # odd. A contaminated run reports NO rates at all: a number that must be
+    # remembered as untrustworthy will eventually be trusted.
+    errors = [r for r in neg_rows + pos_rows if r["confidence"] == "error"]
+    contaminated = bool(errors)
+
     result = {
         "label": label,
         "timestamp": datetime.now(UTC).isoformat(),
+        "contaminated": contaminated,
+        "error_rows": len(errors),
         "score_floor": SCORE_FLOOR,
-        "abstention_rate": round(abstained / len(neg_rows), 3) if neg_rows else None,
-        "answer_rate": round(answered / len(pos_rows), 3) if pos_rows else None,
+        "abstention_rate": (None if contaminated else
+                            round(abstained / len(neg_rows), 3) if neg_rows else None),
+        "answer_rate": (None if contaminated else
+                        round(answered / len(pos_rows), 3) if pos_rows else None),
         "abstained_at_floor": at_floor,
         "abstained_at_gate": at_gate,
         "llm_calls_saved_by_floor": at_floor,
@@ -92,11 +107,21 @@ def main(label: str = "baseline") -> dict:
     }
 
     print(f"\n{'='*64}")
-    print(f"  abstention rate  {abstained}/{len(neg_rows)} "
-          f"({result['abstention_rate']:.0%})   — correctly said 'no evidence'")
-    print(f"  answer rate      {answered}/{len(pos_rows)} "
-          f"({result['answer_rate']:.0%})   — answered when it could")
-    print(f"  abstained at floor {at_floor} (free) | at citation gate {at_gate} (1 call each)")
+    if contaminated:
+        print(f"  ❌ CONTAMINATED RUN — {len(errors)}/{len(neg_rows)+len(pos_rows)} "
+              f"queries hit an infrastructure failure (confidence 'error').")
+        print("     Rates deliberately NOT reported: they would measure quota,")
+        print("     not product behaviour. Re-run when the provider recovers.")
+        for r in errors[:5]:
+            print(f"       {r['company']}: {r['query'][:56]}")
+        if len(errors) > 5:
+            print(f"       ... and {len(errors)-5} more")
+    else:
+        print(f"  abstention rate  {abstained}/{len(neg_rows)} "
+              f"({result['abstention_rate']:.0%})   — correctly said 'no evidence'")
+        print(f"  answer rate      {answered}/{len(pos_rows)} "
+              f"({result['answer_rate']:.0%})   — answered when it could")
+        print(f"  abstained at floor {at_floor} (free) | at citation gate {at_gate} (1 call each)")
     print(f"  mean latency     {result['mean_seconds']}s")
     if false_abstain:
         print(f"\n  ⚠️  {len(false_abstain)} false abstentions (corpus HAS the answer):")
