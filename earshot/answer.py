@@ -39,7 +39,13 @@ from ingest.retrieval import retrieve, RetrievalUnavailable
 from ingest.chunker import norm
 from heads.llm import call_llm, fits
 
-MODEL = "llama-3.3-70b-versatile"
+# Default stays the 70B (largest TOKEN_CAPS, see heads/llm.py). EARSHOT_MODEL
+# overrides it so eval/abstention_eval.py can pin a model — each Groq model has
+# its OWN daily token budget, and the eval needs ~170K tokens against ~200K per
+# model (2 keys = 2 separate orgs), so it only fits when pinned to one model.
+# An env var is right HERE and wrong for SCORE_FLOOR: this selects infrastructure
+# under a fixed product behaviour, whereas the floor IS the product behaviour.
+MODEL = os.environ.get("EARSHOT_MODEL", "llama-3.3-70b-versatile")
 # 768, not 1024, and the 256 difference is load-bearing. TOKEN_CAPS counts
 # input + max_tokens, so a two-company prompt estimated 8,086 tokens against the
 # 8,000 cap of every fallback model — the fallback chain silently collapsed to
