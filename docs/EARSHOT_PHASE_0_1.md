@@ -913,3 +913,40 @@ controlled:
 ```bash
 EARSHOT_MODEL=openai/gpt-oss-120b GROQ_NO_FALLBACK=1 .venv/bin/python -u -m eval.abstention_eval gptoss120b_pinned
 ```
+
+---
+
+## The model choice, decided on an axis the abstention eval cannot see
+
+The abstention eval measures *safety* — did we abstain when we should, are quotes
+real. It scores the two candidate models **identically** on the thing that
+actually distinguishes them.
+
+Measured on the 20 answers both models produced (zero extra quota — read from
+existing result JSONs):
+
+| model | attributed framing |
+|---|---|
+| `llama-3.3-70b-versatile` | 12/20 (**60%**) |
+| `openai/gpt-oss-120b` | 19/20 (**95%**) |
+
+```
+70B     : The cheapest paid Pinecone plan is the Builder plan, flat $20/month.
+gpt-oss : Pinecone's pricing page lists the Builder plan at $20/month.
+```
+
+The 70B version makes **EarshotCI** the claimant. A rep forwards it, and we own
+a pricing claim about a competitor. The gpt-oss version attributes it — which is
+the entire promise (*surface evidence, never assert facts*) and is what the
+prompt explicitly asks for. This is a correctness property, not style.
+
+`attributed_framing` is now a reported metric so this stops being a one-off
+analysis. It is a **heuristic** (regex over claim verbs and source nouns) — treat
+a small gap as noise and read the answers; a 60-vs-95 gap is not small.
+
+**Bearing on the pending comparison:** a ±1 query difference in abstention rate
+is 4-5 points and means nothing at n=44. This gap is 7 answers on one axis and
+points one way. Combined with gpt-oss-120b being ~3x faster uncontended
+(1.7s vs 5.0s), which matters directly for A2's latency budget, the burden of
+proof now sits with the 70B. The pinned runs should confirm or overturn it —
+not start the argument.

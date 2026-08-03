@@ -85,6 +85,26 @@ def preflight(model: str) -> None:
     print("   ✅ all keys can serve a real prompt\n")
 
 
+# "Surface evidence, never assert facts" is the product, so HOW an answer is
+# framed is a correctness property, not a style preference. An answer reading
+# "The cheapest Pinecone plan is $20/month" makes EarshotCI the claimant; the
+# rep forwards it and we own the claim. "Pinecone's pricing page lists $20/month"
+# attributes it, which is the whole promise.
+#
+# Measured 2026-08-03 on 20 answers both models produced: llama-3.3-70b 60%,
+# openai/gpt-oss-120b 95%. The abstention eval scores those two IDENTICALLY —
+# this is the axis it cannot see, and it is the axis the prompt explicitly asks
+# for. Heuristic and imperfect; treat a small gap as noise and read the answers.
+_ATTRIBUTION = re.compile(
+    r"\b(pricing page|docs?|documentation|according to|lists|states|says|"
+    r"guarantees|enforces|specifies|advertises|per (?:the|its)|page)\b", re.I)
+
+
+def _is_attributed(answer: str, company: str) -> bool:
+    a = answer.strip()
+    return bool(a.lower().startswith(company.lower()) or _ATTRIBUTION.search(a))
+
+
 def _run(entries: list[dict], expect: str) -> list[dict]:
     rows = []
     for e in entries:
@@ -115,6 +135,8 @@ def _run(entries: list[dict], expect: str) -> list[dict]:
             "citations": len(out["citations"]),
             "seconds": out["seconds"],
             "answer": out["answer"][:200],
+            "attributed": (_is_attributed(out["answer"], e["company"])
+                           if out["confidence"] == "evidence" else None),
         })
         mark = "✅" if correct else "❌"
         where = rows[-1]["abstained_at"] or f'{rows[-1]["citations"]} cites'
@@ -151,6 +173,8 @@ def main(label: str = "baseline") -> dict:
     # contamination rather than waiting for a human to notice the timings look
     # odd. A contaminated run reports NO rates at all: a number that must be
     # remembered as untrustworthy will eventually be trusted.
+    answered_rows = [r for r in pos_rows if r["confidence"] == "evidence"]
+    attributed = sum(bool(r["attributed"]) for r in answered_rows)
     errors = [r for r in neg_rows + pos_rows if r["confidence"] == "error"]
     contaminated = bool(errors)
 
@@ -166,6 +190,8 @@ def main(label: str = "baseline") -> dict:
                             round(abstained / len(neg_rows), 3) if neg_rows else None),
         "answer_rate": (None if contaminated else
                         round(answered / len(pos_rows), 3) if pos_rows else None),
+        "attributed_framing": (round(attributed / len(answered_rows), 3)
+                               if answered_rows else None),
         "abstained_at_floor": at_floor,
         "abstained_at_gate": at_gate,
         "llm_calls_saved_by_floor": at_floor,
@@ -191,6 +217,10 @@ def main(label: str = "baseline") -> dict:
         print(f"  answer rate      {answered}/{len(pos_rows)} "
               f"({result['answer_rate']:.0%})   — answered when it could")
         print(f"  abstained at floor {at_floor} (free) | at citation gate {at_gate} (1 call each)")
+        if answered_rows:
+            print(f"  attributed framing {attributed}/{len(answered_rows)} "
+                  f"({result['attributed_framing']:.0%})   — cited the source rather "
+                  f"than asserting")
     print(f"  mean latency     {result['mean_seconds']}s")
     if false_abstain:
         print(f"\n  ⚠️  {len(false_abstain)} false abstentions (corpus HAS the answer):")
