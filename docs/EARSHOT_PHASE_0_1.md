@@ -825,3 +825,48 @@ confounded comparison, which is the same mistake as trusting a contaminated eval
 runs came in under 8s and the rest include 429 waits. It measures free-tier
 contention, not the answer path. `EARSHOT_MODEL` pins the model for exactly this
 kind of comparison.
+
+---
+
+## The 70B comparison is BLOCKED on daily tokens (2026-08-03)
+
+Three attempts, all contaminated. The confound in the 95%/100% result — that
+run changed BOTH the quote gate and the model — is **still unresolved**.
+
+| key | org | 70B tokens used |
+|---|---|---|
+| #1 | `org_01khpa…` | 98,560 / 100,000 |
+| #2 | `org_01kvwd…` | 98,753 / 100,000 |
+| #3 | `org_01kz49…` | 98,886 / 100,000 |
+
+A third key (third org) was added mid-session and consumed by the failed
+attempts. **The limit is TOKENS PER DAY**, so no amount of pacing, retrying, or
+key-adding fixes it today. Re-run with `GROQ_NO_FALLBACK=1` once the rolling
+window clears.
+
+**How this was mis-diagnosed three times, because the pattern will recur:**
+
+1. *"Quota exhausted, wait."* — right, but abandoned when small probes passed.
+2. *"It is hung."* — from probing `llama-3.1-8b-instant` while `answer()` uses
+   the 70B. **Separate quota buckets.** Cost a killed 17-minute run.
+3. *"It is TPM, we are out-running the per-minute ceiling."* — plausible
+   arithmetic (5.2K tokens vs 12K TPM = 2.3 calls/min) and it produced two real
+   fixes, but it was never the binding constraint.
+
+**The error body said `on tokens per day (TPD)` the entire time.** Every wrong
+turn came from inferring the cause from symptoms instead of reading the message
+that was already on screen.
+
+**Small probes lie about quota.** `'x'*13000` tokenizes to ~2,428 tokens because
+repeated characters compress; a real 5.2K-token prompt 429s where it passes.
+A probe must use a real prompt, on the real model, or it proves nothing.
+
+**What survives and is worth keeping:**
+- `GROQ_NO_FALLBACK` — a fallback firing mid-benchmark silently produces a
+  mixed-model average, which cannot answer the question a benchmark is asked.
+- `_pace_for()` — a flat pace cannot be right; the sustainable rate depends on
+  prompt size, TPM cap, and key count. Free on the server path.
+- `TPM_RETRIES = 3` — Groq's TPM window is 60s; one 20s wait cannot outlast it.
+- The contamination guard **fired correctly on its first real outing.** Without
+  today's `confidence: "error"` fix, attempt 1 would have reported ~75% answer
+  rate and "the 70B is worse" — a plausible number, drawn entirely from quota.
