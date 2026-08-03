@@ -6,8 +6,8 @@ key-rotation-on-429 pattern from claims/extractor.py::_call_groq (does not
 import it — heads owns its own caller since it needs both the 8B debate
 model and the 70B judge model, picked per-call via `model`).
 
-Groq free tier is ~6K TPM per key: calls are sequential, time.sleep(2) after
-every successful call; on 429 the key rotates across GROQ_API_KEYS (separate
+Groq free tier is ~6K TPM per key: calls are sequential, paced PACE_S apart
+on entry (see call_llm); on 429 the key rotates across GROQ_API_KEYS (separate
 accounts = separate TPM), one full extra round after all keys are exhausted,
 then give up (None).
 
@@ -24,6 +24,14 @@ from config import GROQ_API_KEYS
 
 _key_idx = 0  # rotates across GROQ_API_KEYS on 429
 call_count = 0  # total successful calls this process — read by eval/heads_smoke.py
+_last_call_at = 0.0  # for PACE_S; see call_llm
+
+# Minimum gap between two Groq calls. Enforced BEFORE the call, not after it:
+# a trailing sleep(2) also delays the caller's return, which the batch loops
+# never noticed but earshot.answer pays on every single question a rep asks.
+# Pacing on entry is identical for back-to-back loops and free when calls are
+# already seconds apart.
+PACE_S = 2.0
 
 # Groq per-model TPM caps (input + max_tokens). chars/2.5 — measured on this
 # corpus's table-heavy text, not the optimistic /4.
@@ -72,7 +80,7 @@ def call_llm(messages: list, model: str, max_tokens: int = 2048,
     and go around once more. None on hard error or exhaustion. Raises
     OversizedPromptError before ever calling Groq if the prompt would exceed
     the model's TOKEN_CAPS — callers must shrink the prompt and retry."""
-    global _key_idx, call_count
+    global _key_idx, call_count, _last_call_at
     cap = TOKEN_CAPS.get(model)
     if cap is not None:
         estimated = estimate_tokens(messages, max_tokens)
@@ -81,6 +89,10 @@ def call_llm(messages: list, model: str, max_tokens: int = 2048,
                 f"estimated {estimated:.0f} tokens > {cap} cap for {model}")
     for attempt in range(2 * len(GROQ_API_KEYS)):
         try:
+            gap = time.time() - _last_call_at
+            if gap < PACE_S:
+                time.sleep(PACE_S - gap)
+            _last_call_at = time.time()
             client = Groq(api_key=GROQ_API_KEYS[_key_idx])
             response = client.chat.completions.create(
                 model=model,
@@ -90,7 +102,6 @@ def call_llm(messages: list, model: str, max_tokens: int = 2048,
             )
             content = response.choices[0].message.content
             call_count += 1
-            time.sleep(2)
             return content
         except Exception as e:
             if "429" not in str(e):
@@ -126,6 +137,26 @@ def _self_check():
     assert estimate_tokens(huge, 2048) > TOKEN_CAPS["llama-3.1-8b-instant"]
     assert fits(huge, "some-uncapped-model", 2048)
     assert not fits(huge, "llama-3.1-8b-instant", 2048)
+
+    # Pacing is enforced on ENTRY, so a cold call returns immediately while
+    # two back-to-back calls stay PACE_S apart. This is the whole latency win
+    # (p50 was 12.8s with the old trailing sleep) — stub Groq and prove both
+    # halves, since a trailing sleep would pass a cold-call check alone.
+    global _last_call_at, Groq
+    real_groq, small = Groq, [{"role": "user", "content": "hi"}]
+    Groq = lambda api_key: type("C", (), {"chat": type("X", (), {"completions": type(
+        "Y", (), {"create": staticmethod(lambda **kw: type("R", (), {"choices": [
+            type("M", (), {"message": type("N", (), {"content": "ok"})()})()]})())})()})()})()
+    try:
+        _last_call_at = 0.0
+        t0 = time.time()
+        assert call_llm(small, model="llama-3.1-8b-instant") == "ok"
+        assert time.time() - t0 < 0.5, "cold call must not pay the pacing sleep"
+        t0 = time.time()  # second call immediately after — must be paced
+        assert call_llm(small, model="llama-3.1-8b-instant") == "ok"
+        assert time.time() - t0 >= PACE_S - 0.1, "back-to-back calls must stay paced"
+    finally:
+        Groq = real_groq
 
     pool = {"A": [{"strength": 3}, {"strength": 1}], "B": [{"strength": 5}]}
     assert drop_lowest_strength(pool)

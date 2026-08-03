@@ -586,9 +586,75 @@ embedder timeouts (the `[5,15,45]` backoff exhausting), not judgement. Latency
 9.25s → 32.55s for the same reason. **The abstention rate is currently
 unmeasured.** Re-run `eval/abstention_eval.py` after Gemini quota resets.
 
+---
+
+## Latency is a PRICING problem, not a code problem (2026-08-03)
+
+Nearly optimised the wrong thing. Decomposed the clean eval by LLM-call count —
+floor-abstentions make zero LLM calls, so their elapsed time is embedding +
+Atlas only, and the difference is the Groq call:
+
+| stage | median | n |
+|---|---|---|
+| embedding + Atlas `$vectorSearch` | **0.33s** | 6 |
+| + one Groq call | **12.95s** | 38 |
+
+Retrieval is ~2.5% of the time; **the Groq call is ~97%**. Gemini embedding was
+never the bottleneck.
+
+**The same call has returned in 2.71s.** Same model, same prompt shape, same
+code — so the 70B can answer in ~2.4s and the 12.6s median is overwhelmingly
+free-tier *queueing*, not model speed. Tuning against that number is tuning
+against an artifact of the plan we are on. **The 10s target in `PLAN_A.md` is
+not reachable on a free Groq key — it is a pricing decision, not an
+engineering one.**
+
+Still worth fixing: `call_llm` slept 2s *after* every successful call. Correct
+as pacing for the batch loops it was written for, but a trailing sleep also
+delays the caller's return, which `answer()` paid on every single question.
+Moved to pace on **entry** (`PACE_S`) — identical for back-to-back loops, free
+when calls are already seconds apart, ~2s off every rep request. The
+`heads/llm.py` self-check stubs Groq and asserts both halves, since a
+cold-call-only check would also pass with the old trailing sleep.
+
+**Consequence for A2:** no synchronous path will ever meet Slack's 3s ack
+requirement. Slack must ack immediately and post the answer back afterwards.
+
+---
+
+## Task 1.6 — DONE (2026-08-03)
+
+`POST /api/ask` in `server.py` + `ask_log` index in `db/atlas.py`.
+
+**`ASK_TIMEOUT_S = 45`, not the 20s originally specced** — max observed was
+20.5s, which the original spec would have 504'd on almost immediately. Derived
+from measurement: ~18.5s worst case after the pacing fix, and free-tier queue
+times are high-variance so the tail needs headroom. A 504 on a merely-queued
+call looks to a rep like the product broke. Lower it when a paid key makes the
+tail predictable.
+
+Verified end to end against the live server and Atlas:
+
+| path | result |
+|---|---|
+| `competitor: "Nonsense Corp"` | **400** listing known companies, **not logged** |
+| `"are they cheaper than us"` Weaviate/Pinecone | `evidence`, 2 citations w/ URL + date, 3.48s |
+| churn-rate question | `none`, 0 citations, 0.81s |
+| `ask_log` | 2 docs (the 400 correctly excluded), `created_at_-1` index present |
+
+`confidence` stays 4-valued out to the caller — `evidence` / `none` / `error`
+(retrieval unavailable) / `timeout`. Collapsing `error` into `none` is the
+silent failure this product cannot ship. Timeouts ARE logged: they are real
+attempts a rep made, and dropping them would hide exactly the slow questions.
+A failed `ask_log` write never fails the request — the answer is the product,
+the log is for A4.
+
 ### Open
-- Clean abstention measurement (blocked on quota).
-- Task 1.6: `POST /api/ask` + `ask_log`.
 - Pricing questions fail quote verification (mangled scrape typography) — the
-  most common rep question; points at the chunker, not `answer()`.
-- Latency near the 10s target before Slack's 3s ack constraint (A2) arrives.
+  most common rep question; points at the chunker, not `answer()`. 3 of the 4
+  remaining false abstentions.
+- Re-run `eval/abstention_eval.py` to confirm the pacing fix in aggregate; the
+  ~2s saving is arithmetic + two spot checks (3.48s / 0.81s), not a re-measured
+  distribution.
+- A2 (Slack) needs async ack — see the latency section above.
+- Paid Groq key is the single biggest latency lever available.

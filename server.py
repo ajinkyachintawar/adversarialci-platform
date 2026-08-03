@@ -529,6 +529,83 @@ async def api_get_report(report_id: str):
     return await asyncio.to_thread(_work)
 
 
+class AskReq(BaseModel):
+    question: str
+    competitor: str
+    my_company: str | None = None
+
+
+# Measured 2026-08-03 on the free Groq tier: embedding + Atlas vector search is
+# 0.33s median, the single Groq call is 12.6s median / 20.5s max — and the same
+# call has returned in 2.7s, so the bulk is free-tier queueing, not model speed.
+# 45s is deliberate headroom over that tail, not a guess: a 504 on a queued call
+# looks to a rep like the product failed, which is worse than waiting. Lower it
+# when a paid Groq key makes the tail predictable.
+ASK_TIMEOUT_S = 45
+
+
+@app.post("/api/ask")
+async def api_ask(req: AskReq, request: Request):
+    """EarshotCI: a cited, dated answer from the competitor's own pages — or an
+    honest 'no evidence'. Abstention is the product's trust claim, so the three
+    confidence values stay distinct all the way out to the caller:
+      "evidence" answered with verified quotes
+      "none"     the corpus genuinely cannot support an answer
+      "error"    retrieval was unavailable (quota/outage) — NOT an empty corpus
+    """
+    from earshot.answer import answer
+
+    def _work():
+        from db.atlas import get_collection
+
+        # The corpus is its own source of truth for which companies are
+        # askable — no second registry to drift out of sync with it.
+        known = get_collection("rag_chunks").distinct("company")
+        if req.competitor not in known:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unknown competitor '{req.competitor}'. Known: {sorted(known)}",
+            )
+        return answer(req.question, req.competitor, req.my_company)
+
+    user = getattr(request.state, "user", None)
+    try:
+        result = await asyncio.wait_for(asyncio.to_thread(_work), timeout=ASK_TIMEOUT_S)
+    except asyncio.TimeoutError:
+        # Logged like any other attempt: a rep asked, and we failed to answer in
+        # time. Excluded from the A4 golden set by its confidence value, not by
+        # being absent — silent drops would hide exactly the slow questions.
+        result = {"answer": "", "citations": [], "confidence": "timeout",
+                  "seconds": ASK_TIMEOUT_S}
+
+    def _log():
+        from db.atlas import get_collection
+        get_collection("ask_log").insert_one({
+            "question": req.question,
+            "competitor": req.competitor,
+            "my_company": req.my_company,
+            "answer": result.get("answer", ""),
+            "citations": result.get("citations", []),
+            "confidence": result.get("confidence"),
+            "seconds": result.get("seconds"),
+            "user_email": (user or {}).get("email") if isinstance(user, dict)
+                          else getattr(user, "email", None),
+            "created_at": datetime.utcnow(),
+        })
+
+    # A logging failure must never turn a good answer into a 500 — the rep's
+    # answer is the product, the log is for A4.
+    try:
+        await asyncio.to_thread(_log)
+    except Exception as e:
+        print(f"⚠️  ask_log write failed (continuing): {e}")
+
+    if result.get("confidence") == "timeout":
+        raise HTTPException(status_code=504,
+                            detail=f"Answer timed out after {ASK_TIMEOUT_S}s")
+    return result
+
+
 @app.get("/api/chunks/{content_hash}")
 async def api_get_chunk(content_hash: str):
     """Fetch one rag_chunks doc for citation-chip popovers."""
