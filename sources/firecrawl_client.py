@@ -13,6 +13,12 @@ FIRECRAWL_URL = "https://api.firecrawl.dev/v1/scrape"
 
 CREDITS_USED = 0  # module-level spend counter, one credit per successful scrape
 
+# Measured 2026-08-01: back-to-back scrapes lost 19 of 64 URLs to 429s under a
+# single 5s retry. Same escalating-backoff shape ingest/embedder.py uses for
+# Gemini. PACE_S spaces requests so we mostly avoid the 429 in the first place.
+BACKOFF_S = [5, 15, 45]
+PACE_S = 3
+
 
 def get_credits_used() -> int:
     return CREDITS_USED
@@ -33,7 +39,7 @@ def scrape_url(url: str, timeout: int = 90) -> dict | None:
     }
     body = {"url": url, "formats": ["markdown"], "onlyMainContent": True}
 
-    for attempt in range(2):
+    for attempt in range(len(BACKOFF_S) + 1):
         start = time.time()
         try:
             resp = requests.post(FIRECRAWL_URL, json=body, headers=headers, timeout=timeout)
@@ -45,6 +51,7 @@ def scrape_url(url: str, timeout: int = 90) -> dict | None:
         if resp.status_code == 200:
             payload = resp.json().get("data", {})
             CREDITS_USED += 1
+            time.sleep(PACE_S)  # keep the next caller off the rate limit
             return {
                 "markdown": payload.get("markdown", "") or "",
                 "title": (payload.get("metadata") or {}).get("title"),
@@ -54,9 +61,10 @@ def scrape_url(url: str, timeout: int = 90) -> dict | None:
             }
 
         if resp.status_code == 429 or resp.status_code >= 500:
-            if attempt == 0:
-                print(f"  ⚠️  [Firecrawl] {resp.status_code} for {url}, retrying in 5s...")
-                time.sleep(5)
+            if attempt < len(BACKOFF_S):
+                wait = BACKOFF_S[attempt]
+                print(f"  ⚠️  [Firecrawl] {resp.status_code} for {url}, retrying in {wait}s...")
+                time.sleep(wait)
                 continue
 
         print(f"  ⚠️  [Firecrawl] scrape failed ({resp.status_code}) for {url}")

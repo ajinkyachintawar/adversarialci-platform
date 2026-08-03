@@ -38,6 +38,16 @@ from vendor_registry import (
 # ─── Routing Logic ──────────────────────────────────────────
 
 def needs_scraping(state: WarRoomState) -> str:
+    # Agents V2 builds its evidence from rag_chunks (ingest/), never from the
+    # research_data bullets this scrape produces — so on that path the whole
+    # phase is minutes of Tavily/HN/blog work nothing downstream reads.
+    # Sourcing mode exists to scrape, so it always does.
+    import os
+    if os.getenv("AGENTS_V2") == "1" and state.get("mode") != "sourcing":
+        print("  ⏭️  AGENTS_V2: skipping scrape — v2 reads rag_chunks, not "
+              "research_data (refresh vendors via /api/vendors/refresh)")
+        return "verify"
+
     new = state.get("new_companies", [])
     stale = state.get("stale_companies", [])
     if new or stale:
@@ -54,12 +64,29 @@ def should_run_court(state: WarRoomState) -> str:
 
 # ─── Graph Builders ─────────────────────────────────────────
 
+def _timed(name, fn):
+    """Wrap a graph node so its wall time lands on state["stage_seconds"].
+    Step 1 of Phase 3: before optimising anything, find out where the
+    minutes actually go (suspicion: source_router, whose bullets the v2
+    path never reads)."""
+    import time
+
+    def wrapped(state):
+        t0 = time.time()
+        out = fn(state)
+        prior = state.get("stage_seconds") or {}
+        out["stage_seconds"] = {**prior, name: round(time.time() - t0, 1)}
+        return out
+
+    return wrapped
+
+
 def build_main_graph():
     graph = StateGraph(WarRoomState)
-    graph.add_node("db_check", db_check)
-    graph.add_node("source_router", source_router)
-    graph.add_node("verifier", verifier)
-    graph.add_node("court_session", court_session)
+    graph.add_node("db_check", _timed("db_check", db_check))
+    graph.add_node("source_router", _timed("source_router", source_router))
+    graph.add_node("verifier", _timed("verifier", verifier))
+    graph.add_node("court_session", _timed("court_session", court_session))
     graph.set_entry_point("db_check")
     graph.add_conditional_edges("db_check", needs_scraping,
                                 {"scrape": "source_router", "verify": "verifier"})

@@ -1,0 +1,545 @@
+{
+  "label": "baseline",
+  "timestamp": "2026-08-01T13:06:25.784557+00:00",
+  "n_positives": 24,
+  "n_negatives": 20,
+  "sweep": [
+    {
+      "floor": 0.55,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.56,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.57,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.58,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.59,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.6,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.61,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.62,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.63,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.64,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.65,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.66,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.67,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.68,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.69,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.7,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.71,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.72,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.73,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.74,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.75,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.76,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.77,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.78,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 1.0,
+      "false_answer_count": "20/20"
+    },
+    {
+      "floor": 0.79,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.95,
+      "false_answer_count": "19/20"
+    },
+    {
+      "floor": 0.8,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.95,
+      "false_answer_count": "19/20"
+    },
+    {
+      "floor": 0.81,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.95,
+      "false_answer_count": "19/20"
+    },
+    {
+      "floor": 0.82,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.95,
+      "false_answer_count": "19/20"
+    },
+    {
+      "floor": 0.83,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.95,
+      "false_answer_count": "19/20"
+    },
+    {
+      "floor": 0.84,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.9,
+      "false_answer_count": "18/20"
+    },
+    {
+      "floor": 0.85,
+      "false_abstain_rate": 0.0,
+      "false_abstain_count": "0/24",
+      "false_answer_rate": 0.65,
+      "false_answer_count": "13/20"
+    },
+    {
+      "floor": 0.86,
+      "false_abstain_rate": 0.042,
+      "false_abstain_count": "1/24",
+      "false_answer_rate": 0.4,
+      "false_answer_count": "8/20"
+    },
+    {
+      "floor": 0.87,
+      "false_abstain_rate": 0.208,
+      "false_abstain_count": "5/24",
+      "false_answer_rate": 0.25,
+      "false_answer_count": "5/20"
+    },
+    {
+      "floor": 0.88,
+      "false_abstain_rate": 0.417,
+      "false_abstain_count": "10/24",
+      "false_answer_rate": 0.1,
+      "false_answer_count": "2/20"
+    },
+    {
+      "floor": 0.89,
+      "false_abstain_rate": 0.667,
+      "false_abstain_count": "16/24",
+      "false_answer_rate": 0.05,
+      "false_answer_count": "1/20"
+    },
+    {
+      "floor": 0.9,
+      "false_abstain_rate": 0.833,
+      "false_abstain_count": "20/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    },
+    {
+      "floor": 0.91,
+      "false_abstain_rate": 0.958,
+      "false_abstain_count": "23/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    },
+    {
+      "floor": 0.92,
+      "false_abstain_rate": 1.0,
+      "false_abstain_count": "24/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    },
+    {
+      "floor": 0.93,
+      "false_abstain_rate": 1.0,
+      "false_abstain_count": "24/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    },
+    {
+      "floor": 0.94,
+      "false_abstain_rate": 1.0,
+      "false_abstain_count": "24/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    },
+    {
+      "floor": 0.95,
+      "false_abstain_rate": 1.0,
+      "false_abstain_count": "24/24",
+      "false_answer_rate": 0.0,
+      "false_answer_count": "0/20"
+    }
+  ],
+  "recommended_floor": 0.55,
+  "recommended_false_answer_rate": 1.0,
+  "positive_rows": [
+    {
+      "query": "What's the cheapest paid MongoDB Atlas tier and how much does it run per hour?",
+      "company": "MongoDB",
+      "top_score": 0.8863694667816162,
+      "match_score": 0.8814546465873718
+    },
+    {
+      "query": "How much do I need to budget monthly for the smallest production-ready MongoDB cluster?",
+      "company": "MongoDB",
+      "top_score": 0.8838894367218018,
+      "match_score": 0.8792587518692017
+    },
+    {
+      "query": "What encryption protocol locks down connections to the MongoDB database by default?",
+      "company": "MongoDB",
+      "top_score": 0.8667051196098328,
+      "match_score": 0.8667051196098328
+    },
+    {
+      "query": "How many simultaneous connections am I capped at on MongoDB's totally free tier?",
+      "company": "MongoDB",
+      "top_score": 0.8767448663711548,
+      "match_score": 0.8767448663711548
+    },
+    {
+      "query": "What uptime number can I promise a customer running on a paid production MongoDB cluster?",
+      "company": "MongoDB",
+      "top_score": 0.8608890771865845,
+      "match_score": 0.8608890771865845
+    },
+    {
+      "query": "How many geographic zones can I split a worldwide MongoDB cluster into?",
+      "company": "MongoDB",
+      "top_score": 0.8916059732437134,
+      "match_score": 0.8916059732437134
+    },
+    {
+      "query": "Is there a data-size ceiling where MongoDB's automatic migration verification turns off?",
+      "company": "MongoDB",
+      "top_score": 0.8598551154136658,
+      "match_score": 0.8489665985107422
+    },
+    {
+      "query": "Can one MongoDB cluster stretch across two different cloud vendors at the same time?",
+      "company": "MongoDB",
+      "top_score": 0.8695034980773926,
+      "match_score": 0.8661137223243713
+    },
+    {
+      "query": "What's the cheapest paid Pinecone plan and what's the flat monthly fee?",
+      "company": "Pinecone",
+      "top_score": 0.883364200592041,
+      "match_score": 0.883364200592041
+    },
+    {
+      "query": "What's the minimum monthly bill on Pinecone's enterprise contract?",
+      "company": "Pinecone",
+      "top_score": 0.8877029418945312,
+      "match_score": 0.8877029418945312
+    },
+    {
+      "query": "How does Pinecone protect data once it's sitting in storage?",
+      "company": "Pinecone",
+      "top_score": 0.8914516568183899,
+      "match_score": 0.8914516568183899
+    },
+    {
+      "query": "Is there a size cap on how big a single Pinecone search response can be?",
+      "company": "Pinecone",
+      "top_score": 0.8725748658180237,
+      "match_score": 0.8725748658180237
+    },
+    {
+      "query": "What uptime number does Pinecone commit to on its top-tier plan?",
+      "company": "Pinecone",
+      "top_score": 0.8714504837989807,
+      "match_score": 0.8714504837989807
+    },
+    {
+      "query": "How does Pinecone actually store vectors behind the scenes?",
+      "company": "Pinecone",
+      "top_score": 0.9066591858863831,
+      "match_score": 0.9066591858863831
+    },
+    {
+      "query": "Does switching from Pinecone's old pod-based setup to serverless cost extra?",
+      "company": "Pinecone",
+      "top_score": 0.8903926610946655,
+      "match_score": 0.8903926610946655
+    },
+    {
+      "query": "Can I run Pinecone fully inside my own cloud account with no vendor SSH access?",
+      "company": "Pinecone",
+      "top_score": 0.8799221515655518,
+      "match_score": 0.8799221515655518
+    },
+    {
+      "query": "What do you get on Weaviate's completely free plan?",
+      "company": "Weaviate",
+      "top_score": 0.9074338674545288,
+      "match_score": 0.8918657302856445
+    },
+    {
+      "query": "What's the cheapest monthly price once you leave Weaviate's free tier?",
+      "company": "Weaviate",
+      "top_score": 0.8883925676345825,
+      "match_score": 0.8883925676345825
+    },
+    {
+      "query": "Does Weaviate support single sign-on through my company's identity provider?",
+      "company": "Weaviate",
+      "top_score": 0.9027460813522339,
+      "match_score": 0.9027460813522339
+    },
+    {
+      "query": "How many tenants am I allowed on Weaviate's no-cost plan?",
+      "company": "Weaviate",
+      "top_score": 0.8774028420448303,
+      "match_score": 0.8626075387001038
+    },
+    {
+      "query": "What uptime does Weaviate's entry-level paid plan promise?",
+      "company": "Weaviate",
+      "top_score": 0.8978044986724854,
+      "match_score": 0.8978044986724854
+    },
+    {
+      "query": "What indexing algorithm gives Weaviate fast approximate search at scale?",
+      "company": "Weaviate",
+      "top_score": 0.9111562967300415,
+      "match_score": 0.9111562967300415
+    },
+    {
+      "query": "If my app outgrows Weaviate's free tier, do I have to rebuild anything to go paid?",
+      "company": "Weaviate",
+      "top_score": 0.8877156972885132,
+      "match_score": 0.8877156972885132
+    },
+    {
+      "query": "Which regions can my dedicated Weaviate deployment actually live in?",
+      "company": "Weaviate",
+      "top_score": 0.8620744347572327,
+      "match_score": 0.8455545902252197
+    }
+  ],
+  "negative_rows": [
+    {
+      "query": "What new features is MongoDB planning to ship next quarter?",
+      "company": "MongoDB",
+      "top_score": 0.854938268661499
+    },
+    {
+      "query": "What is MongoDB's current customer churn rate?",
+      "company": "MongoDB",
+      "top_score": 0.8488403558731079
+    },
+    {
+      "query": "How many paying customers does MongoDB have right now?",
+      "company": "MongoDB",
+      "top_score": 0.8548393249511719
+    },
+    {
+      "query": "What discount did MongoDB give its largest enterprise customer last renewal?",
+      "company": "MongoDB",
+      "top_score": 0.8549556732177734
+    },
+    {
+      "query": "What were the unredacted findings of MongoDB's most recent penetration test?",
+      "company": "MongoDB",
+      "top_score": 0.839512825012207
+    },
+    {
+      "query": "How does MongoDB Atlas perform head-to-head against DynamoDB in a benchmark MongoDB itself ran?",
+      "company": "MongoDB",
+      "top_score": 0.8484072685241699
+    },
+    {
+      "query": "How many support tickets does MongoDB's on-call team handle per day?",
+      "company": "MongoDB",
+      "top_score": 0.8456538915634155
+    },
+    {
+      "query": "What is Pinecone's internal architecture roadmap for the next release?",
+      "company": "Pinecone",
+      "top_score": 0.8925729990005493
+    },
+    {
+      "query": "What is Pinecone's total annual revenue?",
+      "company": "Pinecone",
+      "top_score": 0.8499665260314941
+    },
+    {
+      "query": "How many employees does Pinecone currently have?",
+      "company": "Pinecone",
+      "top_score": 0.8463186621665955
+    },
+    {
+      "query": "What contract price did Pinecone offer its biggest named enterprise account?",
+      "company": "Pinecone",
+      "top_score": 0.873181939125061
+    },
+    {
+      "query": "What did Pinecone's last internal security incident report disclose?",
+      "company": "Pinecone",
+      "top_score": 0.8858129978179932
+    },
+    {
+      "query": "What benchmark numbers does Pinecone publish comparing itself against Weaviate?",
+      "company": "Pinecone",
+      "top_score": 0.8628178834915161
+    },
+    {
+      "query": "What is Pinecone's average support-ticket escalation time?",
+      "company": "Pinecone",
+      "top_score": 0.8535780310630798
+    },
+    {
+      "query": "What unreleased features are on Weaviate's product roadmap for next year?",
+      "company": "Weaviate",
+      "top_score": 0.8719391226768494
+    },
+    {
+      "query": "What is Weaviate's current customer count and headcount?",
+      "company": "Weaviate",
+      "top_score": 0.8539646863937378
+    },
+    {
+      "query": "What discount level does Weaviate offer its largest named customer?",
+      "company": "Weaviate",
+      "top_score": 0.8641095161437988
+    },
+    {
+      "query": "What did Weaviate's most recent unredacted pen-test report find?",
+      "company": "Weaviate",
+      "top_score": 0.860066831111908
+    },
+    {
+      "query": "What is Pinecone's HNSW indexing implementation and how does it differ from Weaviate's?",
+      "company": "Weaviate",
+      "top_score": 0.8776697516441345
+    },
+    {
+      "query": "What is MongoDB's serverless slab storage architecture?",
+      "company": "Weaviate",
+      "top_score": 0.7886549234390259
+    }
+  ]
+}

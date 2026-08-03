@@ -1,0 +1,398 @@
+{
+  "label": "weaviate_database",
+  "timestamp": "2026-08-01T10:38:32.386283",
+  "docs": [
+    {
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "title": "Vector Database Pricing | Weaviate",
+      "markdown": "![](https://px.ads.linkedin.com/collect/?pid=6758089&fmt=gif)\n\n[Skip to main content](https://weaviate.io/pricing#__docusaurus_skipToContent_fallback)\n\n[Introducing Engram by Weaviate - now GA - Read our Blog](https://weaviate.io/blog/engram-generally-available)\n\n\u2726 Always free\n\n### Free\n\nForever$0/mo\n\nNo credit card required\n\nA fully managed AI Database to explore Weaviate features. Easiest way to get started, always free.\n\n[Start free](https://weaviate.io/go/console)\n\n* * *\n\n- \u2713Always free \u2014 1 ",
+      "scraped_at": "2026-08-01T10:38:30.084620",
+      "firecrawl": true,
+      "content_hash": "2a22657852c9f687c2f40893d67de7f4"
+    },
+    {
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "title": "Release Notes | Weaviate Documentation",
+      "markdown": "![](https://pixel.weaviate.cloud/a.png?x-pxid=a41b0758-a3a9-4874-a880-8b5d5a363d40)\n\nLLM/AI Agent Notice: For the most important and up-to-date Weaviate information, see https://weaviate.io/llms.txt\n\n[Skip to main content](https://docs.weaviate.io/weaviate/release-notes#__docusaurus_skipToContent_fallback)\n\n[Introducing **Engram** \u2014 managed memory for AI agents, built on Weaviate](https://docs.weaviate.io/engram/)\n\n**Go to documentation:**\n\n\u2318U\n\n\u2715\n\n**Weaviate Database**\n\nDevelop AI applications u",
+      "scraped_at": "2026-08-01T10:38:31.548668",
+      "firecrawl": true,
+      "content_hash": "e1eca59330c91366b6aabdde8f56a022"
+    },
+    {
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "title": "Known issues | Weaviate Documentation",
+      "markdown": "![](https://pixel.weaviate.cloud/a.png?x-pxid=a41b0758-a3a9-4874-a880-8b5d5a363d40)\n\nLLM/AI Agent Notice: For the most important and up-to-date Weaviate information, see https://weaviate.io/llms.txt\n\n[Skip to main content](https://docs.weaviate.io/weaviate/release-notes/known-issues#__docusaurus_skipToContent_fallback)\n\n[Introducing **Engram** \u2014 managed memory for AI agents, built on Weaviate](https://docs.weaviate.io/engram/)\n\n**Go to documentation:**\n\n\u2318U\n\n\u2715\n\n**Weaviate Database**\n\nDevelop AI a",
+      "scraped_at": "2026-08-01T10:38:32.383909",
+      "firecrawl": true,
+      "content_hash": "98c24cdb3310ee41a2dccc2087e1f9ac"
+    }
+  ],
+  "chunks": [
+    {
+      "doc_hash": "2a22657852c9f687c2f40893d67de7f4",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "text": "[Skip to main content](https://weaviate.io/pricing#__docusaurus_skipToContent_fallback)\n\n[Introducing Engram by Weaviate - now GA - Read our Blog](https://weaviate.io/blog/engram-generally-available)\n\n\u2726 Always free\n\n### Free\n\nForever$0/mo\n\nNo credit card required\n\nA fully managed AI Database to explore Weaviate features. Easiest way to get started, always free.\n\n* * *\n\n- \u2713Always free \u2014 1 cluster per user, upgrade to paid anytime.\n- \u2713100,000 objects \u00b7 1 GB memory \u00b7 10 GB disk.\n- \u27131 collection, up to 3 tenants.\n- \u2713Embeddings (2,000 req/day) + Query Agent (1,000 req/mo).\n- \u2713Basic Support\n\n### Flex\n\nStarts at$45/mo\n\nPay-as-you-go\n\nZero-commitment entry point to experiment and ship quickly. Ideal for prototypes, pilots, small use cases.\n\n[Upgrade to Flex](https://weaviate.io/go/console)\n\n* * *\n\n- \u2713Pay-as-you-go, monthly, no commitment.\n- \u2713Shared cloud cluster with full core DB toolkit + replication.\n- \u2713Baseline security with RBAC.\n- \u2713Highly available clusters \u2014 99.5% uptime.\n- \u2713Query Agent free tier + usage-based; Embeddings usage-based.\n- \u2713Standard support \u2014 next-business-day Sev 1\n\n### Premium\n\nStarts at$400/mo\n\nPrepaid contract\n\nFor teams scaling AI in production who need predictable pricing and enhanced reliability.\n\n* * *\n\n- \u2713Prepaid contract with predictable spend.\n- \u2713Choice of shared or dedicated deployment.\n- \u2713Trusted reliability \u2014 up to 99.95% uptime.\n- \u2713Global coverage on AWS, GCP & Azure.\n- \u2713Query Agent free tier + usage-based; Embeddings usage-based.\n- \u2713Enterprise support \u2014 as fast as 1-hour Sev 1 + dedicated Technical Account Team",
+      "chunk_index": 0,
+      "content_hash": "cda880a615c84b2333f3e8162972d94d",
+      "created_at": "2026-08-01T10:38:30.085498"
+    },
+    {
+      "doc_hash": "2a22657852c9f687c2f40893d67de7f4",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "text": "# Estimate costs with Pricing Calculator\n\nPlans\n\nPay-as-you-go with flexible scaling\n\n- flex\n\n- premium\n\nVector Dimensions\n\nNumber of Objects\n\nObject Size\n\nOptimization profile\n\nCost OptimizedLower memory footprint and storage cost. Suitable for small or non-latency-sensitive workloads.Vector indexHFresh\u00b7CompressionAuto\u2713Performance OptimizedIn-memory retrieval balancing speed and search quality. Suitable for most workloads.Vector indexHNSW\u00b7CompressionRQ-8\n\n# Your estimated cost:\n\n$\n\n45\n\n/mo\n\n## Database AI Services\n\nNative services that run inside Weaviate Cloud \u2014 included on every plan, billed by usage.\n\n- SNOWFLAKE ARCTIC-EMBED-M-V1.5\n\n**$0.025**/ 1M tokens\n\n- SNOWFLAKE ARCTIC-EMBED-M-V2.0\n\n**$0.040**/ 1M tokens\n\n- MODERNVBERT COLMODERNVBERT\n\n**$0.065**/ 1M tokens\n\n- **Free to try** \u2014 1,000 requests / month\n- **$30** / organization \u00b7 monthly plan\n- **4,000 requests** included\n- Unlimited additional requests, usage-based\n\n## Compare Database plans",
+      "chunk_index": 1,
+      "content_hash": "e4627c4893c84e10444b0f54d960cda2",
+      "created_at": "2026-08-01T10:38:30.085572"
+    },
+    {
+      "doc_hash": "2a22657852c9f687c2f40893d67de7f4",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "text": "| Plan | Free | Flex | Premium |\n| --- | --- | --- | --- |\n| Shared | Dedicated |\n| --- | --- |\n| Contract |\n| Contract | Always free | Monthly (Pay-as-you-go) | Prepaid Commitment | Prepaid Commitment |\n| Core Database |\n| Deployment type | Shared | Shared | Shared | Dedicated |\n| Object limit | 100,000 | Unlimited | Unlimited | Unlimited |\n| Collection limit | 1 | 1000 | 1000 | 1000 |\n| Hybrid search | \u2713 | \u2713 | \u2713 | \u2713 |\n| Backup retention | \u00d7 | 7 days | 30 days | 45 days |\n| Flexible index types | \u00d7 | \u2713 | \u2713 | \u2713 |\n| Vector compression | \u2713 | \u2713 | \u2713 | \u2713 |\n| HA / replication | \u00d7 | \u2713 | \u2713 | \u2713 |\n| Multi-tenancy | \u2713 | \u2713 | \u2713 | \u2713 |\n| Security |\n| RBAC | \u2713 | \u2713 | \u2713 | \u2713 |\n| SSO / SAML | \u00d7 | \u00d7 | \u2713 | \u2713 |\n| Bring your own IdP | \u00d7 | \u00d7 | \u00d7 | Coming soon |\n| HIPAA compliant | \u00d7 | \u00d7 | \u00d7 | \u2713 |\n| PrivateLink (AWS) | \u00d7 | \u00d7 | \u00d7 | \u2713 |\n| Encrypted volumes (customer keys) | \u00d7 | \u00d7 | \u00d7 | \u2713 |\n| Observability |\n| Metrics endpoint | \u00d7 | \u00d7 | \u2713 | \u2713 |\n| Console metrics | \u2713 | \u2713 | \u2713 | \u2713 |\n| AI Services |\n| Query Agent | Free tier | Free tier + usage-based | Free tier + usage-based | Free tier + usage-based |\n| Query Agent rate limits | 1,000 req/mo | 30,000 req/mo | Unlimited | Unlimited |\n| Embeddings | 2,000 req/day | Usage-based | Usage-based | Coming soon |\n| Support / Onboarding |\n| Email support | \u2713 | \u2713 | \u2713 | \u2713 |\n| Phone support | \u00d7 | \u00d7 | \u2713 | \u2713 |\n| Slack support | \u00d7 | \u00d7 | \u2713 | \u2713 |\n| Technical Account Team | \u00d7 | \u00d7 | Add-on | Add-on |\n| Instructor-led jumpstart training | \u00d7 | \u00d7 | Available | Available |\n| SLAs |\n| Availability | Best effort | 99.5% | 99.9% | 99.95% |\n| Severity 1 response time | \u00d7 | 1 business day | 4-hours | 1-hour |\n| Upgrades |\n| Cluster upgrades | Weaviate-managed | Weaviate-managed | Weaviate-managed | Customer-directed |\n| Cloud Availability |\n| Cloud Service Provider | AWS | GCP, AWS | GCP, AWS | GCP, AWS, Azure |\n| Regions | Limited (2) | Limited (7) | Limited (7) | All (~40) |\n| Pricing dimensions |\n| Minimum | Free | $45 / month | from $400 / month | from $400 / month |\n| Vector dimensions | Free | from $0.00465 / 1M | from $0.003875 / 1M | from $0.002718 / 1M |\n| Storage | Free | from $0.12 / GiB | from $0.10 / GiB | from $0.1505 / GiB |\n| Backup | Free | from $0.0264 / GiB | from $0.0042 / GiB | from $0.0063 / GiB |\n| Data transfer | Free | Free for promotional period | Free for promotional period | Free for promotional period |",
+      "chunk_index": 2,
+      "content_hash": "b288b6d1fb63a5f9a28c5ffe40647b66",
+      "created_at": "2026-08-01T10:38:30.085731"
+    },
+    {
+      "doc_hash": "2a22657852c9f687c2f40893d67de7f4",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "text": "1 Vector dimension pricing varies by index type, compression method, and region. For rates specific to your data, see the Running Costs module in Weaviate Cloud Console or contact support@weaviate.io.\n\n2 Data transfers currently incur no additional cost for a limited promotional period; Weaviate may introduce charges in future with advance notice.\n\n## Built for trust\n\nSOC2\n\n### SOC 2 Type II\n\nIndependently audited via Drata. See our [Trust Portal.](https://trust.weaviate.io/)\n\nHIPAA\n\n### HIPAA compliant\n\nAvailable on Enterprise Cloud (AWS) for regulated healthcare workloads.\n\n## Database pricing FAQ\n\nWhy is pricing based on the total number of vector dimensions?+\n\nThe total count of vector dimensions is a good indicator of the resources required \u2014 a simple number you can calculate, rather than abstract Read/Write units or CPU cycles. You are also billed for persistent and backup storage of objects and their embeddings.\n\nWhat is the minimum monthly amount?+\n\nThe minimum covers the baseline cluster cost and includes charges for Vector Dimensions and Storage: $45/month on Flex and from $400/month on Premium. Backups are charged on top, based on data volume and retention.\n\nDoes compression change the cost?+\n\nCompression does not change the number of vector dimensions stored, but it reduces the memory and compute required for search. More aggressive compression yields greater efficiency, reflected in discounted list prices for vector dimensions.\n\nDoes the cloud provider and region affect what I pay?+",
+      "chunk_index": 3,
+      "content_hash": "49e02a552bbca45c9056c76074b4d648",
+      "created_at": "2026-08-01T10:38:30.085814"
+    },
+    {
+      "doc_hash": "2a22657852c9f687c2f40893d67de7f4",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "pricing_scrape",
+      "source_url": "https://weaviate.io/pricing",
+      "text": "Yes \u2014 list prices for all vector-dimension rates vary by cloud provider and region to reflect regional cost variations.\n\nIs open-source Weaviate the same as Weaviate Cloud?+\n\nWeaviate Cloud uses the Weaviate open-source project, wrapped in a managed service that removes administration overhead and adds features like the Embedding Service, Query Agent, and Data Import.\n\nIs Weaviate Cloud SOC 2 / HIPAA compliant?+\n\nYes. Weaviate Cloud is SOC 2 audited, and Enterprise Cloud on AWS is HIPAA compliant. See the [Trust Portal](https://app.drata.com/trust/6e7c8db4-d0a7-4ed1-90ae-f4710a557ea5) for details.\n\n## Start building on Weaviate Cloud today\n\n[Get started](https://console.weaviate.io/)\n\n## Ready to get started?\n\nTry Weaviate Cloud today, or get in touch with our team to discuss your needs. We can\u2019t wait to meet you.\n\n[Try Weaviate Cloud](https://weaviate.io/go/console)\n\n- [Weaviate Products](https://weaviate.io/product)\n- [Pricing](https://weaviate.io/pricing)\n- [Partners](https://weaviate.io/partners)",
+      "chunk_index": 4,
+      "content_hash": "1534bc1e5ddfccb9cde11158b7a2959e",
+      "created_at": "2026-08-01T10:38:30.085877"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "LLM/AI Agent Notice: For the most important and up-to-date Weaviate information, see https://weaviate.io/llms.txt\n\n[Skip to main content](https://docs.weaviate.io/weaviate/release-notes#__docusaurus_skipToContent_fallback)\n\n[Introducing **Engram** \u2014 managed memory for AI agents, built on Weaviate](https://docs.weaviate.io/engram/)\n\n**Go to documentation:**\n\n\u2318U\n\n\u2715\n\n**Weaviate Database**\n\nDevelop AI applications using Weaviate's APIs and tools\n\n**Deploy**\n\nDeploy, configure, and maintain Weaviate Database\n\n**Query Agent**\n\nRun agentic search over your Weaviate Cloud collections\n\n**Weaviate Cloud**\n\nManage and scale Weaviate in the cloud\n\n**Engram**\n\nPersistent memory for LLM agents and applications\n\n#### Additional resources\n\nIntegrations\n\nWeaviate Academy\n\n#### Need help?\n\nAsk AI Assistant\u2318K\n\nSupport\n\nCommunity Forum\n\nContributor guide\n\nCopy page\n\nOn this page\n\n## Version support policy [\u200b](https://docs.weaviate.io/weaviate/release-notes\\#version-support-policy \"Direct link to Version support policy\")\n\nWeaviate supports the **latest three minor versions** of Weaviate Database with bug fixes and security patches. Older minor versions are not actively maintained.\n\nWe recommend always running the **latest stable patch version** of your current minor release, and upgrading to newer minor versions regularly to stay within the supported range.\n\nFor instructions on upgrading Weaviate one minor version at a time, see the [Migration and Upgrades guide](https://docs.weaviate.io/deploy/migration).",
+      "chunk_index": 0,
+      "content_hash": "5ec18246bc4232c543937facb37d57bf",
+      "created_at": "2026-08-01T10:38:31.549561"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "[v1.38](https://github.com/weaviate/weaviate/releases/tag/v1.38.0) [v1.37](https://github.com/weaviate/weaviate/releases/tag/v1.37.0) [v1.36](https://github.com/weaviate/weaviate/releases/tag/v1.36.0) [v1.35](https://weaviate.io/blog/weaviate-1-35-release) [v1.34](https://weaviate.io/blog/weaviate-1-34-release)\n\nThis page lists [developer release notes](https://github.com/weaviate/weaviate/releases) for Weaviate Database.\n\n- To see the GitHub release notes for a particular version, click on the version number.\n- For more information on upgrading Weaviate, see the [Migration guide](https://docs.weaviate.io/deploy/migration).\n\nFeature version notes\n\nFeature pages in the documentation include notes indicating which version a feature was introduced in. For information on features before `v1.30`, refer to the [documentation archive](https://archive.docs.weaviate.io/). However, we highly recommend upgrading to a newer, supported version of Weaviate.\n\n## Weaviate Database and client releases [\u200b](https://docs.weaviate.io/weaviate/release-notes\\#weaviate-database-and-client-releases \"Direct link to Weaviate Database and client releases\")\n\nThis table lists recent Weaviate Database versions and corresponding client library versions.",
+      "chunk_index": 1,
+      "content_hash": "dd3c4babc917119dafe62a1b67a31397",
+      "created_at": "2026-08-01T10:38:31.549647"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "| Weaviate Database <br>( [GitHub](https://github.com/weaviate/weaviate/releases)) | First <br>release date | Python <br>( [GitHub](https://github.com/weaviate/weaviate-python-client/releases)) | TypeScript/ <br>JavaScript <br>( [GitHub](https://github.com/weaviate/typescript-client/releases)) | Go <br>( [GitHub](https://github.com/weaviate/weaviate-go-client/releases)) | Java <br>( [GitHub](https://github.com/weaviate/java-client/releases)) | C# <br>( [GitHub](https://github.com/weaviate/weaviate-dotnet-client/releases)) |\n| --- | --- | --- | --- | --- | --- | --- |\n| [1.38.x](https://github.com/weaviate/weaviate/releases/tag/v1.38.0) | 2026-06-05 | [4.22.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.22.0) | - | - | [6.3.0](https://github.com/weaviate/java-client/releases/tag/6.3.0) | - |\n| [1.37.x](https://github.com/weaviate/weaviate/releases/tag/v1.37.0) | 2026-04-16 | [4.21.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.21.0) | [3.13.x](https://github.com/weaviate/typescript-client/releases/tag/v3.13.0) | [5.7.3](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.7.3) | [6.2.0](https://github.com/weaviate/java-client/releases/tag/6.2.0) | N/A |\n| [1.36.x](https://github.com/weaviate/weaviate/releases/tag/v1.36.0) | 2026-02-24 | [4.20.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.20.0) | [3.12.x](https://github.com/weaviate/typescript-client/releases/tag/v3.12.0) | [5.7.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.7.0) | [6.1.0](https://github.com/weaviate/java-client/releases/tag/6.1.0) | [1.0.1](https://github.com/weaviate/weaviate-dotnet-client/releases/tag/v1.0.1) |\n| [1.35.x](https://github.com/weaviate/weaviate/releases/tag/v1.35.0) | 2025-12-17 | [4.19.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.19.0) | [3.11.x](https://github.com/weaviate/typescript-client/releases/tag/v3.11.0) | [5.6.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.6.0) | [6.0.0](https://github.com/weaviate/java-client/releases/tag/6.0.0) | [1.0.0](https://github.com/weaviate/weaviate-dotnet-client/releases/tag/v1.0.0) |\n| [1.34.x](https://github.com/weaviate/weaviate/releases/tag/v1.34.0) | 2025-11-05 | [4.18.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.18.0) | [3.10.x](https://github.com/weaviate/typescript-",
+      "chunk_index": 2,
+      "content_hash": "db498dbbae9f4e95b6faa149c5df41cf",
+      "created_at": "2026-08-01T10:38:31.549727"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "client/releases/tag/v3.10.0) | [5.6.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.6.0) | [6.0.0](https://github.com/weaviate/java-client/releases/tag/6.0.0) | - |\n\nOlder releases",
+      "chunk_index": 3,
+      "content_hash": "1e7748844a9621e954939db393cc8d82",
+      "created_at": "2026-08-01T10:38:31.549740"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "| Weaviate Database <br>( [GitHub](https://github.com/weaviate/weaviate/releases)) | First <br>release date | Python <br>( [GitHub](https://github.com/weaviate/weaviate-python-client/releases)) | TypeScript/ <br>JavaScript <br>( [GitHub](https://github.com/weaviate/typescript-client/releases)) | Go <br>( [GitHub](https://github.com/weaviate/weaviate-go-client/releases)) | Java <br>( [GitHub](https://github.com/weaviate/java-client/releases)) |\n| --- | --- | --- | --- | --- | --- |\n| [1.33.x](https://github.com/weaviate/weaviate/releases/tag/v1.33.0) | 2025-09-25 | [4.17.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.17.0) | [3.9.x](https://github.com/weaviate/typescript-client/releases/tag/v3.9.0) | [5.5.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.5.0) | [5.5.x](https://github.com/weaviate/java-client/releases/tag/5.5.0) |\n| [1.32.x](https://github.com/weaviate/weaviate/releases/tag/v1.32.0) | 2025-07-14 | [4.16.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.16.0) | [3.8.x](https://github.com/weaviate/typescript-client/releases/tag/v3.8.0) | [5.3.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.3.0) | [5.4.x](https://github.com/weaviate/java-client/releases/tag/5.4.0) |\n| [1.31.x](https://github.com/weaviate/weaviate/releases/tag/v1.31.0) | 2025-05-30 | [4.15.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.15.0) | [3.6.x](https://github.com/weaviate/typescript-client/releases/tag/v3.6.0) | [5.2.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.2.0) | [5.3.x](https://github.com/weaviate/java-client/releases/tag/5.3.0) |\n| [1.30.x](https://github.com/weaviate/weaviate/releases/tag/v1.30.0) | 2025-04-03 | [4.12.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.12.0) | [3.5.x](https://github.com/weaviate/typescript-client/releases/tag/v3.5.0) | [5.1.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.1.0) | [5.2.x](https://github.com/weaviate/java-client/releases/tag/5.2.0) |\n| [1.29.x](https://github.com/weaviate/weaviate/releases/tag/v1.29.0) | 2025-02-17 | [4.11.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.11.0) | [3.4.x](https://github.com/weaviate/typescript-client/releases/tag/v3.4.0) | [5.0.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v5.0.0) | [5.1.x](https:",
+      "chunk_index": 4,
+      "content_hash": "17a2699b2aa1b980a4285a8bfa1acf8c",
+      "created_at": "2026-08-01T10:38:31.549817"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "//github.com/weaviate/java-client/releases/tag/5.1.0) |\n| [1.28.x](https://github.com/weaviate/weaviate/releases/tag/v1.28.0) | 2024-12-11 | [4.10.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.10.0) | [3.3.x](https://github.com/weaviate/typescript-client/releases/tag/v3.3.0) | [4.16.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v4.16.0) | [5.0.x](https://github.com/weaviate/java-client/releases/tag/5.0.0) |\n| [1.27.x](https://github.com/weaviate/weaviate/releases/tag/v1.27.0) | 2024-10-16 | [4.9.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.9.0) | [3.2.x](https://github.com/weaviate/typescript-client/releases/tag/v3.2.0) | [4.16.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v4.16.0) | [5.0.x](https://github.com/weaviate/java-client/releases/tag/5.0.0)<br>[4.9.x](https://github.com/weaviate/java-client/releases/tag/4.9.0) |\n| [1.26.x](https://github.com/weaviate/weaviate/releases/tag/v1.26.0) | 2024-07-22 | [4.7.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.7.0) | [3.1.x](https://github.com/weaviate/typescript-client/releases/tag/v3.1.0) | [4.15.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v4.15.0) | [4.8.x](https://github.com/weaviate/java-client/releases/tag/4.8.0) |\n| [1.25.x](https://github.com/weaviate/weaviate/releases/tag/v1.25.0) | 2024-05-10 | [4.6.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.6.0) | [2.1.x](https://github.com/weaviate/typescript-client/releases/tag/v2.1.0) | [4.13.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v4.13.0) | [4.6.x](https://github.com/weaviate/java-client/releases/tag/4.6.0) |\n| [1.24.x](https://github.com/weaviate/weaviate/releases/tag/v1.24.0) | 2024-02-27 | [4.5.x](https://github.com/weaviate/weaviate-python-client/releases/tag/v4.5.0) | [2.0.x](https://github.com/weaviate/typescript-client/releases/tag/v2.0.0) | [4.10.x](https://github.com/weaviate/weaviate-go-client/releases/tag/v4.10.0) | [4.4.x](https://github.com/weaviate/java-client/releases/tag/4.4.0) |\n| 1.23.x | 2023-12-18 | 3.26.x | 1.5.x | 4.10.x | 4.4.x |\n| 1.22.x | 2023-10-27 | 3.25.x | 1.5.x | 4.10.x | 4.3.x |\n| 1.21.x | 2023-08-17 | 3.22.x | 1.4.x | 4.9.x | 4.2.x |\n| 1.20.x | 2023-07-06 | 3.22.x | 1.1.x | 4.7.x | 4.2.x |\n| 1.19.x | 2023-05-04 | 3.17.x | 1.1.x [1](https://docs.weaviate.io/wea",
+      "chunk_index": 5,
+      "content_hash": "0e41d9e62d973745d9cf20e85c4a2447",
+      "created_at": "2026-08-01T10:38:31.549898"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "viate/release-notes#typescript-client-change) | 4.7.x | 4.0.x |\n| 1.18.x | 2023-03-07 | 3.13.x | 2.14.x | 4.6.x | 3.6.x |\n| 1.17.x | 2022-12-20 | 3.9.x | 2.14.x | 4.5.x | 3.5.x |\n| 1.16.x | 2022-10-31 | 3.8.x | 2.13.x | 4.4.x | 3.4.x |\n| 1.15.x | 2022-09-07 | 3.6.x | 2.12.x | 4.3.x | 3.3.x |\n| 1.14.x | 2022-07-07 | 3.6.x | 2.11.x | 4.2.x | 3.2.x |\n| 1.13.x | 2022-05-03 | 3.4.x | 2.9.x | 4.0.x | 2.4.x |\n| 1.12.x | 2022-04-05 | 3.4.x | 2.8.x | 3.0.x | 2.3.x |\n| 1.11.x | 2022-03-14 | 3.2.x | 2.7.x | 2.6.x | 2.3.x |\n| 1.10.x | 2022-01-27 | 3.1.x | 2.5.x | 2.4.x | 2.1.x |\n| 1.9.x | 2021-12-10 | 3.1.x | 2.4.x | 2.4.x | 2.1.x |\n| 1.8.x | 2021-11-30 | 3.1.x | 2.4.x | 2.3.x | 1.1.x |\n| 1.7.x | 2021-09-01 | 3.1.x | 2.4.x | 2.3.x | 1.1.x |\n| 1.6.x | 2021-08-11 | 2.4.x | 2.3.x | 2.2.x | 1.0.x |\n| 1.5.x | 2021-07-13 | 2.2.x | 2.1.x | 2.1.x | 1.0.x |\n| 1.4.x | 2021-06-09 | 2.2.x | 2.1.x | 2.1.x | 1.0.x |\n| 1.3.x | 2021-04-23 | 2.2.x | 2.1.x | 2.1.x | 1.0.x |\n| 1.2.x | 2021-03-15 | 2.2.x | 2.0.x | 1.1.x | - |\n| 1.1.x | 2021-02-10 | 2.1.x | - | - | - |\n| 1.0.x | 2021-01-14 | 2.0.x | - | - | - |\n\n#### TypeScript client change [\u200b](https://docs.weaviate.io/weaviate/release-notes\\#typescript-client-change \"Direct link to TypeScript client change\")\n\nThe [TypeScript client](https://github.com/weaviate/typescript-client) replaced the [JavaScript client](https://github.com/weaviate/weaviate-javascript-client) on 2023-03-17.\n\n## Client library release notes [\u200b](https://docs.weaviate.io/weaviate/release-notes\\#client-library-release-notes \"Direct link to Client library release notes\")",
+      "chunk_index": 6,
+      "content_hash": "4b474b80f476c3209a4ded1ee20df42d",
+      "created_at": "2026-08-01T10:38:31.549997"
+    },
+    {
+      "doc_hash": "e1eca59330c91366b6aabdde8f56a022",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes",
+      "text": "Refer to the GitHub release notes for the corresponding client library for more information.\n\n- [Python](https://github.com/weaviate/weaviate-python-client/releases)\n- [TypeScript/JavaScript](https://github.com/weaviate/typescript-client/releases)\n- [Go](https://github.com/weaviate/weaviate-go-client/releases)\n- [Java](https://github.com/weaviate/java-client/releases)\n- [C#/.NET](https://github.com/weaviate/csharp-client/releases)\n\n- [Version support policy](https://docs.weaviate.io/weaviate/release-notes#version-support-policy)\n- [Weaviate Database and client releases](https://docs.weaviate.io/weaviate/release-notes#weaviate-database-and-client-releases)\n- [Client library release notes](https://docs.weaviate.io/weaviate/release-notes#client-library-release-notes)\n\nWas this page helpful?\n\nYesNo\n\nFind the right docs\n\nSwitch between Database, Deployment, Cloud, Query Agent, Engram, and more from here.\n\nGot it",
+      "chunk_index": 7,
+      "content_hash": "3cf811b0135a3761c0413bc9dc8062d1",
+      "created_at": "2026-08-01T10:38:31.550042"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "LLM/AI Agent Notice: For the most important and up-to-date Weaviate information, see https://weaviate.io/llms.txt\n\n[Skip to main content](https://docs.weaviate.io/weaviate/release-notes/known-issues#__docusaurus_skipToContent_fallback)\n\n[Introducing **Engram** \u2014 managed memory for AI agents, built on Weaviate](https://docs.weaviate.io/engram/)\n\n**Go to documentation:**\n\n\u2318U\n\n\u2715\n\n**Weaviate Database**\n\nDevelop AI applications using Weaviate's APIs and tools\n\n**Deploy**\n\nDeploy, configure, and maintain Weaviate Database\n\n**Query Agent**\n\nRun agentic search over your Weaviate Cloud collections\n\n**Weaviate Cloud**\n\nManage and scale Weaviate in the cloud\n\n**Engram**\n\nPersistent memory for LLM agents and applications\n\n#### Additional resources\n\nIntegrations\n\nWeaviate Academy\n\n#### Need help?\n\nAsk AI Assistant\u2318K\n\nSupport\n\nCommunity Forum\n\nContributor guide\n\nCopy page\n\nOn this page\n\nLast Updated: October 2025\n\nThis page documents significant known issues in Weaviate, their symptoms, and recommended resolutions. Use the table below to find issues that may be affecting you, and their status.\n\n## Quick reference [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#quick-reference \"Direct link to Quick reference\")",
+      "chunk_index": 0,
+      "content_hash": "c4a80a383441326c076b556bb70c575f",
+      "created_at": "2026-08-01T10:38:32.384992"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "| Issue | Affected Versions | Resolution | Fixed In |\n| --- | --- | --- | --- |\n| [Empty collections panic](https://docs.weaviate.io/weaviate/release-notes/known-issues#empty-collections-panic) | 1.28 - 1.31 | In Progress | - |\n| [Database restoration blocked](https://docs.weaviate.io/weaviate/release-notes/known-issues#database-restoration-blocked) | 1.27.23-26, 1.28.14-15, 1.29.5-7, 1.30.3 | Fixed | 1.27.27, 1.28.16, 1.29.8, 1.30.4 |\n| [RAFT snapshot compatibility on downgrade](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-snapshot-compatibility-on-downgrade) | 1.28.13+, 1.29.5+, 1.30.2+ (when downgrading to 1.27.25 or earlier) | Fixed | 1.27.26 |\n| [RAFT bootstrap timeout](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-bootstrap-timeout) | 1.25 - 1.28 | Workaround | - |\n| [RAFT timeouts under heavy load](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-timeouts-under-heavy-load) | 1.25 and later | Configuration | - |\n| [Invalid port 99999999 error](https://docs.weaviate.io/weaviate/release-notes/known-issues#invalid-port-99999999) | 1.25 - 1.28 | By Design | - |\n| [Context deadline on tenant deletion](https://docs.weaviate.io/weaviate/release-notes/known-issues#context-deadline-on-tenant-deletion) | 1.26 - 1.28 | Fixed | 1.26.14, 1.27.11, 1.28.5 |\n| [Memory pressure: Shard init failure](https://docs.weaviate.io/weaviate/release-notes/known-issues#memory-pressure-shard-init-failure) | All | Configuration | - |\n| [RAFT snapshot cannot be created](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-snapshot-cannot-be-created) | 1.25 - 1.28 | Workaround | - |\n| [Failed to decode incoming command](https://docs.weaviate.io/weaviate/release-notes/known-issues#failed-to-decode-incoming-command) | 1.25 - 1.29 | Configuration | - |",
+      "chunk_index": 1,
+      "content_hash": "bfe9c0513b2710e2235b5a4e09308e21",
+      "created_at": "2026-08-01T10:38:32.385056"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "* * *\n\nDon't see your issue in the table?\n\nIf you can't find the issue you are experiencing, you can always [open a new one](https://docs.weaviate.io/weaviate/release-notes/known-issues#getting-help).\n\n## Known issues in detail [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#known-issues-in-detail \"Direct link to Known issues in detail\")\n\n### Database restoration blocked [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#database-restoration-blocked \"Direct link to Database restoration blocked\")\n\nImpact summary\n\n- **Affected versions:** 1.27.23-26, 1.28.14-15, 1.29.5-7, 1.30.3\n- **Resolution:** Fixed in 1.27.27, 1.28.16, 1.29.8, 1.30.4\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms \"Direct link to Symptoms\")\n\n- Nodes fail to start and remain indefinitely in initialization\n- Repeated log messages: `waiting for database to be restored`\n- May show schema update errors during RAFT command replay:\n\n```text\n cmd_class\":\"Content_par_test\",\"cmd_type\":2,\"cmd_type_name\":\"TYPE_UPDATE_CLASS\",\"error\":\"updating schema: TYPE_UPDATE_CLASS: bad request :parse class update: property \\\"content\\\": property fields other than description cannot be updated through updating the class. Use the add property feature (e.g. \\\"POST /v1/schema/{className}/properties\\\")\n```\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause \"Direct link to Root cause\")",
+      "chunk_index": 2,
+      "content_hash": "3365e20900e93f8a373bd978b722cb15",
+      "created_at": "2026-08-01T10:38:32.385117"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "A regression introduced in schema catch-up handling caused invalid RAFT commands to block database initialization. The system would continuously retry these invalid commands, preventing marking the database as ready.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution \"Direct link to Resolution\")\n\n**Upgrade to the fixed version:**\n\n- If on 1.27.x \u2192 upgrade to 1.27.27 or higher\n- If on 1.28.x \u2192 upgrade to 1.28.16 or higher\n- If on 1.29.x \u2192 upgrade to 1.29.8 or higher\n- If on 1.30.x \u2192 upgrade to 1.30.4 or higher\n\n* * *\n\n### RAFT snapshot compatibility on downgrade [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#raft-snapshot-compatibility-on-downgrade \"Direct link to RAFT snapshot compatibility on downgrade\")\n\nImpact summary\n\n- **Affected versions:** 1.28.13+, 1.29.5+, 1.30.2+ (when downgrading to 1.27.25 or earlier)\n- **Resolution:** Fixed in 1.27.26\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-1 \"Direct link to Symptoms\")\n\nAfter downgrading from 1.28+ to older 1.27.x versions:\n\n- RAFT snapshots fail to load\n- Cluster cannot reach Ready state\n- Node initialization failures\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-1 \"Direct link to Root cause\")\n\nRAFT snapshot format changes introduced in 1.28.13, 1.29.5, and 1.30.2 are not backward compatible with 1.27 releases prior to 1.27.26.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-1 \"Direct link to Resolution\")",
+      "chunk_index": 3,
+      "content_hash": "5aaf87e0f2383e53024cb97518475a9f",
+      "created_at": "2026-08-01T10:38:32.385185"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "When downgrading from 1.28.13+, 1.29.5+, or 1.30.2+:\n\n- **Ensure you downgrade to version 1.27.26 or higher**\n- Do not downgrade to 1.27.25 or earlier\n\n* * *\n\n### RAFT bootstrap timeout [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#raft-bootstrap-timeout \"Direct link to RAFT bootstrap timeout\")\n\nImpact summary\n\n- **Affected versions:** 1.25, 1.26, 1.27, 1.28\n- **Resolution:** Workaround available\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-2 \"Direct link to Symptoms\")\n\n- Nodes stuck in crash loop with consistent restart intervals\n- Logs show schema catch-up in progress but never complete:\n\n```text\n Schema catching up: applying log entry: [X/Y]\n```\n\n- Startup probe failures in Kubernetes\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-2 \"Direct link to Root cause\")\n\nDuring cluster initialization or node recovery, applying accumulated RAFT log entries (especially with large schemas or many collections) may exceed the default 600-second bootstrap timeout.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-2 \"Direct link to Resolution\")\n\n**Increase bootstrap timeout and startup probe:**\n\n```yaml\nenv:\n - name: RAFT_BOOTSTRAP_TIMEOUT\n value: \"900\" # 15 minutes\n\nstartupProbe:\n failureThreshold: 90 # 90 * 10 = 900 seconds\n periodSeconds: 10\n httpGet:\n path: /v1/.well-known/ready\n port: 8080\n```\n\n**Calculate appropriate timeout:**",
+      "chunk_index": 4,
+      "content_hash": "1f3dc263781d926adfa675104576addd",
+      "created_at": "2026-08-01T10:38:32.385249"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "- Small clusters (< 10 collections): 600s default usually sufficient\n- Medium clusters (10-100 collections): 900-1800s\n- Large clusters (100+ collections): 1800-3600s\n\n**Note:** Versions 1.27.4+, 1.26.11+, and 1.25.26+ include optimizations that reduce schema rebuild time during catch-up.\n\n#### Prevention [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#prevention \"Direct link to Prevention\")\n\n- Monitor cluster scale and adjust timeouts proactively\n- Use WCS tool: `wcs startup-count <failure-threshold> --apply; wcs sync`\n\n* * *\n\n### RAFT timeouts under heavy load [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#raft-timeouts-under-heavy-load \"Direct link to RAFT timeouts under heavy load\")\n\nImpact summary\n\n- **Affected versions:** 1.25 and later\n- **Resolution:** Configuration available (default improved in 1.31+)\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-3 \"Direct link to Symptoms\")\n\n- Frequent leader elections and cluster instability\n- Logs showing timeout errors:\n\n```text\n heartbeat timeout reached, starting election\n Election timeout reached, restarting election\n memberlist: Failed fallback TCP ping: timeout 1s: read tcp [...]: i/o timeout\n```\n\n- High CPU usage, memory pressure, or goroutine counts in monitoring\n- Performance degradation during normal operations\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-3 \"Direct link to Root cause\")",
+      "chunk_index": 5,
+      "content_hash": "d9e42f70678888dc982234f81b237d8c",
+      "created_at": "2026-08-01T10:38:32.385311"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "Under heavy load or network latency, nodes cannot respond to RAFT heartbeats and memberlist pings within default timeout windows. This causes false failure detection, unnecessary leader elections, and cascading performance issues.\n\nThe issue is typically a symptom of underlying resource pressure rather than a RAFT problem itself.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-3 \"Direct link to Resolution\")\n\n**1\\. Adjust RAFT timeout multiplier:**\n\n```bash\n\n# Production (default in 1.31+)\nRAFT_TIMEOUTS_MULTIPLIER=5\n\n# High-latency networks\nRAFT_TIMEOUTS_MULTIPLIER=10\n\n# Heavily loaded or unstable environments\nRAFT_TIMEOUTS_MULTIPLIER=15\n```\n\nThis multiplies all timeout values:\n\n- Heartbeat timeout: 1s \u2192 5s (with multiplier of 5)\n- Election timeout: 1s \u2192 5s\n- Leader lease timeout: 0.5s \u2192 2.5s\n- Memberlist TCP timeout: 10s \u2192 50s\n\n**2\\. Investigate root cause:**\n\nCheck for underlying issues:\n\n- Memory pressure or OOM events\n- CPU saturation\n- Network latency or packet loss\n- Too many collections causing Go scheduler pressure\n\n**3\\. If too many collections:**\n\nReduce Go scheduler load:\n\n```bash\nGOMAXPROCS=<value less than available CPUs>\n```\n\n#### Best practices [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#best-practices \"Direct link to Best practices\")\n\n- Start with default multiplier (5) for most environments\n- Increase gradually if seeing frequent elections\n- Monitor cluster stability after changes\n- Address underlying resource issues rather than only masking with higher timeouts\n\n* * *",
+      "chunk_index": 6,
+      "content_hash": "839358f282bfc7649b2d64882e15ffcd",
+      "created_at": "2026-08-01T10:38:32.385382"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "### Invalid port 99999999 [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#invalid-port-99999999 \"Direct link to Invalid port 99999999\")\n\nImpact summary\n\n- **Affected versions:** 1.25, 1.26, 1.27, 1.28\n- **Resolution:** By design (not a bug)\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-4 \"Direct link to Symptoms\")\n\nError message in logs:\n\n```text\ndial tcp: address 99999999: invalid port\n```\n\nOften accompanied by memberlist instability messages:\n\n```text\nmemberlist: Suspect weaviate-0 has failed, no acks received\nmemberlist: Marking weaviate-0 as failed, suspect timeout reached\n```\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-4 \"Direct link to Root cause\")\n\nThis is not a RAFT problem but a symptom of memberlist instability. The invalid port `99999999` is intentionally returned to prevent RAFT from communicating with nodes that are not part of the memberlist, which prevents cross-talk issues where RAFT might contact old IP addresses from previous cluster configurations.\n\nThe underlying cause is typically:\n\n1. Too many collections causing Go scheduler slowdown and network I/O delays\n2. Network connectivity issues preventing memberlist health checks\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-4 \"Direct link to Resolution\")\n\n**Address underlying causes:**\n\n1. If too many collections:\n\n```bash\n GOMAXPROCS=<value less than available CPUs>\n```",
+      "chunk_index": 7,
+      "content_hash": "af97df56436f0cea1954761221a395d1",
+      "created_at": "2026-08-01T10:38:32.385446"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "2. If network issues:\n - Check connectivity between all cluster nodes\n - Review network policies and firewall rules\n - Verify DNS resolution\n\n* * *\n\n### Context deadline on tenant deletion [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#context-deadline-on-tenant-deletion \"Direct link to Context deadline on tenant deletion\")\n\nImpact summary\n\n- **Affected versions:** 1.26, 1.27, 1.28\n- **Resolution:** Fixed in 1.26.14, 1.27.11, 1.28.5\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-5 \"Direct link to Symptoms\")\n\nTenant deletion fails with timeout errors:\n\n```text\ncontext deadline exceeded\nsession: fetching region failed: RequestCanceled: request context canceled\ncaused by: context deadline exceeded\n```\n\nOccurs only when tenant offloading module (`offload-s3`) is enabled.\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-5 \"Direct link to Root cause\")\n\nWhen tenant offloading is enabled and AWS credentials are misconfigured, the deletion process attempts to delete cloud resources but times out waiting for AWS responses.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-5 \"Direct link to Resolution\")\n\n**Temporary workaround (if upgrade not immediately possible):**\n\nOption 1: Disable tenant offloading\n\n```bash\n\n# Remove or disable tenant offloading module configuration\n```\n\nOption 2: Correct AWS credentials\n\n```bash",
+      "chunk_index": 8,
+      "content_hash": "98fd4b1f43e2f3324dbfc350a92f58da",
+      "created_at": "2026-08-01T10:38:32.385507"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "# Provide valid AWS credentials for tenant offloading\nAWS_ACCESS_KEY_ID=<valid_key>\nAWS_SECRET_ACCESS_KEY=<valid_secret>\n```\n\n**Permanent fix:**\nUpgrade to fixed version:\n\n- 1.26.x \u2192 1.26.14 or higher\n- 1.27.x \u2192 1.27.11 or higher\n- 1.28.x \u2192 1.28.5 or higher\n\n* * *\n\n### Memory pressure: Shard init failure [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#memory-pressure-shard-init-failure \"Direct link to Memory pressure: Shard init failure\")\n\nImpact summary\n\n- **Affected versions:** All versions\n- **Resolution:** Configuration required\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-6 \"Direct link to Symptoms\")\n\n- Shard initialization failures during tenant activation\n- Errors in logs:\n\n```text\n memory pressure: cannot init shard: not enough memory mappings\n broadcast: cannot reach enough replicas\n```\n\n- Tenant activation failures\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-6 \"Direct link to Root cause\")\n\nThe system has reached the operating system limit for memory-mapped files (`vm.max_map_count`). Each shard requires multiple memory mappings, and the default OS limit may be insufficient for large multi-tenant deployments.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-6 \"Direct link to Resolution\")\n\n**Increase the system memory mapping limit:**\n\n```bash\n\n# Check current value\nsysctl vm.max_map_count\n\n# Increase to 3-4x current value\n\n# Example: 2097152 \u2192 8388608\nsysctl -w vm.max_map_count=8388608\n```",
+      "chunk_index": 9,
+      "content_hash": "20ced6543da7633d48abd3222645b8a6",
+      "created_at": "2026-08-01T10:38:32.385572"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "**Make the change persistent:**\n\n```bash\n\n# Add to /etc/sysctl.conf\necho \"vm.max_map_count=8388608\" >> /etc/sysctl.conf\n```\n\n**Restart affected pods to apply the new configuration.**\n\n* * *\n\n### Empty collections panic [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#empty-collections-panic \"Direct link to Empty collections panic\")\n\nImpact summary\n\n- **Affected versions:** 1.28, 1.29, 1.30, 1.31\n- **Resolution:** In progress\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-7 \"Direct link to Symptoms\")\n\nSingle-node clusters panic on startup with:\n\n```text\nRecovered from panic: assignment to entry in nil map\n[...stack trace...]\ngithub.com/weaviate/weaviate/cluster/schema.(*schema).addClass\n```\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-7 \"Direct link to Root cause\")\n\nRAFT snapshots with no collections (previously called classes) cause a nil map assignment during restoration due to JSON unmarshaler `omitempty` behavior. This edge case occurs when snapshots are created before any collections are added.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-7 \"Direct link to Resolution\")\n\n**Option 1: Upgrade (when available)**\nUpgrade to patched version containing the fix.\n\n**Option 2: Remove empty snapshot**\n\nIdentify and remove the problematic snapshot:\n\n```bash\n\n# Navigate to RAFT directory\ncd raft/snapshots/\n\n# Find snapshot with empty classes\n\n# Look for state.bin containing: {\"node_id\":\"...\",\"snapshot_id\":\"...\",\"classes\":{}}",
+      "chunk_index": 10,
+      "content_hash": "f8e0f6a70c2b1dd14d2783ca911efdb2",
+      "created_at": "2026-08-01T10:38:32.385638"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "# Remove the empty snapshot directory\nrm -rf <snapshot-directory>\n```\n\nExample structure:\n\n```text\nraft/\n\u251c\u2500\u2500 db_users/\n\u251c\u2500\u2500 raft.db\n\u2514\u2500\u2500 snapshots/\n \u251c\u2500\u2500 4-4-1727456146194/ # Valid snapshot\n \u2514\u2500\u2500 5-6-1728681332462/ # Empty snapshot - remove this\n```\n\n#### Prevention [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#prevention-1 \"Direct link to Prevention\")\n\nThis issue should not occur in normal operations. It typically happens only if a snapshot is created before any schema is defined.\n\n* * *\n\n### RAFT snapshot cannot be created [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#raft-snapshot-cannot-be-created \"Direct link to RAFT snapshot cannot be created\")\n\nImpact summary\n\n- **Affected versions:** 1.25, 1.26, 1.27, 1.28\n- **Resolution:** Workaround available\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-8 \"Direct link to Symptoms\")\n\nNode stuck during bootstrap with error messages indicating snapshot threshold reached but unable to create snapshot. This typically occurs only during initial cluster setup with rapid configuration changes.\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-8 \"Direct link to Root cause\")\n\nDuring bootstrap, many configuration changes in short succession increase RAFT log size and trigger snapshot threshold before the node has fully initialized. The cluster becomes stuck because:\n\n1. It cannot create a snapshot (requires bootstrap completion)\n2. It cannot apply new configurations (requires snapshot first)",
+      "chunk_index": 11,
+      "content_hash": "71ac8e9604c1245e65fe537083bb9391",
+      "created_at": "2026-08-01T10:38:32.385705"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "This should be rare in normal operations.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-8 \"Direct link to Resolution\")\n\n**Temporarily increase snapshot thresholds:**\n\n```bash\nRAFT_SNAPSHOT_INTERVAL=600 # seconds (default: 120)\nRAFT_SNAPSHOT_THRESHOLD=24576 # entries (default: 8192)\n```\n\nThis allows the node to apply all RAFT log entries before triggering snapshot creation.\n\n**After node reports healthy:**\n\n1. Remove the custom configuration\n2. Restart the node to return to defaults\n\n#### Prevention [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#prevention-2 \"Direct link to Prevention\")\n\n- Avoid making many rapid configuration changes during initial cluster bootstrap\n- Stage large schema deployments rather than applying all at once\n\n* * *\n\n### Failed to decode incoming command [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#failed-to-decode-incoming-command \"Direct link to Failed to decode incoming command\")\n\nImpact summary\n\n- **Affected versions:** 1.25, 1.26, 1.27, 1.28, 1.29\n- **Resolution:** Configuration\n\n#### Symptoms [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#symptoms-9 \"Direct link to Symptoms\")\n\nLog entries showing:\n\n```text\nfailed to decode incoming command\nerror: unknown rpc type 71\nremote-address: 10.0.104.114:42128\n```\n\nNote: `71` represents ASCII 'G' (GET), `80` represents ASCII 'P' (POST)\n\n#### Root cause [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#root-cause-9 \"Direct link to Root cause\")",
+      "chunk_index": 12,
+      "content_hash": "821a72b4795c31457a680b917a0cc026",
+      "created_at": "2026-08-01T10:38:32.385768"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "HTTP requests being sent to RAFT's internal TCP endpoint (port 8300). This commonly occurs when Prometheus or other monitoring tools auto-discover and attempt to scrape all open ports, including internal RAFT ports.\n\n#### Resolution [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#resolution-9 \"Direct link to Resolution\")\n\n**Configure monitoring to exclude RAFT ports:**\n\nUpdate Prometheus scrape configuration to skip internal cluster ports:\n\n- Port 7000: Memberlist\n- Port 7100-7103: Memberlist gossip\n- Port 8300: RAFT\n\n**For Prometheus Operator:**\n\n```yaml\nadditionalScrapeConfigs:\n - job_name: \"weaviate\"\n kubernetes_sd_configs:\n - role: pod\n relabel_configs:\n - source_labels: [__meta_kubernetes_pod_container_port_number]\n regex: \"(7000|7100|7101|7102|7103|8300)\"\n action: drop\n```\n\nThis is informational only and does not impact cluster functionality.\n\n* * *\n\n## Getting help [\u200b](https://docs.weaviate.io/weaviate/release-notes/known-issues\\#getting-help \"Direct link to Getting help\")\n\nIf you encounter an issue not listed here:\n\n1. Search [GitHub Issues](https://github.com/weaviate/weaviate/issues)\n2. Ask in the [Weaviate Community Forum](https://forum.weaviate.io/)\n\nIf you can't find an existing issue, please [open a new one](https://github.com/weaviate/weaviate/issues). Try to include the following information:\n\n- Weaviate version\n- Deployment environment (cloud, on-prem, Kubernetes, etc.)\n- Relevant log excerpts\n- Steps to reproduce\n- Impact on your workload",
+      "chunk_index": 13,
+      "content_hash": "e125d4afcda30a218c66b7883b5b5e57",
+      "created_at": "2026-08-01T10:38:32.385832"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "- [Quick reference](https://docs.weaviate.io/weaviate/release-notes/known-issues#quick-reference)\n- [Known issues in detail](https://docs.weaviate.io/weaviate/release-notes/known-issues#known-issues-in-detail)\n - [Database restoration blocked](https://docs.weaviate.io/weaviate/release-notes/known-issues#database-restoration-blocked)\n - [RAFT snapshot compatibility on downgrade](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-snapshot-compatibility-on-downgrade)\n - [RAFT bootstrap timeout](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-bootstrap-timeout)\n - [RAFT timeouts under heavy load](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-timeouts-under-heavy-load)\n - [Invalid port 99999999](https://docs.weaviate.io/weaviate/release-notes/known-issues#invalid-port-99999999)\n - [Context deadline on tenant deletion](https://docs.weaviate.io/weaviate/release-notes/known-issues#context-deadline-on-tenant-deletion)\n - [Memory pressure: Shard init failure](https://docs.weaviate.io/weaviate/release-notes/known-issues#memory-pressure-shard-init-failure)\n - [Empty collections panic](https://docs.weaviate.io/weaviate/release-notes/known-issues#empty-collections-panic)\n - [RAFT snapshot cannot be created](https://docs.weaviate.io/weaviate/release-notes/known-issues#raft-snapshot-cannot-be-created)\n - [Failed to decode incoming command](https://docs.weaviate.io/weaviate/release-notes/known-issues#failed-to-decode-incoming-command)\n- [Getting help](https://docs.weaviate.io/weaviate/release-notes/known-issues#getting-help)",
+      "chunk_index": 14,
+      "content_hash": "7fe910d52b1909a332192b14f790b145",
+      "created_at": "2026-08-01T10:38:32.385975"
+    },
+    {
+      "doc_hash": "98c24cdb3310ee41a2dccc2087e1f9ac",
+      "company": "Weaviate",
+      "vertical": "database",
+      "source_type": "tavily_page",
+      "source_url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "text": "Was this page helpful?\n\nYesNo\n\nFind the right docs\n\nSwitch between Database, Deployment, Cloud, Query Agent, Engram, and more from here.\n\nGot it",
+      "chunk_index": 15,
+      "content_hash": "f395af0ae4bab5b3e7e3e60f267edeca",
+      "created_at": "2026-08-01T10:38:32.385986"
+    }
+  ],
+  "metrics": [
+    {
+      "company": "Weaviate",
+      "source_type": "pricing_scrape",
+      "url": "https://weaviate.io/pricing",
+      "seconds": 0.59,
+      "markdown_chars": 8310,
+      "chunks_total": 5,
+      "chunks_kept": 5,
+      "chunks_junk_dropped": 0,
+      "firecrawl_credits": 1,
+      "ts": "2026-08-01T10:38:30.085889"
+    },
+    {
+      "company": "Weaviate",
+      "source_type": "tavily_page",
+      "url": "https://docs.weaviate.io/weaviate/release-notes",
+      "seconds": 0.8,
+      "markdown_chars": 12818,
+      "chunks_total": 8,
+      "chunks_kept": 8,
+      "chunks_junk_dropped": 0,
+      "firecrawl_credits": 1,
+      "ts": "2026-08-01T10:38:31.550059"
+    },
+    {
+      "company": "Weaviate",
+      "source_type": "tavily_page",
+      "url": "https://docs.weaviate.io/weaviate/release-notes/known-issues",
+      "seconds": 0.83,
+      "markdown_chars": 23455,
+      "chunks_total": 16,
+      "chunks_kept": 16,
+      "chunks_junk_dropped": 0,
+      "firecrawl_credits": 1,
+      "ts": "2026-08-01T10:38:32.386026"
+    }
+  ]
+}
