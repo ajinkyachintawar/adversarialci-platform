@@ -349,15 +349,13 @@ MCP exposure. Touch nothing in `court/`, `heads/buyer.py`, `heads/analyst.py`,
 
 ## Inherited open items (not blocking A2)
 
-- **70B vs `gpt-oss-120b` is unresolved** — blocked on Groq daily tokens (all 3
-  keys at ~98.7K/100K on 2026-08-03). Re-run when the window rolls:
-  `GROQ_NO_FALLBACK=1 .venv/bin/python -u -m eval.abstention_eval llama70b_depunct`
-  then the same pinned for `EARSHOT_MODEL=openai/gpt-oss-120b`. Preflight refuses
-  to start when quota is short, so a blocked attempt costs nothing. The 95%/100%
-  result still carries its confound: gate AND model both changed in that run.
-- **Attributed framing** (measured, zero quota): 70B 60% vs gpt-oss-120b 95% on 20
-  shared answers. If gpt-oss wins, change `MODEL` in `earshot/answer.py` **and**
-  reorder `MODEL_FALLBACKS` in `heads/llm.py` — the 70B then leads *its* chain,
-  having the larger TPM budget.
+- ~~**70B vs `gpt-oss-120b` is unresolved**~~ **RESOLVED 2026-08-04 (`74d7ade`)**
+  — `openai/gpt-oss-120b` is now the primary `MODEL`, and the 70B leads its own
+  fallback chain. Decided on **attributed framing (65% → 92%)**; the abstention
+  and answer-rate gaps were one query each at n=20/24, i.e. noise. Full
+  three-way table and the accepted costs are in `docs/EARSHOT_PHASE_0_1.md`.
+  **What this changes for A2:** the ack copy should still promise 20–30s (the
+  new primary measured 17.0s mean vs the 70B's 10.1s — slower, and accepted,
+  because free-tier queueing dominates and attribution is the product).
 - `call_llm` is now `@lru_cache`d per key; verify no socket growth in the
   long-lived server process.
