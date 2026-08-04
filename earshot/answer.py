@@ -39,23 +39,29 @@ from ingest.retrieval import retrieve, RetrievalUnavailable
 from ingest.chunker import norm
 from heads.llm import call_llm, fits
 
-# Default stays the 70B (largest TOKEN_CAPS, see heads/llm.py). EARSHOT_MODEL
-# overrides it so eval/abstention_eval.py can pin a model — each Groq model has
-# its OWN daily token budget, and the eval needs ~170K tokens against ~200K per
-# model (2 keys = 2 separate orgs), so it only fits when pinned to one model.
+# gpt-oss-120b, chosen 2026-08-04 on ONE axis: attributed framing 92% (22/24) vs
+# the 70B's 65% (15/23), measured on pinned same-gate runs. Abstention (95 vs 90)
+# and answer rate (100 vs 96) differ by a single query each at n=20/24 — noise,
+# NOT a reason to pick a model. Attribution is, because it IS the product: "their
+# pricing page lists $25" vs "they cost $25" decides who owns the claim when a rep
+# forwards it. The 70B is ~7s faster per call; that is free-tier queueing, not
+# model speed (see docs/EARSHOT_PHASE_0_1.md), so it does not buy back attribution.
+# EARSHOT_MODEL overrides so eval/abstention_eval.py can pin a model — each Groq
+# model has its OWN daily token budget, so the eval only fits when pinned to one.
 # An env var is right HERE and wrong for SCORE_FLOOR: this selects infrastructure
 # under a fixed product behaviour, whereas the floor IS the product behaviour.
-MODEL = os.environ.get("EARSHOT_MODEL", "llama-3.3-70b-versatile")
-# 768, not 1024, and the 256 difference is load-bearing. TOKEN_CAPS counts
-# input + max_tokens, so a two-company prompt estimated 8,086 tokens against the
-# 8,000 cap of every fallback model — the fallback chain silently collapsed to
-# the 70B alone for exactly the "us vs them" question reps ask most. Measured
-# answers are ~400 chars (~160 tokens), so 768 is still >4x headroom.
-# Raising this without re-checking TOKEN_CAPS re-breaks the fallback path.
+MODEL = os.environ.get("EARSHOT_MODEL", "openai/gpt-oss-120b")
+# 768, not 1024, and the 256 difference is load-bearing — now on the PRIMARY, not
+# just the fallbacks. TOKEN_CAPS counts input + max_tokens, and the two-company
+# "us vs them" prompt (the question reps ask most) measures 7,830 against
+# gpt-oss-120b's 8,000: 170 tokens of headroom. At 1024 it is 8,086 and does not
+# fit, so _fit_prompt would silently start dropping our own comparison chunks.
+# Measured answers are ~400 chars (~160 tokens), so 768 is still >4x what is used.
+# Re-measure that 7,830 before raising this or EVIDENCE_CHAR_BUDGET.
 MAX_OUTPUT_TOKENS = 768
-# llama-3.3-70b-versatile's TOKEN_CAPS is 12K (heads/llm.py); fits() is the
-# real gate before any call, this budget just keeps the initial prompt in
-# the right ballpark so the fit-shrink loop rarely has to iterate.
+# Bounds the prompt deterministically, which is why the 12K->8K primary cap
+# change cost nothing: the budget, not the chunk count, sets the size. fits() is
+# the real gate; this keeps the fit-shrink loop from having to iterate.
 EVIDENCE_CHAR_BUDGET = 20_000
 
 # Calibrated 2026-08-01 by earshot/calibrate_floor.py against

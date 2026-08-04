@@ -77,11 +77,16 @@ TOKEN_CAPS = {
 # alone cannot help: both keys hit the same per-model ceiling. Rotating MODELS
 # raises the ceiling to roughly 12K+8K+8K+8K per key.
 #
-# Ordered by preference, not by size: the 70B stays primary because it has the
-# LARGEST budget here (12K vs 8K), not the smallest. Fallbacks are a degraded
-# mode — the verbatim gate still catches misquotes, so the risk is weaker
-# judgement on evidence_answers_question, never fabrication. Benchmark with
-# eval/abstention_eval.py before promoting any of these to primary.
+# Ordered by preference, not by size. gpt-oss-120b leads as of 2026-08-04, on
+# measured attributed framing (92% vs the 70B's 65%; see earshot/answer.py MODEL)
+# — NOT on budget, which it loses: 8K TPM against the 70B's 12K. That trade is
+# deliberate and it has a cost: the primary now has the SMALLER bucket, so the
+# chain 429s onto the 70B sooner than it used to. The 70B is first fallback
+# precisely because it is the biggest bucket, so a degraded run degrades into
+# more headroom, not less.
+# Fallbacks are a degraded mode — the verbatim gate still catches misquotes, so
+# the risk is weaker judgement on evidence_answers_question, never fabrication.
+# Benchmark with eval/abstention_eval.py before promoting any of these to primary.
 # Tested live against earshot's real prompt on 2026-08-03 (the 70B was already
 # 429'd, so this chain was exercised for real, not just stubbed):
 #   openai/gpt-oss-120b  OK  1.7s  — same citations as the 70B's 5.0s
@@ -91,6 +96,9 @@ TOKEN_CAPS = {
 # a fallback that cannot produce the schema is worse than no fallback, because
 # it burns the retry budget and returns None, which now reads as an outage.
 MODEL_FALLBACKS = {
+    "openai/gpt-oss-120b": ["llama-3.3-70b-versatile", "openai/gpt-oss-20b"],
+    # kept so EARSHOT_MODEL=llama-3.3-70b-versatile still has a chain to fall
+    # down — the comparison above is re-runnable, not a one-off.
     "llama-3.3-70b-versatile": ["openai/gpt-oss-120b", "openai/gpt-oss-20b"],
 }
 

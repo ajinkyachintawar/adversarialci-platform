@@ -950,3 +950,65 @@ points one way. Combined with gpt-oss-120b being ~3x faster uncontended
 (1.7s vs 5.0s), which matters directly for A2's latency budget, the burden of
 proof now sits with the 70B. The pinned runs should confirm or overturn it —
 not start the argument.
+
+---
+
+## The 70B vs gpt-oss-120b comparison — RESOLVED (2026-08-04)
+
+The confound flagged on 2026-08-03 (the 95%/100% run changed *both* the quote
+gate and the model) is now broken. Groq's daily token window rolled over,
+`preflight()` confirmed all 3 keys could serve a real 5,191-token prompt, and a
+single pinned run completed clean — `contaminated: false`, `fallback_pinned:
+true`, no abort.
+
+All three runs share the same gate stack (score floor → relevance → verbatim):
+
+| run | model | `_depunct()` | abstention | answer | attributed | mean s |
+|---|---|---|---|---|---|---|
+| `clean_20260803_153010` | llama-3.3-70b | no | 90% | 83% | 60% (12/20) | 9.3 |
+| `llama70b_depunct_20260804_160456` | llama-3.3-70b | **yes** | 90% | **96%** | 65% (15/23) | 10.1 |
+| `gptoss120b_20260803_170203` | gpt-oss-120b | yes | 95% | 100% | **92%** (22/24) | 17.0 |
+
+**Isolating `_depunct()`** (model held at 70B): answer rate 83% → 96%, abstention
+flat at 90%. This is the number the comparison existed to produce. The quote gate
+was rejecting real evidence over scrape punctuation, and fixing it recovered that
+evidence **without loosening abstention** — the trade-off that would have made the
+fix worthless never happened.
+
+**Isolating the model** (depunct held on): 90→95% abstention, 96→100% answer,
+65→92% attributed.
+
+### What is signal and what is noise
+
+Abstention differs by **one query** (18/20 vs 19/20) and answer rate by **one**
+(23/24 vs 24/24). At n=20/24 those are not real differences and must not be cited
+as "gpt-oss is more accurate." The honest read is that the two models are
+**indistinguishable on citation safety**.
+
+The only gap with signal is **attributed framing: 65% vs 92%**, ~6 queries. Even
+that is a regex heuristic, so treat it as directional. It decides the model
+anyway, because it is not a style metric — it *is* the product. "Weaviate's
+pricing page lists $25/month" vs "Weaviate costs $25/month" decides who owns the
+claim when a rep forwards it to a buyer. The abstention eval scores those two
+identically; this is the axis it structurally cannot see.
+
+### Changed as a result
+
+- `earshot/answer.py`: `MODEL` default → `openai/gpt-oss-120b`.
+- `heads/llm.py`: `MODEL_FALLBACKS` — gpt-oss-120b now leads, with the 70B as
+  first fallback *because* it holds the largest bucket (12K TPM vs 8K), so a
+  degraded run degrades into more headroom. The 70B's own chain is kept so the
+  comparison stays re-runnable via `EARSHOT_MODEL`.
+
+**The cost of this choice, on record:** the primary now has the *smaller* TPM
+bucket, so the chain 429s onto a fallback sooner. And prompt headroom on the
+primary drops from 4,170 tokens to **170** — the two-company prompt measures
+7,830 against an 8,000 cap. It fits, and measurement confirmed no chunks are
+dropped, only because `EVIDENCE_CHAR_BUDGET` bounds the prompt deterministically.
+`MAX_OUTPUT_TOKENS` at 1024 would put it at 8,086 and silently start discarding
+our own comparison chunks. Re-measure that 7,830 before raising either constant.
+
+**Latency is not a counter-argument.** The 70B is ~7s faster per call here, but
+per the latency decomposition above that is free-tier queueing, not model speed —
+the same call has returned in 2.71s. It is a pricing lever, and it does not buy
+back 27 points of attribution.
