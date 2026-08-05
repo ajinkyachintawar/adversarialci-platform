@@ -52,6 +52,10 @@ def embed_texts(texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list
     """Embed up to BATCH_SIZE texts. Returns vectors or None on failure."""
     if not texts:
         return []
+    # After the empty-list short-circuit: embedding nothing needs no key.
+    # Every embedding path (embed_query, embed_missing_chunks) funnels through
+    # here, so this is the one place the guard has to be.
+    _require_key()
     body = {"requests": [
         {"model": f"models/{MODEL}",
          "content": {"parts": [{"text": t[:8000]}]},

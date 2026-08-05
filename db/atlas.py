@@ -64,6 +64,7 @@ def _ensure_indexes():
         db["research_data"].create_index([("company", 1), ("scraped_at", 1)])
         db["court_sessions"].create_index([("created_at", 1), ("mode", 1), ("vertical", 1)])
         db["ask_log"].create_index([("created_at", -1)])  # newest-first reads
+        db["slack_workspaces"].create_index("team_id", unique=True)
     except Exception as e:
         print(f"⚠️  Index creation failed (continuing without): {e}")
 

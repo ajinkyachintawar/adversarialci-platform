@@ -425,6 +425,47 @@ the write in `try/except`; the rep's answer is the product, the log is for A4.
 returns with the "no us configured" footer; after inserting one, the footer
 disappears and `my_company` is set.
 
+#### Phase 4 result — DONE 2026-08-05
+
+`_my_company` (5-min cache **per team_id**), `_log_ask`/`_log_ask_safe`,
+`resolved_via` threaded through `resolve_competitor`, the footer, and one index
+line in `db/atlas.py`. **0 LLM calls spent** — every test used a question that
+abstains before the LLM gate.
+
+All four accept criteria met. Verified against the live shared Atlas DB:
+
+| Probe | Result |
+|---|---|
+| No workspace doc | answer returned, footer present |
+| After inserting `{"team_id":"T1","my_company":"MongoDB"}` | footer gone, `my_company: "MongoDB"` in the log |
+| `ask_log` doc shape | `source`, `team_id`, `slack_user_id`, `channel_id`, `raw_text`, `resolved_via` all present |
+| Outcomes that never reach `answer()` | all logged: `unknown_competitor`, `help`, `no_question` |
+| `resolved_via` | `"direct"` / `"alias"` / `None`, matching how the name was matched |
+| Test data cleanup | 1 workspace + 5 `ask_log` rows deleted; only the 2 pre-existing `source: "api"` rows remain |
+
+**Fixed during audit — the footer could lie.** `_my_company` skipped the
+`DEFAULT_MY_COMPANY` env fallback when the DB threw, so an Atlas blip made a
+workspace that *is* configured render "nobody has told me which company we are".
+That is a tool problem dressed up as a settings statement — the same class of
+error as Phase 2's empty-intersection bug. `DEFAULT_MY_COMPANY` is a deploy-time
+constant that needs no DB to read, so a DB failure now falls through to it.
+Demonstrated before and after; self-check assertion updated (it had encoded the
+old behaviour as correct).
+
+**Also fixed:** the footer pointed reps at `docs/EARSHOT_A2_SLACK.md Phase 4`. A
+salesperson in Slack cannot act on a repo path — it now says to ask their admin.
+
+**Judgement call, kept:** `help` and `no_question` are logged under their own
+confidence values rather than folded into `unknown_competitor`. A4's signal is
+"which aliases should exist", and someone typing `/vs help` is not a failed
+alias lookup — merging them would dilute the one number this log exists to
+produce.
+
+**Setup is one manual insert**, no `/vs-setup` command:
+```js
+db.slack_workspaces.insertOne({team_id: "T…", my_company: "MongoDB"})
+```
+
 ---
 
 ### Phase 5 — real Slack

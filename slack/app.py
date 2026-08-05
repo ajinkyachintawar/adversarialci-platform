@@ -3,15 +3,16 @@ Slack /vs
 =========
 Phase 1 (pure core: signature verification, competitor resolution, message
 rendering — no route, no DB, no httpx), Phase 2 (route, signature gate, 3s
-ack), and Phase 3 (real answer() wiring: LLM lock, backstop timeout, daily
-cap, response_type). Pure functions take their inputs as arguments and never
-touch env/DB/network, which is what keeps _self_check() runnable offline
-with no Mongo/Groq reachable — see docs/EARSHOT_A2_SLACK.md. The I/O section
-below the self_check-adjacent line is where `earshot.answer` gets imported
-(inside `_run_answer`, never at module scope) — `_known_companies()`,
-`_TASKS`, `_run_answer`, `_answer_and_deliver`, `_deliver`, `router`,
-`slack_vs`. Phases 4-5 (workspace lookup, ask_log, real Slack registration)
-are separate work.
+ack), Phase 3 (real answer() wiring: LLM lock, backstop timeout, daily cap,
+response_type), and Phase 4 (per-workspace my_company lookup, ask_log).
+Pure functions take their inputs as arguments and never touch env/DB/network,
+which is what keeps _self_check() runnable offline with no Mongo/Groq
+reachable — see docs/EARSHOT_A2_SLACK.md. The I/O section below the
+self_check-adjacent line is where `earshot.answer` gets imported (inside
+`_run_answer`, never at module scope) — `_known_companies()`, `_my_company()`,
+`_log_ask()`/`_log_ask_safe()`, `_TASKS`, `_run_answer`, `_answer_and_deliver`,
+`_deliver`, `router`, `slack_vs`. Phase 5 (real Slack app registration) is
+separate work.
 
 Run:  .venv/bin/python -m slack.app                    (self-check, offline, no network)
       .venv/bin/uvicorn server:app --port 8011          (route, needs SLACK_SIGNING_SECRET)
@@ -96,25 +97,31 @@ def resolve_competitor(text, known):
     list, so multi-word company names resolve correctly as the list grows —
     that growth is a data change, not a code change here.
 
-    Returns (canonical|None, question, reason),
-    reason in {"ok", "no_match", "no_question", "help"}.
+    Returns (canonical|None, question, reason, resolved_via),
+    reason in {"ok", "no_match", "no_question", "help"},
+    resolved_via in {"direct", "alias", None} — None when no company was
+    matched at all (no_match/help). Phase 4 logs this to ask_log so a run of
+    "alias" resolutions against a name nobody added an alias for is the
+    signal for which aliases to add next.
     """
     text = (text or "").strip()
     # Bare `/vs` is the single most likely first interaction — treat it the
     # same as an explicit "help" rather than a failed match.
     if not text or text.lower() == "help":
-        return None, "", "help"
+        return None, "", "help", None
 
     tokens = text.split()
     known_by_norm = {norm_company(k): k for k in known}
 
     matched = None
     matched_len = 0
+    resolved_via = None
     for length in range(min(4, len(tokens)), 0, -1):
         prefix_norm = norm_company(" ".join(tokens[:length]))
         if prefix_norm in known_by_norm:
             matched = known_by_norm[prefix_norm]
             matched_len = length
+            resolved_via = "direct"
             break
         alias_target = ALIASES.get(prefix_norm)
         if alias_target is not None:
@@ -124,17 +131,18 @@ def resolve_competitor(text, known):
             if norm_company(alias_target) in known_by_norm:
                 matched = known_by_norm[norm_company(alias_target)]
                 matched_len = length
+                resolved_via = "alias"
                 break
             # alias exists but its target isn't answerable here — keep
             # trying shorter prefixes rather than treating this as a match.
 
     if matched is None:
-        return None, "", "no_match"
+        return None, "", "no_match", None
 
     question = " ".join(tokens[matched_len:]).strip()
     if not question:
-        return matched, "", "no_question"
-    return matched, question, "ok"
+        return matched, "", "no_question", resolved_via
+    return matched, question, "ok", resolved_via
 
 
 def esc(s: str) -> str:
@@ -142,14 +150,29 @@ def esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def render(result: dict, competitor: str) -> str:
+# Phase 4: shown only on the two outcomes that actually ran through answer()
+# with no workspace configured (evidence/none) — the rep gets a thinner
+# search (no comparison retrieval) and should know that's why, not assume
+# it's the product's normal behavior. Never shown on error/timeout/busy/cap:
+# those never reached the comparison step regardless of my_company.
+# Addressed to a sales rep in Slack, not to whoever deploys this — a repo
+# path is not something they can act on.
+_NO_MY_COMPANY_FOOTER = (
+    "\n\n_This answer covers {c} only — nobody has told me which company we "
+    "are, so there's no side-by-side comparison. Ask your admin to set it up._"
+)
+
+
+def render(result: dict, competitor: str, no_my_company: bool = False) -> str:
     """Render one of the six outcomes as Slack mrkdwn `text`. Plain text, not
     Block Kit — response_url takes {"text": ...} and Blocks would add a
     schema for identical output.
 
     `result` is the earshot.answer.answer() contract shape, or a bare
     {"confidence": "timeout"|"busy"|"cap"} for the outcomes answer() never
-    produces itself.
+    produces itself. `no_my_company` appends `_NO_MY_COMPANY_FOOTER` to the
+    evidence/none renders (see that constant) — default False keeps every
+    existing caller (incl. _self_check) unchanged.
 
     Returns plain text only — in_channel vs ephemeral is the caller's call
     (Phase 3 wires that: evidence -> in_channel, everything else -> ephemeral).
@@ -178,14 +201,20 @@ def render(result: dict, competitor: str) -> str:
                 if captured:
                     line += f" · {captured}"
                 lines.append(line)
-            return "\n".join(lines)
+            text = "\n".join(lines)
+            if no_my_company:
+                text += _NO_MY_COMPANY_FOOTER.format(c=esc(competitor))
+            return text
 
     if confidence == "none":
-        return (
+        text = (
             f":mag: No evidence found on {esc(competitor)}'s own pages for that "
             "question. This is a result, not a bug — try rephrasing, or ask "
             "about pricing, features, or security instead."
         )
+        if no_my_company:
+            text += _NO_MY_COMPANY_FOOTER.format(c=esc(competitor))
+        return text
     if confidence == "error":
         detail = esc(result.get("error", "")) or "unknown error"
         return f":warning: {_NOT_ABSTENTION.format(c=esc(competitor))} ({detail})"
@@ -211,9 +240,16 @@ import asyncio
 import os
 import threading
 import time as _time
+from datetime import datetime
 
 _KNOWN_TTL_S = 300  # 5-minute cache — matches the plan's "5-min TTL".
 _known_cache = {"at": 0.0, "companies": None}
+
+# Phase 4: per-team_id cache, same 5-min TTL as _known_companies. A dict
+# (not a single slot) because, unlike ANSWERABLE, "my company" is genuinely
+# per-workspace.
+_MY_COMPANY_TTL_S = 300
+_my_company_cache: dict = {}
 
 # 3s Slack budget; ack copy must not overpromise the measured tail (Risk 2 —
 # median 13-20s, p95 ~28s. Keep this in sync with the literal string below.
@@ -315,6 +351,51 @@ def _known_companies() -> list:
     return companies
 
 
+def _my_company(team_id: str) -> str | None:
+    """slack_workspaces.find_one({"team_id": ...}) -> DEFAULT_MY_COMPANY env
+    -> None, 5-min cache per team_id. A DB failure falls through to the env
+    fallback, never raises — same contract as _known_companies. Skipping the
+    env on a DB blip would show a workspace that IS configured the "not
+    configured" footer, i.e. report a tool problem as a settings statement;
+    DEFAULT_MY_COMPANY is a deploy-time constant that needs no DB to read.
+    answer() handles
+    my_company=None natively (skips the comparison retrieval), so an
+    unconfigured workspace degrades rather than fails; render() adds a
+    footer for it (see _NO_MY_COMPANY_FOOTER)."""
+    now = _time.time()
+    cached = _my_company_cache.get(team_id)
+    if cached is not None and now - cached[1] < _MY_COMPANY_TTL_S:
+        return cached[0]
+    try:
+        from db.atlas import get_collection
+        doc = get_collection("slack_workspaces").find_one({"team_id": team_id})
+        value = (doc or {}).get("my_company") or os.environ.get("DEFAULT_MY_COMPANY") or None
+    except Exception as e:
+        print(f"⚠️  _my_company: DB unavailable, falling back to DEFAULT_MY_COMPANY ({e})")
+        value = os.environ.get("DEFAULT_MY_COMPANY") or None
+    _my_company_cache[team_id] = (value, now)
+    return value
+
+
+def _log_ask(**fields) -> None:
+    """Sync insert into the shared ask_log collection (see server.py's
+    /api/ask for the "source": "api" counterpart this mirrors). Runs on a
+    worker thread — sync pymongo, same reason _known_companies/_my_company
+    do."""
+    from db.atlas import get_collection
+    get_collection("ask_log").insert_one({"created_at": datetime.utcnow(), **fields})
+
+
+async def _log_ask_safe(**fields) -> None:
+    """The rep's answer is the product, the log is for A4 — a logging
+    failure must never surface to the rep. Mirrors /api/ask's ask_log
+    try/except."""
+    try:
+        await asyncio.to_thread(_log_ask, **fields)
+    except Exception as e:
+        print(f"⚠️  ask_log write failed (continuing): {e}")
+
+
 # Strong references to in-flight fire-and-forget tasks. asyncio.create_task()
 # only holds a WEAK reference — without this set, the task can be garbage
 # collected mid-flight and the rep gets silence forever. server.py:349 has
@@ -322,23 +403,26 @@ def _known_companies() -> list:
 _TASKS: set = set()
 
 
-async def _answer_and_deliver(competitor: str, question: str, response_url: str):
-    """PHASE 3: the real call, the LLM lock, the backstop timeout, and the
-    daily cap. The whole body is wrapped in try/except: an exception in a
-    fire-and-forget task is otherwise a silent void — the rep never learns
-    it failed. Cap check and the earshot.answer import both happen in here
-    (not at module scope) so this file still imports with no DB/Groq
-    reachable — see _self_check().
-
-    my_company=None: Phase 4 wires per-workspace lookup; until then answer()
-    degrades natively (skips the comparison retrieval), same as /api/ask."""
+async def _answer_and_deliver(competitor: str, question: str, response_url: str,
+                               *, team_id: str, slack_user_id: str, channel_id: str,
+                               raw_text: str, resolved_via: str | None):
+    """PHASE 3+4: the real call, the LLM lock, the backstop timeout, the
+    daily cap, per-workspace my_company, and the ask_log write. The whole
+    body is wrapped in try/except: an exception in a fire-and-forget task is
+    otherwise a silent void — the rep never learns it failed. Cap check and
+    the earshot.answer import both happen in here (not at module scope) so
+    this file still imports with no DB/Groq reachable — see _self_check()."""
+    my_company = None
     try:
+        # Sync pymongo — off the event loop, same reason as _known_companies.
+        my_company = await asyncio.to_thread(_my_company, team_id)
+
         if not _daily_cap_room():
             result = {"confidence": "cap"}
         else:
             try:
                 result = await asyncio.wait_for(
-                    asyncio.to_thread(_run_answer, question, competitor, None),
+                    asyncio.to_thread(_run_answer, question, competitor, my_company),
                     timeout=SLACK_ANSWER_TIMEOUT_S,
                 )
             except asyncio.TimeoutError:
@@ -351,15 +435,24 @@ async def _answer_and_deliver(competitor: str, question: str, response_url: str)
                 result = {"confidence": "timeout"}
             _daily_cap_commit(result.get("confidence", ""))
 
-        text = render(result, competitor)
+        text = render(result, competitor, no_my_company=(my_company is None))
         # Mirror render()'s own evidence->none downgrade (empty citations) so
         # response_type never says in_channel for a message that actually
         # rendered as "no evidence".
         is_evidence = result.get("confidence") == "evidence" and bool(result.get("citations"))
         response_type = "in_channel" if is_evidence else "ephemeral"
     except Exception as e:
+        result = {"confidence": "error", "error": str(e)}
         text = f":warning: {_NOT_ABSTENTION.format(c=esc(competitor))} ({esc(str(e))})"
         response_type = "ephemeral"
+
+    await _log_ask_safe(
+        source="slack", team_id=team_id, slack_user_id=slack_user_id,
+        channel_id=channel_id, raw_text=raw_text, resolved_via=resolved_via,
+        question=question, competitor=competitor, my_company=my_company,
+        answer=result.get("answer", ""), citations=result.get("citations", []),
+        confidence=result.get("confidence"), seconds=result.get("seconds"),
+    )
     await _deliver(text, response_url, response_type)
 
 
@@ -420,12 +513,37 @@ async def slack_vs(request: Request):
     parsed = parse_command(fields)
     text = parsed["text"]
     response_url = parsed["response_url"]
+    team_id = parsed["team_id"]
+    slack_user_id = parsed["user_id"]
+    channel_id = parsed["channel_id"]
 
     # get_collection uses sync pymongo (db/atlas.py), not motor — run it off
     # the event loop or a slow/cold Atlas round-trip blocks every concurrent
     # request and eats the 3s Slack budget, defeating the ack architecture.
     known = await asyncio.to_thread(_known_companies)
-    competitor, question, reason = resolve_competitor(text, known)
+    competitor, question, reason, resolved_via = resolve_competitor(text, known)
+
+    # Outcomes decided here, before answer() is ever reached. All three get
+    # logged (fire-and-forget, same _TASKS pattern as the real answer path,
+    # so the DB write never eats the 3s ack budget):
+    #   - "no_match" -> confidence "unknown_competitor": the plan's own
+    #     signal for which aliases to add — must not be silently dropped.
+    #   - "no_question" and "help" are typo-shaped, not resolution failures
+    #     (no_question: right competitor, nothing asked yet; help: not an
+    #     attempt at all) — logged anyway per the plan ("make sure those get
+    #     logged too") under their own confidence values, distinct from
+    #     unknown_competitor, so A4 doesn't lump real resolution misses in
+    #     with someone just exploring the command.
+    log_confidence = {"help": "help", "no_match": "unknown_competitor", "no_question": "no_question"}
+    if reason in log_confidence:
+        log_task = asyncio.create_task(_log_ask_safe(
+            source="slack", team_id=team_id, slack_user_id=slack_user_id,
+            channel_id=channel_id, raw_text=text, resolved_via=resolved_via,
+            question=question, competitor=competitor, my_company=None,
+            answer="", citations=[], confidence=log_confidence[reason], seconds=None,
+        ))
+        _TASKS.add(log_task)
+        log_task.add_done_callback(_TASKS.discard)
 
     if reason == "help":
         return JSONResponse({
@@ -447,7 +565,11 @@ async def slack_vs(request: Request):
 
     # reason == "ok" — fire the real answer() in the background and ack
     # within Slack's 3s budget. Hold a strong reference: see _TASKS.
-    task = asyncio.create_task(_answer_and_deliver(competitor, question, response_url))
+    task = asyncio.create_task(_answer_and_deliver(
+        competitor, question, response_url,
+        team_id=team_id, slack_user_id=slack_user_id, channel_id=channel_id,
+        raw_text=text, resolved_via=resolved_via,
+    ))
     _TASKS.add(task)
     task.add_done_callback(_TASKS.discard)
 
@@ -489,27 +611,28 @@ def _self_check():
 
     # --- resolution table --------------------------------------------------------
     table = [
-        ("weaviate they said they're cheaper", "Weaviate", "they said they're cheaper", "ok"),
-        ("MONGODB pricing?", "MongoDB", "pricing?", "ok"),
-        ("mongo how much", "MongoDB", "how much", "ok"),
-        ("  weaviate  are they cheaper ", "Weaviate", "are they cheaper", "ok"),
-        ("weaviate", "Weaviate", "", "no_question"),
-        ("notacompany x", None, "", "no_match"),
-        ("help", None, "", "help"),
-        ("", None, "", "help"),
-        ("   ", None, "", "help"),
-        ("weaviate: pricing?", "Weaviate", "pricing?", "ok"),
-        ("weaviate, are they cheaper", "Weaviate", "are they cheaper", "ok"),
+        ("weaviate they said they're cheaper", "Weaviate", "they said they're cheaper", "ok", "direct"),
+        ("MONGODB pricing?", "MongoDB", "pricing?", "ok", "direct"),
+        ("mongo how much", "MongoDB", "how much", "ok", "alias"),
+        ("  weaviate  are they cheaper ", "Weaviate", "are they cheaper", "ok", "direct"),
+        ("weaviate", "Weaviate", "", "no_question", "direct"),
+        ("notacompany x", None, "", "no_match", None),
+        ("help", None, "", "help", None),
+        ("", None, "", "help", None),
+        ("   ", None, "", "help", None),
+        ("weaviate: pricing?", "Weaviate", "pricing?", "ok", "direct"),
+        ("weaviate, are they cheaper", "Weaviate", "are they cheaper", "ok", "direct"),
     ]
-    for text, exp_company, exp_question, exp_reason in table:
-        company, question, reason = resolve_competitor(text, ANSWERABLE)
+    for text, exp_company, exp_question, exp_reason, exp_via in table:
+        company, question, reason, resolved_via = resolve_competitor(text, ANSWERABLE)
         assert company == exp_company, (text, company)
         assert question == exp_question, (text, question)
         assert reason == exp_reason, (text, reason)
+        assert resolved_via == exp_via, (text, resolved_via)
 
     # --- alias safety: an alias can't invent a company outside `known` -----------
-    company, question, reason = resolve_competitor("mongo x", ["Weaviate"])
-    assert company is None and reason == "no_match", (company, reason)
+    company, question, reason, resolved_via = resolve_competitor("mongo x", ["Weaviate"])
+    assert company is None and reason == "no_match" and resolved_via is None, (company, reason, resolved_via)
 
     # --- product-principle guard: error/timeout/busy/cap never read as
     # abstention, and always carry the "this is not an answer" framing -----------
@@ -588,6 +711,65 @@ def _self_check():
         _atlas.get_collection = _orig_get_collection
         _known_cache["at"] = 0.0
         _known_cache["companies"] = None
+
+    # --- _my_company: doc found -> its value; doc absent OR DB down ->
+    # DEFAULT_MY_COMPANY env; neither -> None. Never raises. -----------------
+    class _FakeWorkspaceCol:
+        def __init__(self, doc):
+            self._doc = doc
+        def find_one(self, query):
+            return self._doc
+
+    _orig_get_collection2 = _atlas.get_collection
+    _orig_default = os.environ.get("DEFAULT_MY_COMPANY")
+    try:
+        _atlas.get_collection = lambda name: _FakeWorkspaceCol({"team_id": "T1", "my_company": "MongoDB"})
+        _my_company_cache.clear()
+        assert _my_company("T1") == "MongoDB"
+
+        os.environ["DEFAULT_MY_COMPANY"] = "Pinecone"
+        _atlas.get_collection = lambda name: _FakeWorkspaceCol(None)
+        _my_company_cache.clear()
+        assert _my_company("T2") == "Pinecone"
+
+        os.environ.pop("DEFAULT_MY_COMPANY", None)
+        _atlas.get_collection = lambda name: _FakeWorkspaceCol(None)
+        _my_company_cache.clear()
+        assert _my_company("T3") is None
+
+        # DB failure must still honour the env fallback: skipping it would tell
+        # a workspace that IS configured that it isn't — a tool problem dressed
+        # up as a settings statement.
+        def _raise2(name):
+            raise RuntimeError("simulated DB failure")
+        _atlas.get_collection = _raise2
+        os.environ["DEFAULT_MY_COMPANY"] = "Pinecone"
+        _my_company_cache.clear()
+        assert _my_company("T4") == "Pinecone"
+
+        os.environ.pop("DEFAULT_MY_COMPANY", None)
+        _my_company_cache.clear()
+        assert _my_company("T5") is None
+    finally:
+        _atlas.get_collection = _orig_get_collection2
+        if _orig_default is None:
+            os.environ.pop("DEFAULT_MY_COMPANY", None)
+        else:
+            os.environ["DEFAULT_MY_COMPANY"] = _orig_default
+        _my_company_cache.clear()
+
+    # --- render(no_my_company=True) appends the footer to evidence/none only -
+    footer_none = render({"confidence": "none"}, "Weaviate", no_my_company=True)
+    assert _NO_MY_COMPANY_FOOTER.format(c="Weaviate") in footer_none
+    footer_evidence = render({
+        "confidence": "evidence", "answer": "x",
+        "citations": [{"quote": "q", "source_url": "https://x.io/p", "captured_at": ""}],
+    }, "Weaviate", no_my_company=True)
+    assert _NO_MY_COMPANY_FOOTER.format(c="Weaviate") in footer_evidence
+    for confidence in ("error", "timeout", "busy", "cap"):
+        no_footer = render({"confidence": confidence, "error": "boom"}, "Weaviate", no_my_company=True)
+        assert _NO_MY_COMPANY_FOOTER.format(c="Weaviate") not in no_footer, confidence
+    assert _NO_MY_COMPANY_FOOTER.format(c="Weaviate") not in render({"confidence": "none"}, "Weaviate")
 
     # --- daily cap: "busy" never reached the LLM, so it must not be charged;
     # "timeout" left an orphaned thread still burning quota, so it must be ----
