@@ -173,6 +173,46 @@ _NOT_ABSTENTION = "Nothing was checked — this is a tool problem, not an answer
 **Accept:** `.venv/bin/python -m slack.app` prints a pass line, exits 0, network
 unplugged.
 
+#### Phase 1 result — DONE 2026-08-05
+
+`slack/__init__.py` + `slack/app.py` (pure layer + `_self_check()`, stdlib only,
+no route/DB/httpx/env). Accept criterion met; `earshot.answer` and `heads.llm`
+self-checks unchanged and still pass.
+
+Implemented by a worker model, then audited against an **independent** probe the
+implementer never saw (26 checks, kept out of the repo — the four real defects it
+caught are now in `_self_check()`, which is the committed test). Everything the
+plan named held on the first pass: HMAC over raw bytes (a non-UTF-8 body still
+verifies), the timestamp window, alias-cannot-invent-a-company under a shrunk
+`known`, and the not-abstention guard — the last one also with no `error` key, an
+unknown `confidence`, and an empty dict.
+
+Four defects found and fixed:
+
+1. **A 500 where a 401 was promised.** `hmac.compare_digest` raises `TypeError`
+   on a non-ASCII `str`, and `X-Slack-Signature` is attacker-controlled. Now
+   compared as bytes. The self-check missed it because it only ever fed
+   well-formed hex — *the hostile input at a trust boundary is malformed, not
+   wrong*.
+2. **Bare `/vs` returned `no_match`** — the likeliest first interaction in the
+   product answered with "not a company I recognise". Now `help`.
+3. **`/vs weaviate, are they cheaper` returned `no_match`.** Punctuation on the
+   company token killed the match, and no alias list fixes that
+   combinatorially. `norm_company` now strips `.,:;!?` per token — prefix
+   matching only, the question remainder is still sliced from the raw text, so
+   `"MONGODB pricing?"` still yields exactly `"pricing?"`.
+4. **`source_url` was the one unescaped field in `render`** while the answer and
+   quote were escaped. A `|` broke `<url|label>` into extra segments.
+
+One reported failure was the *audit's* bug, not the code's: an exact `±300s`
+boundary assertion trips on the wall-clock tick between signing and checking.
+The `> 300` comparison is correct as written.
+
+**Carried into Phase 3, deliberately not fixed here:** `render()` returns a bare
+`str` and so carries no `in_channel` / `ephemeral` signal. That is the caller's
+decision (see "Six renders"), and widening the Phase 1 contract to anticipate it
+would have been speculative.
+
 ---
 
 ### Phase 2 — route, signature gate, 3s ack (stub answer)
@@ -203,6 +243,57 @@ an error render — an exception in a fire-and-forget task is a silent void.
 4. `text=notacompany what do they charge` → **200** with a friendly message listing
    the answerable companies (never an HTTP error — explicit PLAN_A criterion)
 5. `git diff --stat auth_middleware.py` empty
+
+#### Phase 2 result — DONE 2026-08-05
+
+I/O layer appended below the pure functions in `slack/app.py` (`_known_companies`,
+`_TASKS`, stub `_answer_and_deliver`, `_deliver`, `router`, `slack_vs`), plus 8
+lines in `server.py` (import, `include_router`, `"source": "api"` on `ask_log`).
+`auth_middleware.py` untouched, as designed.
+
+Audited with an independent signed-curl harness (26 requests) the implementer
+never saw. All five accept criteria met, and:
+
+| Probe | Result |
+|---|---|
+| Valid signed request → ack | 200, **0.065s** warm (Slack's budget is 3s) |
+| 8 gate cases: flipped byte, wrong secret, missing sig, missing ts, ±6 min, non-ASCII sig, garbage ts | all 401, all **0.065–0.066s** — no timing oracle either |
+| Log distinguishes stale-vs-bad while the response does not | holds (6 bad / 2 stale) |
+| 7 resolution outcomes incl. unknown competitor | all **200**, never an HTTP error |
+| 4 malformed signed bodies (empty, non-form, invalid UTF-8, duplicate keys) | no 500s |
+| 5 concurrent requests | **10/10** background tasks delivered — the strong-ref fix works |
+
+Five defects found and fixed:
+
+1. **The self-check hit the network while printing "offline — no network".** The
+   new `_known_companies` assertion called real Atlas (`✅ Atlas connected`
+   appeared above the pass line) and its comment claimed the process had no
+   Mongo connection. A pass line that asserts something untrue is worse than a
+   missing test. Now monkeypatches `db.atlas.get_collection` — importing the
+   module opens no socket, it connects lazily inside `get_collection()`.
+2. **Sync pymongo blocking the event loop.** `db/atlas.py` is the sync driver,
+   and `_known_companies()` was called directly inside `async def slack_vs`.
+   Measured 0.41s cold vs 0.066s warm — on a Render cold start that eats the 3s
+   budget and stalls every concurrent request, defeating the reason the ack
+   architecture exists. Now `await asyncio.to_thread(...)`, matching `/api/ask`.
+3. **An empty corpus∩ANSWERABLE presented a tool problem as an answer.** Wrong
+   DB, empty collection or a renamed field made every rep see "I don't recognize
+   that competitor... (none configured)". Now degrades to `ANSWERABLE` with a
+   loud log, exactly like a DB failure — the distinction this product is built on.
+4. `no_question` echoed raw user `text` while escaping `competitor`. Now `esc`'d.
+5. `_deliver` ignored a non-2xx from `response_url`, so an expired URL looked
+   identical to success and the rep got silence forever — the precise failure
+   `_TASKS` exists to prevent. Now logs status and body.
+
+**Residual, accepted:** the first request after a cold cache still costs ~0.45s
+of the 3s budget on the Atlas `distinct()`. It no longer blocks other requests,
+which was the actual hazard. Revisit only if Render's cold Atlas latency makes
+it bite — see Risk 1, which dominates it anyway.
+
+**Known gap in the offline check, by design:** `_self_check()` is pure, so it
+cannot see the route boundary. The worker's first draft 500'd because `parse_qs`
+returns lists and `parse_command` expects scalars; only a live curl caught it.
+Phase 3's accept criteria must stay curl-based for the same reason.
 
 ---
 

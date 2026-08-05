@@ -35,6 +35,7 @@ from vendor_registry import (
 )
 from verticals import list_verticals, get_vertical
 from auth_middleware import SupabaseJWTMiddleware
+from slack.app import router as slack_router
 
 ADMIN_KEY = os.getenv("ADMIN_KEY") or os.getenv("VITE_ADMIN_KEY") or "change-me-in-production"
 
@@ -46,6 +47,12 @@ app = FastAPI(title="Adversarial CI API", version="1.0.0")
 
 # Auth added FIRST → CORS wraps it → OPTIONS preflight answered before auth runs.
 app.add_middleware(SupabaseJWTMiddleware)
+
+# /slack/vs does not start with /api/, so SupabaseJWTMiddleware already
+# passes it through unauthenticated (auth_middleware.py) — no middleware
+# change needed, verification happens via Slack's own signature inside the
+# route. See docs/EARSHOT_A2_SLACK.md "The one fact that makes this cheap".
+app.include_router(slack_router)
 
 # Allow the Vite React dev server to communicate with this API
 app.add_middleware(
@@ -581,6 +588,7 @@ async def api_ask(req: AskReq, request: Request):
     def _log():
         from db.atlas import get_collection
         get_collection("ask_log").insert_one({
+            "source": "api",
             "question": req.question,
             "competitor": req.competitor,
             "my_company": req.my_company,
