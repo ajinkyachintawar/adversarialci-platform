@@ -478,6 +478,55 @@ URL `https://<id>.ngrok-free.app/slack/vs`, then repoint at Render.
 returns a cited answer; bad signature → 401; replay >5 min → rejected; unknown
 competitor → friendly message rather than a failure.
 
+#### Phase 5 — code ready 2026-08-05, install is manual
+
+`slack/manifest.yaml` and the two `render.yaml` entries are committed. The rest
+of this phase happens in Slack's and Render's dashboards and **cannot be done or
+verified from here** — the steps below are the runbook.
+
+Criteria 2 and 3 (bad signature → 401, replay → rejected) were already proven in
+Phase 2 against 8 hostile cases, all returning 401 in 0.065–0.066s with no timing
+oracle. What real Slack adds is criteria 1 and 4 end to end.
+
+**1 — create the app.** https://api.slack.com/apps → *Create New App* → *From an
+app manifest* → pick the workspace → paste `slack/manifest.yaml`. Copy the
+**Signing Secret** from *Basic Information*; that is `SLACK_SIGNING_SECRET`.
+
+**2 — local dry run.**
+```bash
+SLACK_SIGNING_SECRET=<secret> .venv/bin/uvicorn server:app --port 8000
+ngrok http 8000
+```
+Put `https://<id>.ngrok-free.app/slack/vs` in *Slash Commands → /vs → Request
+URL*, then *Install to Workspace*. Free ngrok URLs change on every restart —
+expect to re-paste. Run the four criteria in a real channel.
+
+**3 — tell it who you are.** One insert, no setup command; `team_id` is in the
+`ask_log` row your first `/vs` just wrote:
+```js
+db.slack_workspaces.insertOne({team_id: "T…", my_company: "MongoDB"})
+```
+Without it the answer still works and says the comparison is missing.
+
+**4 — repoint at Render.** Set `SLACK_SIGNING_SECRET` (and optionally
+`DEFAULT_MY_COMPANY`) in the Render dashboard — both are `sync: false`, so
+`render.yaml` declares them but never carries the value. Change the Request URL
+to `https://<service>.onrender.com/slack/vs` and re-run the four criteria.
+
+**Watch on first real use:** `ask_log` rows with `confidence:
+"unknown_competitor"` are the alias backlog — `raw_text` shows exactly what reps
+typed. That feedback loop is the reason Phase 4 logs non-answers at all.
+
+##### Risk 1 — RESOLVED 2026-08-05
+
+Render's free tier sleeps on idle, so the first `/vs` after a quiet period would
+fail Slack's 3s timeout during a 30s+ cold start — before any of our code ran.
+**Decision: paid instance ($7/mo Starter), matching what AdversarialCI already
+runs on.** No cron ping needed, and no `/health` keep-alive hack to maintain.
+This was the plan's most likely real-world failure and it is invisible locally,
+so paying for always-on removes the single biggest A3 risk for the price of a
+coffee. Set `plan: starter` on the service, or switch it in the dashboard.
+
 ---
 
 ## Verification
@@ -502,10 +551,11 @@ competitor gets a friendly reply; a bad signature 401s; `ask_log` holds a
 
 ## Risks
 
-1. **Render free tier spins down on idle.** Cold start is 30s+, so *the first
-   `/vs` after any quiet period fails* with Slack's `operation_timeout` before our
-   code runs. Most common real-world failure, and invisible locally. Mitigation:
-   paid instance, or a cron pinging `/health` every 10 min. **Decide before A3.**
+1. ~~**Render free tier spins down on idle.**~~ **RESOLVED 2026-08-05 — paid
+   Starter instance**, same as AdversarialCI. Cold start would have made *the
+   first `/vs` after any quiet period fail* with Slack's `operation_timeout`
+   before our code ran: the most likely real-world failure, and invisible
+   locally. See Phase 5 above.
 2. **PLAN_A's "under 10 seconds" A2 criterion is not achievable** on a free Groq
    key — median is 13–20s. Fix the spec, not the measurement; the ack copy should
    promise 20–30s.

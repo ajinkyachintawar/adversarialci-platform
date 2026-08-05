@@ -34,6 +34,15 @@ services:
       # Comma-separated rotation pool — Gemini free tier is ~1K embeds/day/key.
       - key: GEMINI_API_KEYS
         sync: false
+      # --- Slack /vs (slack/app.py) ---
+      # From the Slack app's Basic Information page. Unset means every
+      # /slack/vs request 401s, and the route logs that loudly on each call.
+      - key: SLACK_SIGNING_SECRET
+        sync: false
+      # Fallback for "us" when a workspace has no slack_workspaces doc. Unset
+      # is fine: answer() skips the comparison and the reply says so.
+      - key: DEFAULT_MY_COMPANY
+        sync: false
       # --- Optional ---
       - key: SENTRY_DSN
         sync: false

@@ -1,0 +1,50 @@
+# Slack app manifest for the EarshotCI `/vs` slash command.
+#
+# Create the app from this file at https://api.slack.com/apps → "From an app
+# manifest", then replace the `url:` below with your own host. The Request URL
+# changes twice during Phase 5: first an ngrok tunnel, then Render.
+#
+# Deliberately minimal (see docs/EARSHOT_A2_SLACK.md "Scope decisions"):
+# replies go to the `response_url` Slack sends with each command, which is
+# valid 30 min / 5 uses and needs no bot token to use. `commands` is the only
+# scope, and it is the minimum Slack requires to register a slash command —
+# there is no chat:write, so this app cannot post anywhere it was not invoked.
+display_information:
+  name: EarshotCI
+  description: Evidence from a competitor's own pages — or an honest "no evidence found".
+  background_color: "#1a1d21"
+  long_description: >-
+    Ask about a competitor mid-call and get back a quote from their own public
+    pages, with a link and the date it was captured. When their pages do not
+    support an answer, it says so plainly instead of inventing one — an
+    abstention is a result, not a failure. Answers take 20-30 seconds, so the
+    command acknowledges immediately and follows up when the evidence is in.
+
+features:
+  bot_user:
+    display_name: EarshotCI
+    always_online: false
+  slash_commands:
+    - command: /vs
+      # REPLACE: ngrok first (https://<id>.ngrok-free.app/slack/vs), then Render.
+      url: https://REPLACE-ME.example.com/slack/vs
+      description: Check a claim against a competitor's own pages
+      usage_hint: "weaviate they said they're cheaper"
+      # MUST stay false. should_escape=true makes Slack rewrite URLs, emails
+      # and @handles into mrkdwn (<http://x|x>) inside the `text` field we
+      # parse — resolve_competitor would then see markup, not the words the
+      # rep typed, and raw_text in ask_log would stop being raw.
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - commands
+
+settings:
+  org_deploy_enabled: false
+  # No Socket Mode: the route is a plain signed HTTP POST (slack/app.py).
+  socket_mode_enabled: false
+  token_rotation_enabled: false
+  interactivity:
+    is_enabled: false
