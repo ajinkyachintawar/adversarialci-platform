@@ -517,6 +517,49 @@ to `https://<service>.onrender.com/slack/vs` and re-run the four criteria.
 "unknown_competitor"` are the alias backlog — `raw_text` shows exactly what reps
 typed. That feedback loop is the reason Phase 4 logs non-answers at all.
 
+##### Live in Slack — 2026-08-05, all four criteria PASSED
+
+Installed to a real workspace (`T0BND8Z5BCZ`) over ngrok. Verified through the
+public tunnel before install: `/health` 200 in 0.19s, unsigned `POST /slack/vs`
+401.
+
+| Criterion | Evidence |
+|---|---|
+| Cited answer | `confidence: evidence`, 4 dated quotes, posted **in_channel** |
+| Bad signature → 401 | Phase 2 (8 hostile cases) + live through the tunnel |
+| Replay >5 min → rejected | Phase 2 |
+| Unknown competitor → friendly | "I can answer about: MongoDB, Pinecone, Weaviate" |
+
+`slack_workspaces` doc set to `MongoDB`; footer disappeared and `my_company` is
+logged on subsequent answers, exactly as Phase 4's accept criteria required.
+
+**The first real finding, and it is about the pitch.** Four real questions:
+
+```
+"weaviate they said they're cheaper"                     -> none      1.17s
+"weaviate what does their serverless cloud pricing cost" -> evidence  2.40s
+"pinecone how do they price compared to us"              -> none      1.84s
+"notacompany what do they charge"          -> unknown_competitor
+```
+
+Both **comparative, pronoun-laden** phrasings abstained; the one phrased as an
+explicit topic answered. That is the product's own story failing — the pitch is
+*the rep types what the buyer just said*, and that is precisely the shape that
+abstains. All three abstentions fired the retrieval gate in under 2s, i.e.
+before any LLM call, so this is retrieval, not the model: "they"/"us"/"cheaper"
+give the embedding no topic to anchor on, and `answer()` decides abstention on
+the **competitor's** chunks before `my_company` is retrieved at all — so
+configuring "us" cannot rescue a comparative question.
+
+n=2 is not a measurement. But it is the same failure shape twice, on the two
+queries closest to the real use case, and A4 now has logged examples rather than
+guesses. **Do not tune SCORE_FLOOR off this.** Collect A3's real traffic first.
+
+**Caveat on that 2.4s:** `call_llm` is `@lru_cache`d and the identical question
+had been run locally minutes earlier, so this was a cache hit, not a cold
+answer. Real first-answer latency is still the documented 13–20s median, and the
+ack copy promising 20–30s stays correct.
+
 ##### Risk 1 — RESOLVED 2026-08-05
 
 Render's free tier sleeps on idle, so the first `/vs` after a quiet period would
