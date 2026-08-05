@@ -346,6 +346,56 @@ pricing), `none` (ask Weaviate something it doesn't publish), `error` (unset
 `SLACK_QUEUE_WAIT_S` → 1). Self-check still passes. Two concurrent requests show
 **serialized** Groq calls — no interleaved `🔑 429` rotation in the log.
 
+#### Phase 3 result — DONE 2026-08-05
+
+All six outcomes verified against **real rendered text**, total spend **3
+LLM-reaching answers**. `git diff --stat` touched only `slack/app.py`.
+
+| Outcome | How forced | Result |
+|---|---|---|
+| `evidence` | Weaviate serverless pricing, real call | `in_channel`, attributed framing, 4 citations (cap hit exactly), dated `1 Aug 2026` |
+| `none` | Weaviate legal-department headcount, real retrieval | `ephemeral`, abstention gate fired before any LLM call |
+| `error` | `embed_query` → `None` (see correction below) | `:warning:`, carries the embedder's "This is NOT an empty corpus" text |
+| `timeout` | stubbed 6s sleeper, `SLACK_ANSWER_TIMEOUT_S=1` | rep answered at **1.00s** |
+| `busy` | lock pre-held, `SLACK_QUEUE_WAIT_S=1` | gave up at **1.13s** |
+| `cap` | `SLACK_DAILY_ANSWER_CAP=0` | never reached `answer()` |
+| serialization | 2 concurrent real requests, default 25s wait | both cited; **0** `🔑`/`429` events, 0 tracebacks |
+
+The product-principle guard was re-checked against live output rather than
+fixtures: none of `busy`/`error`/`timeout`/`cap` contains "no evidence", and all
+four carry `_NOT_ABSTENTION`.
+
+**The orphaned thread is real, and now measured.** With a 1s timeout over a 6s
+call, the rep was answered at 1.00s while the OS thread ran on to 6.01s — visible
+because `asyncio.run()` blocks in `shutdown_default_executor()` joining it. This
+is exactly what the plan warns about: `wait_for` bounds *how long a rep waits*,
+never *how much quota is spent*, and the thread-space lock is the only thing
+stopping orphans from stacking.
+
+**Correction to this phase's own accept criteria.** "`error` (unset
+`GEMINI_API_KEYS`)" does **not** exercise the error path. With no key,
+`embed_texts` raises a bare `IndexError` from `GEMINI_API_KEYS[_key_idx]`, which
+`answer()` does not catch (it catches only `RetrievalUnavailable`), so the result
+is an unhandled exception rather than `confidence == "error"`. The Slack layer
+still degrades correctly — `_answer_and_deliver`'s outer `try/except` renders an
+error — but via the generic path, not the designed one. The *real* production
+failure is quota exhaustion: `embed_texts` returns `None` → `embed_query` returns
+`None` → `retrieve` raises `RetrievalUnavailable` → `confidence == "error"`. That
+is what was tested. **Use `embed_query → None` for this criterion, not an unset
+key.**
+
+**Latent bug found while testing, left for a separate change** (outside A2's
+scope): `ingest/embedder.py:_require_key()` exists solely to turn the missing-key
+case into a readable error — its docstring names the bare `IndexError` verbatim —
+and it is **never called from anywhere**. Wiring it into `embed_texts` is one line.
+
+**Fixed during audit:** `_daily_cap_ok()` charged a slot before the outcome was
+known, so a `busy` result — which makes zero LLM calls — consumed budget. A burst
+of lock contention could have eaten the whole day's cap without a single Groq
+call, in the one mechanism whose entire job is counting quota. Split into
+`_daily_cap_room()` (read-only) and `_daily_cap_commit(confidence)`, which skips
+`busy` and still charges `timeout` (whose orphan genuinely is spending).
+
 ---
 
 ### Phase 4 — `slack_workspaces` + `ask_log`

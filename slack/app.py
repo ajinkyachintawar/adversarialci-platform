@@ -2,16 +2,16 @@
 Slack /vs
 =========
 Phase 1 (pure core: signature verification, competitor resolution, message
-rendering — no route, no DB, no httpx) plus Phase 2 (route, signature gate,
-3s ack with a STUB answer). Pure functions take their inputs as arguments and
-never touch env/DB/network, which is what keeps _self_check() runnable
-offline with no Mongo reachable — see docs/EARSHOT_A2_SLACK.md. The I/O
-section below the self_check-adjacent line is Phase 2: `_known_companies()`,
-`_TASKS`, `_answer_and_deliver` (a fixed fake result run through the real
-render() — it does NOT import earshot.answer, Phase 3 does that), and the
-mounted route `POST /slack/vs`. Phases 3-5 (real answer() wiring, workspace
-lookup, real Slack registration) are separate work — this file does not stub
-them beyond the Phase 2 scope above.
+rendering — no route, no DB, no httpx), Phase 2 (route, signature gate, 3s
+ack), and Phase 3 (real answer() wiring: LLM lock, backstop timeout, daily
+cap, response_type). Pure functions take their inputs as arguments and never
+touch env/DB/network, which is what keeps _self_check() runnable offline
+with no Mongo/Groq reachable — see docs/EARSHOT_A2_SLACK.md. The I/O section
+below the self_check-adjacent line is where `earshot.answer` gets imported
+(inside `_run_answer`, never at module scope) — `_known_companies()`,
+`_TASKS`, `_run_answer`, `_answer_and_deliver`, `_deliver`, `router`,
+`slack_vs`. Phases 4-5 (workspace lookup, ask_log, real Slack registration)
+are separate work.
 
 Run:  .venv/bin/python -m slack.app                    (self-check, offline, no network)
       .venv/bin/uvicorn server:app --port 8011          (route, needs SLACK_SIGNING_SECRET)
@@ -203,14 +203,13 @@ def render(result: dict, competitor: str) -> str:
 # ============================================================================
 # I/O — everything below reads the environment, the DB, or the network. The
 # pure functions above never do; that split is what keeps _self_check()
-# runnable offline. Phase 2 only: _answer_and_deliver is a STUB — it does not
-# import earshot.answer (Phase 3 wires that in) — but it runs its fixed fake
-# result through the real render() so the plumbing (ack, task, delivery) is
-# exercised end to end today.
+# runnable offline. earshot.answer is imported lazily inside _run_answer, not
+# at module scope, so importing this module still needs no DB/Groq reachable.
 # ============================================================================
 
 import asyncio
 import os
+import threading
 import time as _time
 
 _KNOWN_TTL_S = 300  # 5-minute cache — matches the plan's "5-min TTL".
@@ -219,6 +218,72 @@ _known_cache = {"at": 0.0, "companies": None}
 # 3s Slack budget; ack copy must not overpromise the measured tail (Risk 2 —
 # median 13-20s, p95 ~28s. Keep this in sync with the literal string below.
 ACK_TEXT = ":mag: Checking their pages — this can take 20-30s..."
+
+# How long to wait to ACQUIRE the LLM lock before giving up and returning
+# "busy". Env-overridable so a test can shrink it to prove the busy path
+# without waiting 25s. Default matches the plan.
+SLACK_QUEUE_WAIT_S = float(os.environ.get("SLACK_QUEUE_WAIT_S", "25"))
+
+# Backstop for the whole answer() call, once the lock is held. Deliberately
+# > ASK_TIMEOUT_S (45, see server.py) — there is no browser here to 504, and
+# a Slack message at 70s beats silence forever. wait_for() only cancels the
+# awaiting coroutine, not the OS thread running answer() underneath it (see
+# _answer_and_deliver) — this is a backstop on how long a REP waits, not a
+# guarantee the underlying call actually stops.
+SLACK_ANSWER_TIMEOUT_S = float(os.environ.get("SLACK_ANSWER_TIMEOUT_S", "90"))
+
+# Dev guard against burning the day's free-tier Groq budget (~16-40
+# LLM-reaching answers/day/model/key), not a product feature — real
+# customers bring paid keys. In-process (date, count): dies on redeploy,
+# accepted (see docs/EARSHOT_A2_SLACK.md Phase 3).
+SLACK_DAILY_ANSWER_CAP = int(os.environ.get("SLACK_DAILY_ANSWER_CAP", "40"))
+_daily_cap_state = {"date": None, "count": 0}
+
+# ponytail: one process-wide lock, not per-key. heads/llm.py's _key_idx /
+# _last_call_at / call_count / _pace_for() are unsynchronized module globals
+# that assume one caller at a time; two concurrent /vs requests would race
+# the pacer straight into a 429 storm. Groq's free-tier TPM is the binding
+# constraint here, not throughput, so serializing is free — upgrade to a
+# per-key lock only if paid keys ever make concurrency worth having.
+_LLM_LOCK = threading.Lock()
+
+
+def _daily_cap_room() -> bool:
+    """True if today's count is under the cap. Read-only — the counter is
+    committed separately, once the outcome is known. Resets on a UTC date
+    rollover. Both run on the event loop only, so no lock is needed."""
+    today = _time.strftime("%Y-%m-%d", _time.gmtime())
+    if _daily_cap_state["date"] != today:
+        _daily_cap_state["date"] = today
+        _daily_cap_state["count"] = 0
+    return _daily_cap_state["count"] < SLACK_DAILY_ANSWER_CAP
+
+
+def _daily_cap_commit(confidence: str) -> None:
+    """Charge one slot — unless the outcome was "busy", which never reached
+    the LLM. The cap exists to count quota spend, so charging a request that
+    spent none would let a burst of lock contention eat the whole day's
+    budget without a single Groq call. "timeout" IS charged: wait_for stops
+    the rep waiting, not the orphaned thread, and that thread keeps burning
+    quota (see _answer_and_deliver)."""
+    if confidence != "busy":
+        _daily_cap_state["count"] += 1
+
+
+def _run_answer(question: str, competitor: str, my_company: str | None) -> dict:
+    """Runs on a worker thread via asyncio.to_thread. Acquires _LLM_LOCK
+    INSIDE the thread, not around the caller's await — that is what makes an
+    orphaned thread (one whose wait_for() already timed out) still own its
+    lock slot until answer() genuinely finishes, instead of a second
+    concurrent answer() stacking on top of it and racing heads/llm.py's
+    pacer into a 429 storm."""
+    from earshot.answer import answer
+    if not _LLM_LOCK.acquire(timeout=SLACK_QUEUE_WAIT_S):
+        return {"confidence": "busy"}
+    try:
+        return answer(question, competitor, my_company)
+    finally:
+        _LLM_LOCK.release()
 
 
 def _known_companies() -> list:
@@ -258,37 +323,56 @@ _TASKS: set = set()
 
 
 async def _answer_and_deliver(competitor: str, question: str, response_url: str):
-    """PHASE 2 STUB. Does not call earshot.answer — Phase 3 wires the real
-    call, the LLM lock, and the timeout in here. Produces one fixed fake
-    result and runs it through the real render(), so the ack -> background
-    task -> render -> deliver plumbing is fully exercised before Phase 3
-    lands. The whole body is wrapped in try/except: an exception in a
+    """PHASE 3: the real call, the LLM lock, the backstop timeout, and the
+    daily cap. The whole body is wrapped in try/except: an exception in a
     fire-and-forget task is otherwise a silent void — the rep never learns
-    it failed."""
+    it failed. Cap check and the earshot.answer import both happen in here
+    (not at module scope) so this file still imports with no DB/Groq
+    reachable — see _self_check().
+
+    my_company=None: Phase 4 wires per-workspace lookup; until then answer()
+    degrades natively (skips the comparison retrieval), same as /api/ask."""
     try:
-        result = {
-            "answer": f"[Phase 2 stub] This is a placeholder answer about {competitor}.",
-            "citations": [],
-            "confidence": "none",
-            "seconds": 0.0,
-        }
+        if not _daily_cap_room():
+            result = {"confidence": "cap"}
+        else:
+            try:
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(_run_answer, question, competitor, None),
+                    timeout=SLACK_ANSWER_TIMEOUT_S,
+                )
+            except asyncio.TimeoutError:
+                # wait_for() cancels the COROUTINE awaiting to_thread — the
+                # underlying OS thread is NOT cancelled and keeps running
+                # answer(), burning Groq quota, until it finishes on its own.
+                # _LLM_LOCK (held inside that thread) is the only thing
+                # stopping a second concurrent answer() from stacking on top
+                # of the orphan and racing heads/llm.py's pacer.
+                result = {"confidence": "timeout"}
+            _daily_cap_commit(result.get("confidence", ""))
+
         text = render(result, competitor)
+        # Mirror render()'s own evidence->none downgrade (empty citations) so
+        # response_type never says in_channel for a message that actually
+        # rendered as "no evidence".
+        is_evidence = result.get("confidence") == "evidence" and bool(result.get("citations"))
+        response_type = "in_channel" if is_evidence else "ephemeral"
     except Exception as e:
         text = f":warning: {_NOT_ABSTENTION.format(c=esc(competitor))} ({esc(str(e))})"
-    await _deliver(text, response_url)
+        response_type = "ephemeral"
+    await _deliver(text, response_url, response_type)
 
 
-async def _deliver(text: str, response_url: str):
+async def _deliver(text: str, response_url: str, response_type: str = "ephemeral"):
     """Post to Slack's response_url, or print when it's absent (curl testing
-    with no Slack install needed — pulled forward from Phase 3 for exactly
-    that reason)."""
+    with no Slack install needed)."""
     if not response_url:
-        print(f"[slack.app] (no response_url) would deliver:\n{text}")
+        print(f"[slack.app] (no response_url, response_type={response_type}) would deliver:\n{text}")
         return
     try:
         import httpx
         async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.post(response_url, json={"text": text})
+            resp = await client.post(response_url, json={"text": text, "response_type": response_type})
         if resp.status_code // 100 != 2:
             # An expired/used-up response_url 400s/404s silently otherwise —
             # indistinguishable from success, and the rep gets silence
@@ -361,8 +445,8 @@ async def slack_vs(request: Request):
             "text": f"What do you want to know about {esc(competitor)}? e.g. `/vs {esc(text)} pricing`.",
         })
 
-    # reason == "ok" — fire the (stub, Phase 2) answer in the background and
-    # ack within Slack's 3s budget. Hold a strong reference: see _TASKS.
+    # reason == "ok" — fire the real answer() in the background and ack
+    # within Slack's 3s budget. Hold a strong reference: see _TASKS.
     task = asyncio.create_task(_answer_and_deliver(competitor, question, response_url))
     _TASKS.add(task)
     task.add_done_callback(_TASKS.discard)
@@ -504,6 +588,19 @@ def _self_check():
         _atlas.get_collection = _orig_get_collection
         _known_cache["at"] = 0.0
         _known_cache["companies"] = None
+
+    # --- daily cap: "busy" never reached the LLM, so it must not be charged;
+    # "timeout" left an orphaned thread still burning quota, so it must be ----
+    _daily_cap_state.update({"date": None, "count": 0})
+    assert _daily_cap_room()
+    _daily_cap_commit("busy")
+    assert _daily_cap_state["count"] == 0, "busy must not consume a cap slot"
+    for c in ("evidence", "none", "error", "timeout"):
+        _daily_cap_commit(c)
+    assert _daily_cap_state["count"] == 4, _daily_cap_state
+    _daily_cap_state["count"] = SLACK_DAILY_ANSWER_CAP
+    assert not _daily_cap_room(), "cap must stop the next answer"
+    _daily_cap_state.update({"date": None, "count": 0})
 
     print("✅ slack.app self-check passed (offline — no network)")
 
