@@ -1,0 +1,21 @@
+{
+  "dry_run": false,
+  "vertical": "database",
+  "companies": {
+    "Qdrant": {
+      "vendor_domain": "qdrant.tech",
+      "before_total_chunks": 115,
+      "after_total_chunks": 4,
+      "chunks_flagged": 111,
+      "by_source_url": {
+        "https://cohorte.co/blog/a-developers-friendly-guide-to-qdrant-vector-database": 51,
+        "https://pub.towardsai.net/building-a-modern-rag-pipeline-in-2026-qwen3-embeddings-and-vector-database-in-qdrant-ebeca2bbe338": 32,
+        "https://karthikeyanrathinam.medium.com/top-10-vector-databases-in-2026-ultimate-comparison-benchmarks-use-cases-6b0e878256b5": 16,
+        "https://www.joinnextdev.com/a/qdrant/qdrant-in-2026-the-vector-db-built-to-win-production": 8,
+        "https://dbdb.io/db/qdrant": 4
+      },
+      "deleted_chunks": 111,
+      "deleted_documents": 5
+    }
+  }
+}

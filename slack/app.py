@@ -23,10 +23,12 @@ import hmac
 import time
 from urllib.parse import urlparse
 
-# The only three companies with measured corpus quality (Phase 0). Expanding
-# is a DATA change — add a name here — never a code change to the matcher
-# below. See docs/EARSHOT_A2_SLACK.md "Scope decisions".
-ANSWERABLE = ["MongoDB", "Pinecone", "Weaviate"]
+# Companies with measured corpus quality. MongoDB/Pinecone/Weaviate from
+# Phase 0; Qdrant added in A3 Phase 1 (re-ingested from vendor seed URLs after
+# a purge — its pre-A3 115 chunks were 96% third-party). Expanding is a DATA
+# change — add a name here — never a code change to the matcher below.
+# See docs/EARSHOT_A2_SLACK.md "Scope decisions".
+ANSWERABLE = ["MongoDB", "Pinecone", "Weaviate", "Qdrant"]
 
 # Keep tiny. An alias may NEVER resolve to a company absent from `known` —
 # resolve_competitor() enforces that at lookup time, not here.

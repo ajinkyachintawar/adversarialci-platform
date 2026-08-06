@@ -71,8 +71,8 @@ The corpus today (`rag_chunks`, 1,671 chunks over 18 companies):
 **Recommendation: sell as MongoDB, against Pinecone / Weaviate / Qdrant.**
 Reasons, in order: MongoDB has the deepest corpus (445) so "us" comparisons have
 material; Pinecone and Weaviate are the only other measured companies; and
-Qdrant at 115 chunks is one ingest away from being the third competitor, in the
-same vector-DB conversation. The Slack workspace is already configured this way
+Qdrant is in the same vector-DB conversation. (The 115 chunks credited to Qdrant
+in the table below were 96% third-party — see Phase 1.) The Slack workspace is already configured this way
 (`slack_workspaces`: `{team_id: "T0BND8Z5BCZ", my_company: "MongoDB"}`).
 
 **Deliverable:** write your choice down before ingesting. Changing "us"
@@ -82,18 +82,51 @@ mid-week invalidates the week, because half the questions are comparative.
 
 ## Phase 1 — Ingest the third competitor (1 evening, quota-bound)
 
-Qdrant is at 115 chunks; Pinecone answers well at 207. Top it up, and add a
-fourth only if the week shows you reaching for one.
+> **Corrected 2026-08-06, during execution.** This section originally said Qdrant
+> was "at 115 chunks … one ingest away", and gave a two-command recipe. Both were
+> wrong. Kept visible because the error is instructive.
+
+**Qdrant was not at 115 usable chunks — it was at 4.** Of its 115, only 4 were on
+`qdrant.tech`; the other 111 came from `cohorte.co` (51), `pub.towardsai.net`
+(32), a Medium listicle (16), `joinnextdev.com` (8) and `dbdb.io` (4). Qdrant
+was ingested before Task 0.3b added vendor-domain enforcement, and it was never
+in the purge list because it was never answerable — so it kept the junk corpus
+the other three had cleaned out. In vendor terms Qdrant was thinner than Vald.
+
+This matters beyond tidiness: `answer()` does not filter by domain, so those
+chunks were retrievable and citable. `/vs qdrant …` would have answered out of a
+Medium post and shown the rep that URL.
+
+**Purge first, then ingest.** `remove_near_duplicates` compares at 0.95, and a
+third-party page about Qdrant pricing sits close enough to Qdrant's own pricing
+page to suppress the real chunk that should replace it.
 
 ```bash
 cd ~/EarshotCI
-.venv/bin/python -m ingest.pipeline Qdrant database --dry-run   # inspect first
+.venv/bin/python -m ingest.purge_nonvendor Qdrant            # dry-run by default
+.venv/bin/python -m ingest.purge_nonvendor Qdrant --apply
 .venv/bin/python -m ingest.pipeline Qdrant database
+.venv/bin/python -c "from ingest.embedder import embed_missing_chunks; print(embed_missing_chunks('Qdrant'))"
+.venv/bin/python -c "from ingest.embedder import remove_near_duplicates; print(remove_near_duplicates(company='Qdrant'))"
 ```
 
+**The last two commands are not optional.** `ingest.pipeline` writes chunks but
+never embeds them — there is no embedding call anywhere in it. Skip them and
+`rag_chunks` fills with vectorless Qdrant chunks that retrieval cannot see, and
+`/vs qdrant …` abstains. That is a stored-but-invisible corpus reading as "no
+evidence" — the same failure family as the other eight. `embed_missing_chunks`
+is resumable, so a Gemini 429 is a pause, not a restart.
+
+**Do not bother with `--dry-run` on the pipeline.** It still calls `scrape_url`
+on every URL and only skips the Mongo write, so it costs the same Firecrawl
+credits as the real run against a service that 429'd on 30% of Phase 0's URLs.
+
 Seed URLs come from `ingest/seed_urls.json` if the company has an entry — add
-vendor-owned URLs there rather than passing them another way. Pricing page comes
-from `vendor_registry`.
+vendor-owned URLs there rather than passing them another way. Produce them the
+way Task 0.2 did: Gemini Deep Research, ~15 pages for *technically evaluating*
+the vendor, vendor-owned domains only. Omit the pricing URL itself — the seed
+loop does not check `scraped_urls`, so listing it scrapes the page twice.
+Pricing page comes from `vendor_registry`.
 
 **Then add it to the answerable list** — this is a *data* change by design:
 
