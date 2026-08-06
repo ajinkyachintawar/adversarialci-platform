@@ -19,7 +19,7 @@ a coding step.**
 | Phase 0 — corpus | done — `docs/EARSHOT_PHASE_0_1.md` |
 | Phase 1 — `answer()` + `/api/ask` | done — abstention 95%, answer rate 100% on a 44-query eval |
 | **A2 — Slack `/vs`** | **done, live** — `docs/EARSHOT_A2_SLACK.md` |
-| **A3 — use it for real** | **NEXT** — `docs/EARSHOT_A3_USE.md` |
+| **A3 — use it for real** | **IN PROGRESS** — `docs/EARSHOT_A3_USE.md`. Phase 0 (company = MongoDB) and Phase 2 (Render) done. Phase 1 (Qdrant) blocked on a Gemini reset: 124/397 embedded, `remove_near_duplicates` not yet run. Phase 3 (the week) starts after that. |
 | A4 — `eval/ask_eval.py` | blocked on A3 passing |
 
 Commits, newest first: `124a87f` icon · `dfc1039` A2 complete · `ee23927` Phase 5
@@ -62,10 +62,19 @@ offers during setup are not used and should not be added.
 
 - **Slack app `EarshotCI`**, workspace `T0BND8Z5BCZ`, command `/vs`, icon set.
 - **`slack_workspaces`** holds `{team_id: "T0BND8Z5BCZ", my_company: "MongoDB"}`.
-- **`ask_log`** holds 4 real `source: "slack"` rows plus 2 older `source: "api"`.
-- **Render is NOT yet deployed for Slack.** The Request URL currently points at
-  an ngrok tunnel, which dies with the terminal. A3 Phase 2 moves it to a paid
-  Starter instance — that is a prerequisite for A3, not an optimisation.
+- **`ask_log`** holds 5 real `source: "slack"` rows plus 2 older `source: "api"`.
+- **Render IS deployed, on the existing `adversarialci-api` Starter service**
+  (2026-08-06, A3 Phase 2). ngrok is gone. Request URL is
+  `https://adversarialci-api.onrender.com/slack/vs`.
+
+  **There is no separate Earshot service.** The one service now deploys branch
+  `earshot` instead of `main`, which works because `earshot` is a strict
+  superset — `git log earshot..main` is empty, and `server.py` adds `/api/ask`
+  with zero deletions. Two consequences: a redeploy restarts AdversarialCI too,
+  and `call_llm`'s `@lru_cache` now applies to AdversarialCI's agent layer.
+
+  **Do not merge `earshot` into `main` until A3 passes.** A3 can legitimately
+  end in "stop"; the branch switch is one dropdown to revert, a merge is not.
 
 **Corpus** (`rag_chunks`, 1,671 chunks / 18 companies). Answerable, i.e. measured:
 **MongoDB 445, Pinecone 207, Weaviate 169** — and `ANSWERABLE` in `slack/app.py`
