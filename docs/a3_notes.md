@@ -54,6 +54,45 @@ repeated question returns instantly off cache. Real median is 13–20s.
 
 Date · what was asked · what was wrong with the answer.
 
+- 2026-08-06 · `/vs pinecone what does their cloud cost` · answer asserted ~8
+  distinct prices ($20/mo, $50 min, $500, $0.33/GB, write and read unit rates)
+  behind **one** citation, and the quoted line supported the least load-bearing
+  of them. Compare the Weaviate pricing answer: 3 tiers, 3 citations, reads as
+  trustworthy. "Citations vs claims" is a concrete thing for A4 to score.
+
+## Setup-day observations (before the week — not counted as week data)
+
+- **Same question, opposite outcomes, one minute apart.** `pinecone what does
+  their cloud cost` returned `none` (2.84s) then `evidence` (4.35s). Retrieval
+  is deterministic when checked directly — 0.8848 every run with the company
+  prefix `answer()` adds, comfortably over `SCORE_FLOOR` 0.85 — so it should
+  never have abstained.
+
+  **Hypothesis, not a finding (n=1):** the abstention landed minutes after the
+  Qdrant ingest wrote 397 chunks + 124 embeddings into `rag_chunks`, and cleared
+  once that settled. A shared-index rebuild degrading retrieval for an untouched
+  company would present exactly this way — and `RetrievalUnavailable` cannot
+  catch it, because `embed_query` succeeds and Atlas returns results, just
+  weaker ones. That would make it the ninth instance of the house bug: an
+  infrastructure condition reported to the rep as "no evidence".
+
+  **Consequence for the week:** finish Qdrant embed + dedup BEFORE Phase 3
+  starts. Questions asked during a large write may abstain for reasons that have
+  nothing to do with the corpus, and would pollute the only measurement A3 makes.
+
+- **`weaviate what are their support tiers` → `none` (2.4s).** Weaviate's seed
+  URLs include `/sla` and `/support-plans`, so the topic IS in the corpus.
+  Asked during the same write window. **Re-ask on a quiet index.** If it still
+  abstains, it is a genuine retrieval miss on an explicit-topic, non-comparative
+  question — which would be a bigger finding than the comparative-question gap,
+  and a strong A4 test case.
+
+- **`evidence` answers render ephemeral despite `response_type: in_channel`.**
+  Code is correct ([slack/app.py:444](../slack/app.py:444)); Render logs show the
+  `response_url` POST accepted with no delivery warning, and inviting the app to
+  the channel did not change it. Slack-side rendering of delayed slash-command
+  responses. Cosmetic — no acceptance criterion depends on it. Not chased.
+
 <!-- one line each, added as they happen -->
 
 ---
