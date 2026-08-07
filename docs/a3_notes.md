@@ -12,6 +12,20 @@ reconstructed later — write it down the day it happens.
 change mid-week; half the questions are comparative, so changing "us" would
 invalidate every one of them.
 
+## The criterion, restated (2026-08-07, before the week)
+
+PLAN_A's criteria assume a sales rep with live deals: *"would you be
+uncomfortable showing a rep this answer?"* There is no rep here and no deal.
+Scoring against a user who does not exist produces a number that means nothing.
+
+**Restated for the actual user:** *would I use this to decide which vector
+database to build on?* Same tool, same corpus, same gates — a real question
+source with real consequences, instead of invented ones. Criterion 1 ("did you
+reach for it unprompted") survives unchanged and is still the one that matters.
+
+Recorded here before the week so Phase 4 scores the criterion actually used,
+not the one the plan was written against.
+
 ## Corpus baseline at the start of the week
 
 Record this before Phase 3 so Phase 4 can tell a *retrieval* problem apart from
@@ -139,6 +153,55 @@ direct evidence for whether the gap is retrieval or prompt.
 
 | Date | Asked (abstained) | Rephrased (answered) |
 |---|---|---|
+| 2026-08-07 | `pinecone what do you know about migration` — 0.8428, below floor | `how do I migrate to pinecone` — 0.8875, passes | 
+
+Same information need, same corpus, opposite outcomes at the retrieval floor.
+The abstaining version carries no entity and no topic anchor beyond the company
+name the matcher already stripped. This is the clean pair A3 was meant to
+produce.
+
+---
+
+## THE DAY-1 FINDING — the A2 hypothesis is probably wrong
+
+`docs/HANDOFF.md` carries this in, from n=2:
+
+> "Every abstention fired the retrieval gate in **under 2s, before any LLM
+> call**, so it is retrieval, not the model."
+
+**Three real questions on 2026-08-07 say otherwise.**
+
+| Question | Score | Floor | Result | Time |
+|---|---|---|---|---|
+| `is it easy to migrate from pinecone than us` | 0.8707 | **passes** | none | 3.11s |
+| `what do you know about migration` | 0.8428 | fails | none | 0.45s |
+| `what about the scalability and security of pinecone` | 0.8916 | **passes** | none | 22.77s |
+
+**Two of three abstained AFTER the LLM call, at the relevance/citation gate —
+not at the retrieval floor.** The 22.77s is the proof: the floor gate fires in
+under 3s with no model call, so a 22.77s abstention is a full round-trip that
+the second gate then rejected.
+
+Controls confirm retrieval is fine, not broken:
+
+- `pinecone security and compliance` → 0.9040
+- `how do I migrate to pinecone` → 0.8875
+
+The corpus holds this content and retrieval finds it. Only the vaguest
+phrasing (`what do you know about migration`) is a genuine floor miss.
+
+**Consequence for A4:** the work is likely prompt/gate, not retrieval. Re-tuning
+embeddings or `SCORE_FLOOR` off the A2 hypothesis would have been effort spent
+in the wrong layer. This is exactly the redirection A3 exists to buy, and it
+cost three questions.
+
+**Do not act on it yet.** n=5. Keep asking; if the pattern holds to the end of
+the week it is a finding, and if it does not, it is noise that cost nothing.
+
+**Correction to an earlier note in this file:** four sub-5s answers had
+suggested the documented 13–20s median was stale. The 22.77s row kills that
+read. Fast responses are floor-abstentions and short answers; anything reaching
+the model is slow. The spec figure stands.
 
 ---
 
