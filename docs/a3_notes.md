@@ -59,6 +59,21 @@ Date · what was asked · what was wrong with the answer.
   of them. Compare the Weaviate pricing answer: 3 tiers, 3 citations, reads as
   trustworthy. "Citations vs claims" is a concrete thing for A4 to score.
 
+- 2026-08-07 · `/vs qdrant what does their cloud cost` · **said the free tier is
+  "unlimited for testing". It is not.** The corpus contains zero occurrences of
+  "unlimited"; `qdrant.tech/cloud/` says *"a permanently free cluster … around
+  one million 768-dimension vectors"*. **Permanently free** (unbounded in time)
+  was compressed into **unlimited** (unbounded in capacity) — a different and
+  false claim, on the single most quotable line in the answer. A rep repeating
+  it gets corrected by the buyer.
+
+  Note what did NOT go wrong: the same answer's "no surprise overage fees" and
+  "changes need authorization" are near-verbatim from that page's FAQ, and a
+  citation for the free tier *was* present. **Citation count would not have
+  caught this.** The failure is a bounded claim widened into an unbounded one
+  while staying inside the cited source — which needs A4 to score
+  faithfulness-to-quote, not just presence-of-quote.
+
 ## Setup-day observations (before the week — not counted as week data)
 
 - **Same question, opposite outcomes, one minute apart.** `pinecone what does
