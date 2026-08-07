@@ -23,7 +23,7 @@ that have nothing to do with the comparative-question gap.
 | MongoDB (us) | 445 | 100% |
 | Pinecone | 207 | 100% |
 | Weaviate | 169 | 100% |
-| Qdrant | 397 | 100% |
+| Qdrant | 344 | 100% |
 
 Qdrant was rebuilt on 2026-08-06: its previous 115 chunks were 96% third-party
 and were purged, then re-ingested from 29 vendor seed URLs. It is the *newest*
@@ -31,12 +31,11 @@ corpus, not a weaker one — but it is also the only one whose retrieval quality
 has never been measured, so treat Qdrant abstentions as unexplained until
 proven otherwise.
 
-**Open at time of writing:** Qdrant is 124/397 embedded (Gemini daily cap).
-`remove_near_duplicates` has not been run. Both must complete before the week
-starts, or Qdrant answers out of 31% of its corpus and the number above is a
-lie. Final post-dedup count goes here when it lands:
+Phase 1 closed 2026-08-07:
 
-- [ ] Qdrant final chunk count after embed + dedup: ______
+- [x] **Qdrant final: 344 chunks, 344 embedded (100%), 31 source URLs, 100%
+  first-party.** 397 ingested, 53 near-duplicates removed. Second-largest
+  corpus after MongoDB — it is not the thin one. Completed 2026-08-07 07:4x UTC.
 
 ## Infrastructure at the start of the week
 
@@ -82,10 +81,31 @@ Date · what was asked · what was wrong with the answer.
 
 - **`weaviate what are their support tiers` → `none` (2.4s).** Weaviate's seed
   URLs include `/sla` and `/support-plans`, so the topic IS in the corpus.
-  Asked during the same write window. **Re-ask on a quiet index.** If it still
-  abstains, it is a genuine retrieval miss on an explicit-topic, non-comparative
-  question — which would be a bigger finding than the comparative-question gap,
-  and a strong A4 test case.
+  Asked during the same write window.
+
+  **RESOLVED 2026-08-07, and it confirms the hypothesis above.** Re-scored on a
+  quiet index: **0.9182**, far above the 0.85 floor. Pinecone's same query is
+  unchanged at 0.8848, so the effect is transient, not a shift. That is n=2 for
+  "a large write to `rag_chunks` degrades retrieval for untouched companies and
+  surfaces as an abstention." Not a retrieval miss — corpus and gate are both
+  fine. **Never ask questions during an ingest and count the answers.**
+
+- **`embed_missing_chunks` reports transient rate limits as "all API keys
+  exhausted for today."** [embedder.py:80](../ingest/embedder.py:80) classifies a
+  429 as daily-quota if the body contains `"PerDay"` **or** `"plan and billing"`
+  — but Gemini's per-minute 429s also carry "plan and billing". So an RPM limit
+  burns a key rotation, then aborts the whole run, skipping the
+  `backoffs = [5, 15, 45]` path that would have waited 15s and continued.
+
+  Proof: the run that declared both keys spent was followed immediately by a
+  direct probe returning **HTTP 200 on both keys**, and a re-run that did
+  `140/140 embedded, 0 failed`. The "~1K embeds/day/key" figure in the plan docs
+  was never the binding constraint — this was.
+
+  **Not fixed.** Ingest is done, the workaround is "run it again" (it is
+  resumable), and changing embedding classification the day the week starts is
+  the trap this step is built around. Same failure family as the other nine:
+  a transient condition reported as a terminal one. Fix in A4.
 
 - **`evidence` answers render ephemeral despite `response_type: in_channel`.**
   Code is correct ([slack/app.py:444](../slack/app.py:444)); Render logs show the
