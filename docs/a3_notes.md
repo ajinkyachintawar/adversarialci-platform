@@ -88,6 +88,15 @@ Date · what was asked · what was wrong with the answer.
   while staying inside the cited source — which needs A4 to score
   faithfulness-to-quote, not just presence-of-quote.
 
+- 2026-08-08 · `/vs qdrant why would someone pick them over us` · returned
+  `evidence` — **a clean list of Qdrant's strengths and no rebuttal.** SSO,
+  RBAC, SOC 2, billions of vectors, Rust. Nothing about MongoDB. A rep who asks
+  why a buyer would choose the competitor and receives the competitor's sales
+  pitch is worse off than before they asked. The comparative question was
+  silently answered as a single-vendor one, and nothing in the reply signals
+  that. **This is more dangerous than an abstention** — abstention is honest,
+  this is confidently one-sided.
+
 ## Setup-day observations (before the week — not counted as week data)
 
 - **Same question, opposite outcomes, one minute apart.** `pinecone what does
@@ -197,6 +206,64 @@ cost three questions.
 
 **Do not act on it yet.** n=5. Keep asking; if the pattern holds to the end of
 the week it is a finding, and if it does not, it is noise that cost nothing.
+
+### Day 2 (2026-08-08) — it held, and the real variable is not phrasing
+
+Two pairs, deliberately vague-then-explicit on the same need. **All four passed
+the retrieval floor. Two still returned `none`.**
+
+| Question | Floor | Result | Time |
+|---|---|---|---|
+| `qdrant why would someone pick them over us` (vague) | 0.8876 | **evidence** | 2.76s |
+| `qdrant how does their pricing model differ from Atlas` (explicit) | 0.8743 | none | 2.95s |
+| `weaviate they said theyre cheaper is that true` (vague) | 0.8874 | none | 10.86s |
+| `weaviate what does their Flex plan cost per month` (explicit) | 0.9048 | **evidence** | 41.03s |
+
+Running total: **4 of 5 abstentions are post-LLM gate, not retrieval.** Only
+`what do you know about migration` (0.8428) ever missed the floor.
+
+**The pairs contradict each other, and that kills the phrasing hypothesis.**
+Pair 1 inverts A2 — the vague pronoun-laden comparative answered, its explicit
+control abstained. Pair 2 conforms. Vagueness is not the variable.
+
+**Refined hypothesis: what abstains is a question that genuinely needs
+cross-vendor material.** `differ from Atlas` and `cheaper is that true` both
+require MongoDB's own prices to answer truthfully. The two that succeeded are
+satisfiable from one vendor's pages. No single page carries a quotable line
+proving "cheaper than MongoDB", so the citation gate correctly finds nothing to
+cite — and reports it as "no evidence on their pages", which is the wrong
+explanation for the right decision.
+
+If that holds, A4's fix is neither retrieval nor the floor: it is that a
+comparative question needs evidence assembled from **two** corpora and a gate
+that can cite both. Still n=2 pairs. Keep asking.
+
+### Latency is Groq queueing, exactly as HANDOFF says
+
+Same question, same day: 2.95s and 60.57s, both abstaining post-LLM. Also 41.03s
+for a one-line Flex-plan answer. Range across the week so far: 0.45s to 60.57s.
+Do not read anything into a single timing. Do not tune it.
+
+### The number that matters most so far (2026-08-08)
+
+```
+25 slack rows · evidence 11 · none 12 · unknown_competitor 2
+reached answer(): 23        answer rate: 11/23 = 48%
+```
+
+**Phase 1's eval measured a 100% answer rate on 44 queries. Real questions get
+48%.** The eval was not wrong — it was measuring questions shaped unlike the
+ones a person actually types. That gap is the whole reason A3 exists, and it is
+the strongest argument in this file for A4 building `eval/ask_eval.py` out of
+these 23 rows rather than authoring fresh ones.
+
+Criterion 2 (≥10 real questions) is **met** at 23.
+
+### Friction note (not a product question)
+
+`what is their uptime SLA` → `unknown_competitor`. The company prefix was
+omitted when copying half a pair. The matcher is right to reject it. Does not
+count toward the 10 — it was fighting the interface, not asking the product.
 
 **Correction to an earlier note in this file:** four sub-5s answers had
 suggested the documented 13–20s median was stale. The 22.77s row kills that
