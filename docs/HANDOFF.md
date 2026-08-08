@@ -1,6 +1,7 @@
 # EarshotCI — session handoff
 
-> Current state of the world, written 2026-08-06. Read this first in a new
+> Current state of the world. Written 2026-08-06, updated 2026-08-08 (A3 day 2).
+> Read this first in a new
 > session, then the plan doc for whatever step you are on. Everything here is
 > verifiable from the repo — if it disagrees with the code, the code wins and
 > this file is stale.
@@ -11,15 +12,17 @@
 
 **A2 is complete and live in Slack.** Phases 0–1 (corpus + `answer()` +
 `POST /api/ask`) and A2 (the `/vs` slash command) are done, committed and
-measured. **A3 (a week of real use) is the next step, and it is deliberately not
-a coding step.**
+measured. **A3 is running** — it is deliberately not a coding step, and it has
+already disproved the main hypothesis this project carried into it (see Open
+items). Nothing has been fixed in response, by design: a mid-week fix
+invalidates the week.
 
 | Step | State |
 |---|---|
 | Phase 0 — corpus | done — `docs/EARSHOT_PHASE_0_1.md` |
 | Phase 1 — `answer()` + `/api/ask` | done — abstention 95%, answer rate 100% on a 44-query eval |
 | **A2 — Slack `/vs`** | **done, live** — `docs/EARSHOT_A2_SLACK.md` |
-| **A3 — use it for real** | **IN PROGRESS** — `docs/EARSHOT_A3_USE.md`. Phase 0 (company = MongoDB) and Phase 2 (Render) done. Phase 1 (Qdrant) blocked on a Gemini reset: 124/397 embedded, `remove_near_duplicates` not yet run. Phase 3 (the week) starts after that. |
+| **A3 — use it for real** | **IN PROGRESS, Phase 3.** Plan `docs/EARSHOT_A3_USE.md` · findings `docs/a3_notes.md` · scoring runbook `docs/EARSHOT_A3_PHASE4.md`. Phases 0/1/2 done. Criteria 2 and 3 already met (27 real questions; 2 uncomfortable). **Only criterion 1 — "did you reach for it unprompted" — is open, and it needs calendar days, not more questions.** |
 | A4 — `eval/ask_eval.py` | blocked on A3 passing |
 
 Commits, newest first: `124a87f` icon · `dfc1039` A2 complete · `ee23927` Phase 5
@@ -62,7 +65,9 @@ offers during setup are not used and should not be added.
 
 - **Slack app `EarshotCI`**, workspace `T0BND8Z5BCZ`, command `/vs`, icon set.
 - **`slack_workspaces`** holds `{team_id: "T0BND8Z5BCZ", my_company: "MongoDB"}`.
-- **`ask_log`** holds 5 real `source: "slack"` rows plus 2 older `source: "api"`.
+- **`ask_log`** holds 29 real `source: "slack"` rows plus 2 older `source:
+  "api"` (2026-08-08). 27 reached `answer()`: 14 `evidence`, 13 `none` — a **51%
+  answer rate on real questions, against 100% on Phase 1's 44-query eval.**
 - **Render IS deployed, on the existing `adversarialci-api` Starter service**
   (2026-08-06, A3 Phase 2). ngrok is gone. Request URL is
   `https://adversarialci-api.onrender.com/slack/vs`.
@@ -76,10 +81,16 @@ offers during setup are not used and should not be added.
   **Do not merge `earshot` into `main` until A3 passes.** A3 can legitimately
   end in "stop"; the branch switch is one dropdown to revert, a merge is not.
 
-**Corpus** (`rag_chunks`, 1,671 chunks / 18 companies). Answerable, i.e. measured:
-**MongoDB 445, Pinecone 207, Weaviate 169** — and `ANSWERABLE` in `slack/app.py`
-lists exactly those three. Qdrant (115) is the intended fourth. Vald has 9 chunks
-and would abstain always.
+**Corpus.** Answerable, i.e. in `ANSWERABLE` in `slack/app.py`, all 100%
+first-party: **MongoDB 445 (us), Qdrant 344, Pinecone 207, Weaviate 169.**
+
+Qdrant was rebuilt 2026-08-06/07. Its previous 115 chunks were **96%
+third-party** — `cohorte.co`, Medium, `towardsai` — because it predates Task
+0.3b's vendor-domain enforcement and was never in the purge list. 111 were
+purged, then 29 Deep Research seed URLs re-ingested: 397 chunks, 53
+near-duplicates removed, 344 remaining. **The other 14 companies still carry
+un-purged third-party chunks; do not add one to `ANSWERABLE` without purging
+and re-ingesting it first.** Vald has 9 chunks and would abstain always.
 
 ---
 
@@ -136,13 +147,23 @@ lies to the rep about the corpus and corrupts the only claim this product makes.
 `_self_check()` asserts this for all four, and `_NOT_ABSTENTION` is the shared
 string that carries it.
 
-This is not theory. The same shape has now been found **eight times** across
-Phase 0 and A2 — a falsy return or a degraded path conflating "failed" with
+This is not theory. The same shape has now been found **eleven times** across
+Phase 0, A2 and A3 — a falsy return or a degraded path conflating "failed" with
 "found nothing": an 87% SEO corpus, Firecrawl 429s, Gemini quota, Groq keys, an
 empty corpus∩ANSWERABLE reported as "I don't recognize that competitor", a DB
 blip reported as "nobody told me which company we are", a self-check claiming
-"offline" while connected, and `busy` charging quota it never spent. **When
-reviewing anything here, look for it first.**
+"offline" while connected, `busy` charging quota it never spent, and three found
+during A3:
+
+- a **per-minute** Gemini 429 reported as "all API keys exhausted for today",
+  aborting a resumable run (`ingest/embedder.py:80`)
+- an **Atlas index rebuild** during a large write degrading retrieval for
+  untouched companies, surfacing as `confidence: none`
+- the abstention message itself: **"no evidence found on their pages" is the
+  wrong cause** for both measured failure modes — one needs a topic noun, the
+  other needs a second corpus
+
+**When reviewing anything here, look for it first.**
 
 ---
 
@@ -165,13 +186,57 @@ Two more habits that earned their place:
 
 ## Open items, none blocking
 
-- **The comparative-question gap** — the A2 finding, and A3's main question.
-  Pronoun-laden questions abstain; explicit-topic ones answer. Retrieval, not
-  the model (every abstention fired in <2s, before any LLM call). **Do not tune
-  `SCORE_FLOOR` off n=2.**
+- ~~**The comparative-question gap** — pronoun-laden questions abstain;
+  retrieval, not the model.~~ **DEAD. Disproved 2026-08-08 by A3.** Left visible
+  because it was wrong in an instructive way.
+
+  All 13 abstentions in `ask_log` were re-scored against a quiet index:
+  **11 of 13 retrieve evidence ABOVE `SCORE_FLOOR` and are rejected after the
+  LLM, at the citation gate.** Only 2 are genuine floor misses. The A2 rows that
+  produced the hypothesis score 0.8866 and 0.8654 — both above the floor. A2
+  inferred "before any LLM call" from sub-2s latency; that inference was wrong,
+  and latency is a useless proxy for which gate fired, because Groq queueing
+  spans 0.38s–60.57s on identical inputs.
+
+  **Do not tune `SCORE_FLOOR`.** Not because n is small — because it is the
+  wrong layer entirely.
+
+  Two failure modes, wanting different fixes:
+  1. **Floor miss (2/13)** — question has no concrete topic noun ("does it get
+     expensive once you actually grow"). Rephrasing fixes it: 0.8327 → 0.8991.
+  2. **Citation gate (11/13)** — evidence retrieved, nothing citable.
+     Rephrasing does *not* fix it. Mostly questions needing cross-vendor
+     material, which no single vendor page can support.
+
+- **THE CITATION GATE IS NON-DETERMINISTIC — start A4 here.**
+  `weaviate what are their support tiers` retrieves 0.9182 every time and has
+  returned `none` (2.4s), `none` (2.83s), and `evidence` with 4 citations. Same
+  question, same corpus, same score. `call_llm` is temperature 0.1 — low, not
+  zero. For a product whose only claim is trustworthy abstention, a coin-flip
+  gate is worse than a strict one: "no evidence on their pages" is a factual
+  assertion about the corpus, and it was false on a third of identical attempts.
+
+- **Real-question answer rate is 51%, against 100% on Phase 1's 44-query eval.**
+  The eval was not wrong; it was shaped unlike questions people type. This is
+  the argument for building `eval/ask_eval.py` out of `ask_log`'s real rows
+  rather than authoring fresh ones.
+
+- **`embed_missing_chunks` misreports transient rate limits as "all API keys
+  exhausted for today"** (`ingest/embedder.py:80` treats `"plan and billing"` as
+  a daily-quota signal, but per-minute 429s carry it too). It burns a key
+  rotation then aborts, skipping the `[5, 15, 45]` backoff. Workaround: run it
+  again, it is resumable. The docs' "~1K embeds/day/key" was never the binding
+  constraint.
+
+- **A large write to `rag_chunks` degrades retrieval for untouched companies**
+  while the shared Atlas index settles, and it surfaces as `confidence: none` —
+  an abstention that lies about the corpus. Confirmed twice. **Never ask
+  questions during an ingest and count the answers.**
 - **PLAN_A's "under 10 seconds" A2 criterion is not achievable** on a free Groq
   key — measured median is 13–20s. The spec is wrong, not the measurement; the
-  ack copy promises 20–30s.
+  ack copy promises 20–30s. A3 widened the observed range to **0.38s–60.57s**,
+  including 2.95s and 60.57s for the *same* question. Never read a single
+  timing as signal.
 - **`call_llm` is `@lru_cache`d** — identical questions return instantly and free.
   Verify no socket growth in the long-lived server process.
 - **A redeploy kills in-flight answers**: rep sees "Checking…" then nothing.
