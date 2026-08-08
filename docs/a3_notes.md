@@ -162,7 +162,9 @@ direct evidence for whether the gap is retrieval or prompt.
 
 | Date | Asked (abstained) | Rephrased (answered) |
 |---|---|---|
-| 2026-08-07 | `pinecone what do you know about migration` — 0.8428, below floor | `how do I migrate to pinecone` — 0.8875, passes | 
+| 2026-08-07 | `pinecone what do you know about migration` — 0.8428, below floor | `how do I migrate to pinecone` — 0.8875, passes |
+| 2026-08-08 | `pinecone does it get expensive once you actually grow` — 0.8327, below floor | `how do read and write units get billed` — 0.8991, evidence |
+| 2026-08-08 | `qdrant how does their pricing model differ from Atlas` — 0.8743, passes floor, gate rejects | none found — rephrasing does not help, needs two corpora |
 
 Same information need, same corpus, opposite outcomes at the retrieval floor.
 The abstaining version carries no entity and no topic anchor beyond the company
@@ -258,6 +260,52 @@ the strongest argument in this file for A4 building `eval/ask_eval.py` out of
 these 23 rows rather than authoring fresh ones.
 
 Criterion 2 (≥10 real questions) is **met** at 23.
+
+### Day 2, pairs 3–4 — the two failure modes separate cleanly
+
+| Question | Floor | Result | Cites |
+|---|---|---|---|
+| `pinecone what happens if it goes down and i need help` (vague) | 0.8587 | **evidence** | 4 |
+| `pinecone what is their uptime SLA` (explicit) | 0.8781 | **evidence** | 1 |
+| `pinecone does it get expensive once you actually grow` (vague) | 0.8327 | none | – |
+| `pinecone how do read and write units get billed` (explicit) | 0.8991 | **evidence** | 2 |
+
+**Pair 3 buries the phrasing hypothesis for good.** Both answered, and the
+*vague* one scored lower at retrieval (0.8587) yet produced the better answer —
+4 citations covering multi-AZ, the 99.95% SLA, a 4-hour RTO and backup/restore,
+against 1 citation for the explicit version. **Retrieval score does not predict
+answer quality.**
+
+**Two distinct failure modes, now cleanly separated across 6 abstentions:**
+
+**1 · Floor miss (2 of 6) — no concrete topic noun.**
+`what do you know about migration` (0.8428) · `does it get expensive once you
+actually grow` (0.8327). Both fire in under 0.5s, pre-LLM. Neither carries a
+noun retrieval can anchor on — "expensive" and "grow" are not words on a pricing
+page; "read units" and "write units" are. **Rephrasing fixes these**, and the
+rephrase pairs prove it: 0.8327 → 0.8991, 0.8428 → 0.8875.
+
+**2 · Post-LLM citation gate (4 of 6) — evidence retrieved, nothing citable.**
+`is it easy to migrate from pinecone than us` (0.8707) · `what about the
+scalability and security of pinecone` (0.8916) · `how does their pricing model
+differ from Atlas` (0.8743, twice) · `they said theyre cheaper is that true`
+(0.8874). **Rephrasing does not fix these.** Three of the four need cross-vendor
+material; the fourth asks two topics at once.
+
+These want different fixes and A4 should not conflate them. Mode 1 is a
+retrieval/UX problem — arguably the reply should say "try naming the topic",
+not "no evidence exists". Mode 2 needs evidence assembled from two corpora, and
+until it can be, the message is actively misleading: it says "no evidence on
+their pages" when the truth is "I cannot cite a comparison from one side".
+
+### Running score (2026-08-08, day 2)
+
+```
+29 slack rows · evidence 14 · none 13 · unknown_competitor 2
+reached answer(): 27        answer rate: 14/27 = 51%
+```
+
+Against Phase 1's 100% on a 44-query eval. Criterion 2 met four times over.
 
 ### Friction note (not a product question)
 
