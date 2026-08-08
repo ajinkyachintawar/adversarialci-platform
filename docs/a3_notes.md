@@ -307,6 +307,53 @@ reached answer(): 27        answer rate: 14/27 = 51%
 
 Against Phase 1's 100% on a 44-query eval. Criterion 2 met four times over.
 
+### ALL 13 abstentions classified (2026-08-08) — the hypothesis is settled
+
+Every `confidence: none` row re-scored against a quiet index. No new questions
+needed; the data was already collected.
+
+```
+GATE  0.8866   1.17s | they said they're cheaper                  <- A2's own row
+GATE  0.8654   1.84s | how do they price compared to us           <- A2's own row
+GATE  0.8848   2.84s | what does their cloud cost
+GATE  0.9182    2.4s | what are their support tiers
+GATE  0.9182   2.83s | what are their support tiers
+GATE  0.8707   3.11s | is it easy to migrate from pinecone than us
+FLOOR 0.8428   0.45s | what do you know about migration
+GATE  0.8916  22.77s | what about the scalability and security of pinecone
+GATE  0.8972   1.55s | what quantization options do they support
+GATE  0.8743   2.95s | how does their pricing model differ from Atlas
+GATE  0.8874  10.86s | they said theyre cheaper is that true
+GATE  0.8743  60.57s | how does their pricing model differ from Atlas
+FLOOR 0.8327   0.38s | does it get expensive once you actually grow
+--- floor-miss 2 | citation-gate 11
+```
+
+**11 of 13 (85%) are post-LLM citation-gate rejections with retrieval evidence
+above the floor.** The A2 hypothesis is not merely unsupported — it is inverted,
+including on its own two original rows (0.8866 and 0.8654, both above floor).
+A2 inferred "retrieval, not the model" from sub-2s latency; that inference was
+wrong, and latency is a bad proxy for which gate fired because Groq queueing
+spans 0.38s to 60.57s.
+
+**Do not tune `SCORE_FLOOR`. It was never the problem.**
+
+### THE GATE IS NON-DETERMINISTIC — worst finding of the week
+
+`weaviate what are their support tiers`, retrieval 0.9182 every time:
+
+- 2026-08-06 → `none` (2.4s)
+- 2026-08-06 → `none` (2.83s)
+- 2026-08-06 18:02 → **`evidence`, 4 citations**
+
+Same question, same corpus, same retrieval score, three runs, two abstentions
+and one good answer. `call_llm` runs at temperature 0.1 — low, not zero.
+
+For a product whose entire claim is *trustworthy abstention*, a coin-flip gate
+is more damaging than a gate that is too strict. "No evidence on their pages" is
+a factual assertion about the corpus, and here it was false one-third of the
+time on the same input. This belongs at the top of A4.
+
 ### Friction note (not a product question)
 
 `what is their uptime SLA` → `unknown_competitor`. The company prefix was
