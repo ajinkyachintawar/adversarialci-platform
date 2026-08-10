@@ -1,6 +1,6 @@
 # EarshotCI — session handoff
 
-> Current state of the world. Written 2026-08-06, updated 2026-08-08 (A3 day 2).
+> Current state of the world. Written 2026-08-06, updated 2026-08-10 (A3 closed).
 > Read this first in a new
 > session, then the plan doc for whatever step you are on. Everything here is
 > verifiable from the repo — if it disagrees with the code, the code wins and
@@ -10,20 +10,34 @@
 
 ## Where things stand
 
-**A2 is complete and live in Slack.** Phases 0–1 (corpus + `answer()` +
-`POST /api/ask`) and A2 (the `/vs` slash command) are done, committed and
-measured. **A3 is running** — it is deliberately not a coding step, and it has
-already disproved the main hypothesis this project carried into it (see Open
-items). Nothing has been fixed in response, by design: a mid-week fix
-invalidates the week.
+**Phases 0–1, A2 and A3 are done. A4 is next: read `docs/EARSHOT_A4.md`.**
+
+A3 was a week of real use, not a coding step, and it earned its keep by
+disproving the hypothesis this project carried into it. Nothing was fixed during
+it, by design. **The single most important number it produced: the answer rate
+on real questions is 51%, against 100% on Phase 1's authored 44-query eval.**
+The eval was not wrong — it was shaped unlike the questions people type. That
+gap is why A4 builds its eval out of `ask_log` rather than authoring new
+questions.
+
+**The one question that closed A3**, asked unprompted two days after the last
+prompted batch, in a rep's own words — and it abstained:
+
+> `weaviate one of our tobe customer is asking is it easy to migrate to MongoDB than weaviate`
+
+Raw, it retrieves 0.8508 from Weaviate and 0.8543 from MongoDB and the gate
+rejects it. Decomposed into "how do you migrate data out of weaviate" (0.8726)
+and "migrate to Atlas from another vector database" (0.8791) it retrieves well
+from both. **The evidence exists; the system never asks for it properly.** That
+is A4's justification in one line.
 
 | Step | State |
 |---|---|
 | Phase 0 — corpus | done — `docs/EARSHOT_PHASE_0_1.md` |
 | Phase 1 — `answer()` + `/api/ask` | done — abstention 95%, answer rate 100% on a 44-query eval |
 | **A2 — Slack `/vs`** | **done, live** — `docs/EARSHOT_A2_SLACK.md` |
-| **A3 — use it for real** | **IN PROGRESS, Phase 3.** Plan `docs/EARSHOT_A3_USE.md` · findings `docs/a3_notes.md` · scoring runbook `docs/EARSHOT_A3_PHASE4.md`. Phases 0/1/2 done. Criteria 2 and 3 already met (27 real questions; 2 uncomfortable). **Only criterion 1 — "did you reach for it unprompted" — is open, and it needs calendar days, not more questions.** |
-| A4 — `eval/ask_eval.py` | blocked on A3 passing |
+| **A3 — use it for real** | **DONE 2026-08-10 — passed, but weakly.** Criterion 2: 28 real questions vs 10 needed. Criterion 3: 2 uncomfortable in 28 (7%) vs <20% allowed. **Criterion 1 passed on n=1** — one genuine unprompted question, two days after the last prompted batch. Thin, and recorded as thin. Findings `docs/a3_notes.md` · plan `docs/EARSHOT_A3_USE.md` · scoring `docs/EARSHOT_A3_PHASE4.md`. |
+| **A4 — eval, then query planning** | **NEXT — `docs/EARSHOT_A4.md`.** Start here. |
 
 Commits, newest first: `124a87f` icon · `dfc1039` A2 complete · `ee23927` Phase 5
 · `c802787` Phase 4 · `89cc128` Phase 3 · `adb92ee` Phases 1–2.
@@ -65,9 +79,10 @@ offers during setup are not used and should not be added.
 
 - **Slack app `EarshotCI`**, workspace `T0BND8Z5BCZ`, command `/vs`, icon set.
 - **`slack_workspaces`** holds `{team_id: "T0BND8Z5BCZ", my_company: "MongoDB"}`.
-- **`ask_log`** holds 29 real `source: "slack"` rows plus 2 older `source:
-  "api"` (2026-08-08). 27 reached `answer()`: 14 `evidence`, 13 `none` — a **51%
+- **`ask_log`** holds 30 real `source: "slack"` rows plus 2 older `source:
+  "api"` (2026-08-10). 28 reached `answer()`: 14 `evidence`, 14 `none` — a **~50%
   answer rate on real questions, against 100% on Phase 1's 44-query eval.**
+  **This collection is A4's test set. Do not clear it.**
 - **Render IS deployed, on the existing `adversarialci-api` Starter service**
   (2026-08-06, A3 Phase 2). ngrok is gone. Request URL is
   `https://adversarialci-api.onrender.com/slack/vs`.
