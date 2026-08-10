@@ -39,8 +39,9 @@ is A4's justification in one line.
 | **A3 — use it for real** | **DONE 2026-08-10 — passed, but weakly.** Criterion 2: 28 real questions vs 10 needed. Criterion 3: 2 uncomfortable in 28 (7%) vs <20% allowed. **Criterion 1 passed on n=1** — one genuine unprompted question, two days after the last prompted batch. Thin, and recorded as thin. Findings `docs/a3_notes.md` · plan `docs/EARSHOT_A3_USE.md` · scoring `docs/EARSHOT_A3_PHASE4.md`. |
 | **A4 — eval, then query planning** | **NEXT — `docs/EARSHOT_A4.md`.** Start here. |
 
-Commits, newest first: `124a87f` icon · `dfc1039` A2 complete · `ee23927` Phase 5
-· `c802787` Phase 4 · `89cc128` Phase 3 · `adb92ee` Phases 1–2.
+Commits, newest first: `e6ac04e` A4 written · `189afb6` handoff + Phase 4 runbook
+· `7ae3183` all abstentions classified · `10e1c68` two failure modes ·
+`c5643b9` A2 hypothesis disproved · `481f9d2` Qdrant rebuilt · `dfc1039` A2 complete.
 
 ---
 
@@ -93,8 +94,9 @@ offers during setup are not used and should not be added.
   with zero deletions. Two consequences: a redeploy restarts AdversarialCI too,
   and `call_llm`'s `@lru_cache` now applies to AdversarialCI's agent layer.
 
-  **Do not merge `earshot` into `main` until A3 passes.** A3 can legitimately
-  end in "stop"; the branch switch is one dropdown to revert, a merge is not.
+  **A3 has now passed, so the "revert if A3 says stop" reason is spent — but do
+  not merge `earshot` into `main` yet.** Merge when A4 ships something worth
+  merging. The branch switch is still one dropdown to revert; a merge is not.
 
 **Corpus.** Answerable, i.e. in `ANSWERABLE` in `slack/app.py`, all 100%
 first-party: **MongoDB 445 (us), Qdrant 344, Pinecone 207, Weaviate 169.**
